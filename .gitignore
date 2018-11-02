@@ -1,3 +1,6 @@
 obj/
 bin/
 .vscode/
+Pravda.dll
+*.exe
+*.exe.mdb

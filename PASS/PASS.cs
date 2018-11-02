@@ -53,6 +53,73 @@ namespace Expload {
         // Mapping storing assets' in-game descriptions
         public Mapping<UInt64, string> ItemDescs =
             new Mapping<UInt64, string>();
+
+        /*
+        Permission-checkers
+        */
+
+        // Checks if caller is the owner of the contract
+        // (if it's a call from game's server)
+        private void assertIsGameOwner(){
+            if (Info.Sender() != Info.ProgramAddress()){
+                Error.Throw("Only owner of the program can do that.");
+            }
+        }
+
+        // Checks if caller is owner of the specified asset
+        private void assertIsAssetOwner(UInt64 assetId){
+            if (Owners.getDefault(assetId, Bytes.EMPTY) != Info.Sender()){
+                Error.Throw("Only owner of the asset can do that.");
+            }
+        }
+
+        /*
+        Interaction with the storage
+        */
+
+        public UInt64 EmitAsset(Asset asset, Bytes owner){
+            // Only the gameserver (or owner) can emit assets
+            assertIsGameOwner();
+            // Getting item's blockchain id
+            var id = lastId++;
+
+            // Putting all assets's class fields
+            // into the storage
+            Owners.put(id, owner);
+            GameIds.put(id, asset.gameId);
+            Sellability.put(id, asset.XCoinSellable);
+            ItemNames.put(id, asset.ItemName);
+            ItemDescs.put(id, asset.ItemDesc);
+
+            return id;
+        }
+
+        public UInt64 EmitAsset(UInt32 gameId, bool XCoinSellable,
+            string ItemName, string ItemDesc, Bytes owner){
+            // Only the gameserver (or owner) can emit assets
+            assertIsGameOwner();
+            // Getting item's blockchain id
+            var id = lastId++;
+
+            // Putting all assets's class fields
+            // into the storage
+            Owners.put(id, owner);
+            GameIds.put(id, gameId);
+            Sellability.put(id, XCoinSellable);
+            ItemNames.put(id, ItemName);
+            ItemDescs.put(id, ItemDesc);
+
+            return id;
+        }
+
+        public void TransferAsset(UInt64 id, Bytes to){
+            // Only the asset owner can give it
+            // to someone else
+            assertIsAssetOwner(id);
+
+            // Passing the ownership
+            Owners.put(id, to);
+        }
     }
 
     public class Asset {
@@ -79,12 +146,11 @@ namespace Expload {
         public bool XCoinSellable;
 
         // Asset's metadata for UI
-        public object meta = new {
-            // Asset's in-game name
-            ItemName = (string) null,
-            // Asset's description
-            ItemDesc = (string) null,
-        };
+
+        // Asset's in-game name
+        public string ItemName;
+        // Asset's description
+        public string ItemDesc;
     }
 
     public class Lot {
