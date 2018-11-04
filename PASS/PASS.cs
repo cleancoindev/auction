@@ -25,7 +25,7 @@ namespace Expload {
         public static void Main() { }
 
         // Last id given to an asset
-        public UInt64 lastId;
+        public UInt32 lastId;
 
         /*
         As Pravda blockchain doesn't currently support
@@ -34,25 +34,25 @@ namespace Expload {
         */
 
         // Mapping storing the owners of assets
-        public Mapping<UInt64, Bytes> Owners =
-            new Mapping<UInt64, Bytes>();
+        public Mapping<UInt32, Bytes> Owners =
+            new Mapping<UInt32, Bytes>();
 
         // Mapping storing the assets' game ids
-        public Mapping<UInt64, UInt32> GameIds =
-            new Mapping<UInt64, UInt32>();
+        public Mapping<UInt32, UInt32> GameIds =
+            new Mapping<UInt32, UInt32>();
 
         // Mapping storing assets' sellability types
         // (If they can be sold for XCoin or not)
-        public Mapping<UInt64, bool> Sellability =
-            new Mapping<UInt64, bool>();
+        public Mapping<UInt32, bool> Sellability =
+            new Mapping<UInt32, bool>();
 
         // Mapping storing assets' in-game names
-        public Mapping<UInt64, string> ItemNames =
-            new Mapping<UInt64, string>();
+        public Mapping<UInt32, string> ItemNames =
+            new Mapping<UInt32, string>();
 
         // Mapping storing assets' in-game descriptions
-        public Mapping<UInt64, string> ItemDescs =
-            new Mapping<UInt64, string>();
+        public Mapping<UInt32, string> ItemDescs =
+            new Mapping<UInt32, string>();
 
         /*
         Permission-checkers
@@ -67,7 +67,7 @@ namespace Expload {
         }
 
         // Checks if caller is owner of the specified asset
-        private void assertIsAssetOwner(UInt64 assetId){
+        private void assertIsAssetOwner(UInt32 assetId){
             if (Owners.getDefault(assetId, Bytes.EMPTY) != Info.Sender()){
                 Error.Throw("Only owner of the asset can do that.");
             }
@@ -77,7 +77,7 @@ namespace Expload {
         Interaction with the storage
         */
 
-        public UInt64 EmitAsset(Asset asset, Bytes owner){
+        public UInt32 EmitAsset(Asset asset, Bytes owner){
             // Only the gameserver (or owner) can emit assets
             assertIsGameOwner();
             // Getting item's blockchain id
@@ -94,25 +94,7 @@ namespace Expload {
             return id;
         }
 
-        public UInt64 EmitAsset(UInt32 gameId, bool XCoinSellable,
-            string ItemName, string ItemDesc, Bytes owner){
-            // Only the gameserver (or owner) can emit assets
-            assertIsGameOwner();
-            // Getting item's blockchain id
-            var id = lastId++;
-
-            // Putting all assets's class fields
-            // into the storage
-            Owners.put(id, owner);
-            GameIds.put(id, gameId);
-            Sellability.put(id, XCoinSellable);
-            ItemNames.put(id, ItemName);
-            ItemDescs.put(id, ItemDesc);
-
-            return id;
-        }
-
-        public void TransferAsset(UInt64 id, Bytes to){
+        public void TransferAsset(UInt32 id, Bytes to){
             // Only the asset owner can give it
             // to someone else
             assertIsAssetOwner(id);
@@ -130,7 +112,7 @@ namespace Expload {
         // Blockchain asset id
         // E.g. two identical in-game swords
         // Have different blockchain id
-        public UInt64 id;
+        public UInt32 id;
 
         // Game's internal asset id
         // E.g. two identical in-game swords

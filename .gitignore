@@ -4,3 +4,4 @@ bin/
 Pravda.dll
 *.exe
 *.exe.mdb
+*.pdb
