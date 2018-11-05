@@ -77,7 +77,8 @@ namespace Expload {
         Interaction with the storage
         */
 
-        public UInt32 EmitAsset(Asset asset, Bytes owner){
+        public UInt32 EmitAsset(UInt32 gameId, bool XCoinSellable,
+            string ItemName, string ItemDesc, Bytes owner){
             // Only the gameserver (or owner) can emit assets
             assertIsGameOwner();
             // Getting item's blockchain id
@@ -86,10 +87,10 @@ namespace Expload {
             // Putting all assets's class fields
             // into the storage
             Owners.put(id, owner);
-            GameIds.put(id, asset.gameId);
-            Sellability.put(id, asset.XCoinSellable);
-            ItemNames.put(id, asset.ItemName);
-            ItemDescs.put(id, asset.ItemDesc);
+            GameIds.put(id, gameId);
+            Sellability.put(id, XCoinSellable);
+            ItemNames.put(id, ItemName);
+            ItemDescs.put(id, ItemDesc);
 
             return id;
         }
