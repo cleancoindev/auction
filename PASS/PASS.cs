@@ -1,7 +1,7 @@
-namespace Expload {
+using Expload.Pravda;
+using System;
 
-    using Pravda;
-    using System;
+namespace PcallNamespace {
 
     [Program]
     public class PASS {
@@ -37,22 +37,42 @@ namespace Expload {
         public Mapping<UInt32, Bytes> Owners =
             new Mapping<UInt32, Bytes>();
 
+        public Bytes getOwner(UInt32 id){
+            return Owners.getDefault(id, Bytes.EMPTY);
+        }
+
         // Mapping storing the assets' game ids
         public Mapping<UInt32, UInt32> GameIds =
             new Mapping<UInt32, UInt32>();
+
+        public UInt32 getGameId(UInt32 id){
+            return GameIds.getDefault(id, 0);
+        }
 
         // Mapping storing assets' sellability types
         // (If they can be sold for XCoin or not)
         public Mapping<UInt32, bool> Sellability =
             new Mapping<UInt32, bool>();
 
+        public bool getSellability(UInt32 id){
+            return Sellability.getDefault(id, false);
+        }
+
         // Mapping storing assets' in-game names
         public Mapping<UInt32, string> ItemNames =
             new Mapping<UInt32, string>();
 
+        public string getItemName(UInt32 id){
+            return ItemNames.getDefault(id, "");
+        }
+
         // Mapping storing assets' in-game descriptions
         public Mapping<UInt32, string> ItemDescs =
             new Mapping<UInt32, string>();
+
+        public string getItemDesc(UInt32 id){
+            return ItemDescs.getDefault(id, "");
+        }
 
         /*
         Permission-checkers
