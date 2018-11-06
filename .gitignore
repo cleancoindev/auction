@@ -1,8 +1,10 @@
 obj/
 bin/
 .vscode/
-Pravda.dll
+*.dll
 *.exe
 *.exe.mdb
 *.pdb
 *.pravda
+pravda-data/
+venv/
