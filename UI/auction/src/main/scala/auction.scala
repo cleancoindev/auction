@@ -34,15 +34,18 @@ object SimpleExample extends KorolevBlazeServer {
               "Мои предметы"
             ),
             'div(
+              'class /= "columns"
+            ),
+            'div(
               'class /= "tile is-ancestor",
-              (1 to 4) map {
+              (1 to 5) map {
                 x =>
                   'div(
-                    'class /= "tile is-3 is-vertical",
-                    (1 to 4) map {
+                    'class /= "tile is-vertical",
+                    (1 to 5) map {
                       y =>
                         'div(
-                          'class /= "tile is-3 is-parent",
+                          'class /= "tile is-parent",
                           'div(
                             'class /= "tile is-child",
                             event('mouseover) { access =>
@@ -64,55 +67,79 @@ object SimpleExample extends KorolevBlazeServer {
           )
         )
       case state: MyLots =>
-        mainLayout(state,   
+        mainLayout(state,
           'div(
-            'class /= "notification",
-            'height @= "100%",
-            'h3(
-              'class /= "title is-3",
-              "Мои предметы"
-            ),
+            'class /= "container",
             'div(
-              'class /= "tile is-ancestor",
-              (1 to 4) map {
-                x =>
-                  'div(
-                    'class /= "tile is-3 is-vertical",
-                    (1 to 4) map {
-                      y =>
+              'class /= "notification",
+              'height @= "100%",
+              'h3(
+                'class /= "title is-3",
+                "Мои лоты"
+              ),
+              'div(
+                'class /= "",
+                (1 to 5) map {
+                  x =>
+                    'div(
+                      'class /= "notification",
+                      'backgroundColor @= "#e0e0e0",
+                      'article(
+                        'class /= "media",
+                        'figure(
+                          'class /= "media-left",
+                          'p(
+                            'class /= "image is-128x128",
+                            'img(
+                              'src /= "https://bulma.io/images/placeholders/256x256.png"
+                            )
+                          )
+                        ),
                         'div(
-                          'class /= "tile is-3 is-parent",
+                          'class /= "media-content",
                           'div(
-                            'class /= "tile is-child",
-                            event('mouseover) { access =>
-                              access.transition(_ => MyItems())
-                                .flatMap(_ => access.evalJs("console.log('u pwned lol');").map(_ => ()))
-                            },
-                            'figure(
-                              'class /= "image is-128x128",
-                              'img(
-                                'src /= "https://bulma.io/images/placeholders/128x128.png"
+                            'class /= "content",
+                            'p(
+                              'strong(
+                                "Меч судьбы"
+                              )
+                            )
+                          )
+                        ),
+                        'div(
+                          'class /= "media-right",
+                          'a(
+                            'class /= "button is-danger",
+                            'span(
+                              "Удалить"
+                            ),
+                            'span(
+                              'class /= "icon is-small",
+                              'i(
+                                'class /= "fas fa-times"
                               )
                             )
                           )
                         )
-                    }
-                  )
-              }
+                      )
+                    )
+                }
+              ),
+              'br(),
+              paginationMyLots(state)
             )
           )
         )
       case state: Auction =>
         mainLayout(state,
           'div(
-            'class /= "notification",
             'height @= "100%",
             'h3(
               'class /= "title is-3",
               "Торговая площадка"
             ),
             'div(
-              'class /= "notification is-primary",
+              'class /= "notification",
               'p(
                 'class /= "control has-icons-left",
                 'input(
@@ -134,14 +161,14 @@ object SimpleExample extends KorolevBlazeServer {
               'div(
                 'class /= "column is-9",
                 'div(
-                  'class /= "notification is-info",
+                  'class /= "notification",
                   "Heeeeeeeeey"
                 )
               ),
               'div(
                 'class /= "column is-3",
                 'div(
-                  'class /= "notification is-info",
+                  'class /= "notification",
                   "11er"
                 )
               )
@@ -198,7 +225,7 @@ object SimpleExample extends KorolevBlazeServer {
                 case _ =>
                   "navbar-item"
               }),
-              "My Items",
+              "Мои предметы",
               event('click) { access =>
                 access.transition(_ => MyItems())
               }
@@ -210,7 +237,7 @@ object SimpleExample extends KorolevBlazeServer {
                 case _ =>
                   "navbar-item"
               }),
-              "My Lots",
+              "Мои лоты",
               event('click) { access =>
                 access.transition(_ => MyLots())
               }
@@ -222,7 +249,7 @@ object SimpleExample extends KorolevBlazeServer {
                 case _ =>
                   "navbar-item"
               }),
-              "Auction",
+              "Аукцион",
               event('click) { access =>
                 access.transition(_ => Auction())
               }
@@ -252,6 +279,73 @@ object SimpleExample extends KorolevBlazeServer {
       'section(
         'class /= "section",
         content
+      )
+    )
+  }
+
+  private def paginationMyLots(state: MyLots) = {
+    'nav(
+      'class /= "pagination is-centered",
+      'role /= "navigation",
+      'ariaLabel /= "pagination",
+      'a(
+        'class /= "pagination-previous",
+        "Previous"
+      ),
+      'a(
+        'class /= "pagination-next",
+        "Next page"
+      ),
+      'ul(
+        'class /= "pagination-list",
+        'li(
+          'a(
+            'class /= "pagination-link",
+            'ariaLabel /= "Goto page 1",
+            "1"
+          )
+        ),
+        'li(
+          'span(
+            'class /= "pagination-ellipsis",
+            "…"
+          )
+        ),
+        'li(
+          'a(
+            'class /= "pagination-link",
+            'ariaLabel /= "Goto page 45",
+            "45"
+          )
+        ),
+        'li(
+          'a(
+            'class /= "pagination-link is-current",
+            'ariaLabel /= "Page 46",
+            'ariaCurrent /= "page",
+            "46"
+          )
+        ),
+        'li(
+          'a(
+            'class /= "pagination-link",
+            'ariaLabel /= "Goto page 47",
+            "47"
+          )
+        ),
+        'li(
+          'span(
+            'class /= "pagination-ellipsis",
+            "…"
+          )
+        ),
+        'li(
+          'a(
+            'class /= "pagination-link",
+            'ariaLabel /= "Goto page 86",
+            "86"
+          )
+        )
       )
     )
   }
