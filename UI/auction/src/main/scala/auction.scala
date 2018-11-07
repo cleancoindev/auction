@@ -34,35 +34,145 @@ object SimpleExample extends KorolevBlazeServer {
             "Мои предметы"
           ),
           'div(
-            'class /= "columns"
-          ),
-          'div(
-            'class /= "tile is-ancestor",
-            (1 to 5) map {
-              x =>
-                'div(
-                  'class /= "tile is-vertical",
-                  (1 to 5) map {
-                    y =>
-                      'div(
-                        'class /= "tile is-parent",
-                        'div(
-                          'class /= "tile is-child",
-                          event('mouseover) { access =>
-                            access.transition(_ => MyItems())
-                              .flatMap(_ => access.evalJs("console.log('u pwned lol');").map(_ => ()))
-                          },
-                          'figure(
-                            'class /= "image is-128x128",
-                            'img(
-                              'src /= "https://bulma.io/images/placeholders/128x128.png"
+            'class /= "columns",
+            'div(
+              'class /= "column is-8",
+              'div(
+                'class /= "tile is-ancestor",
+                (1 to 5) map {
+                  x =>
+                    'div(
+                      'class /= "tile is-vertical",
+                      (1 to 4) map {
+                        y =>
+                          'div(
+                            'class /= "tile is-parent",
+                            'div(
+                              'class /= "tile is-child",
+                              'div(
+                                'figure(
+                                  'class /= "image is-128x128",
+                                  event('click) { access =>
+                                    access.transition(_ => MyItems())
+                                      .flatMap(_ => access.evalJs("alert('u pwned lol');").map(_ => ()))
+                                  },
+                                  'img(
+                                    'src /= "https://bulma.io/images/placeholders/128x128.png"
+                                  )
+                                ),
+                                'span(
+                                  'position @= "relative",
+                                  'top @= "-1.5rem",
+                                  //x + ", " + y + ": " + ((y - 1) * 5 + x - 1)
+                                )
+                              )
                             )
                           )
-                        )
-                      )
-                  }
+                      }
+                    )
+                }
+              ),
+              'br(),
+              paginationMyLots(state)
+            ),
+            'div(
+              'class /= "column is-4",
+              'div(
+                'class /= "notification",
+                'backgroundColor @= "#e0e0e0",
+                'height @= "100%",
+                'width @= "100%",
+                'div(
+                  'display @= "flex",
+                  'flexFlow @= "column",
+                  'height @= "100%",
+                  'figure(
+                    'class /= "image is-4by3",
+                    'img(
+                      'src /= "https://bulma.io/images/placeholders/640x480.png"
+                    )
+                  ),
+                  'br(),
+                  'span(
+                    'strong(
+                      "Меч судьбы"
+                    )
+                  ),
+                  'span(
+                    'strong(
+                      "100 GameTokens"
+                    )
+                  ),
+                  'div(
+                    'flexGrow @= "1",
+                    'position @= "relative",
+                    'a(
+                      'position @= "absolute",
+                      'bottom @= "0",
+                      'class /= "button is-warning",
+                      'span(
+                        "Продать"
+                      ),
+                      event('click) { access =>
+                        access.transition(_ => MyItems(true))
+                      }
+                    )
+                  )
                 )
-            }
+              )
+            )
+          ),
+        ),
+        'div(
+          'class /= "modal" + (if (state.isSelling) {" is-active"} else {""}),
+          'div(
+            'class /= "modal-background",
+            'backgroundColor @= "rgba(0,0,0,0)"
+          ),
+          'div(
+            'class /= "modal-content",
+            'div(
+              'class /= "box",
+              'article(
+                'class /= "media",
+                'div(
+                  'class /= "media-content",
+                  'div(
+                    'class /= "content",
+                    'div(
+                      'span(
+                        'strong(
+                          "Меч судьбы"
+                        )
+                      ),
+                      'br(),
+                      'a(
+                        'class /= "button is-warning",
+                        'span(
+                          "Продать"
+                        ),
+                        /*event('click) { access =>
+                          access.transition(_ => MyItems())
+                        }*/
+                      )
+                    )
+                  )
+                ),
+                'div(
+                  'class /= "media-right",
+                  'button(
+                    'class /= "delete",
+                    event('click) { access =>
+                      access.transition(_ => MyItems())
+                    }
+                  )
+                )
+              )
+            )
+          ),
+          'button(
+            'class /= "modal-close is-large",
+            'ariaLabel /= "close"
           )
         )
       )
@@ -87,85 +197,6 @@ object SimpleExample extends KorolevBlazeServer {
                 'i(
                   'class /= "fas fa-search",
                   'ariaHidden /= "true"
-                )
-              )
-            ),
-            'br(),
-            'div(
-              (1 to 3) map {
-                x =>
-                  'div(
-                    'class /= "notification",
-                    'backgroundColor @= "#e0e0e0",
-                    'article(
-                      'class /= "media",
-                      'figure(
-                        'class /= "media-left",
-                        'p(
-                          'class /= "image is-128x128",
-                          'img(
-                            'src /= "https://bulma.io/images/placeholders/256x256.png"
-                          )
-                        )
-                      ),
-                      'div(
-                        'class /= "media-content",
-                        'div(
-                          'class /= "content",
-                          'p(
-                            'strong(
-                              "Меч судьбы"
-                            )
-                          )
-                        )
-                      ),
-                      'div(
-                        'class /= "media-right",
-                        'a(
-                          'class /= "button is-danger",
-                          'span(
-                            "Удалить"
-                          ),
-                          'span(
-                            'class /= "icon is-small",
-                            'i(
-                              'class /= "fas fa-times"
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-              }
-            ),
-            'br(),
-            paginationMyLots(state)
-          )
-        )
-      case state: Auction =>
-        mainLayout(state,
-          'div(
-            'class /= "notification",
-            'height @= "100%",
-            'h3(
-              'class /= "title is-3",
-              "Торговая площадка"
-            ),
-            'div(
-              'class /= "",
-              'p(
-                'class /= "control has-icons-left",
-                'input(
-                  'class /= "input is-small",
-                  'type /= "text",
-                  'placeholder /= "search"
-                ),
-                'span(
-                  'class /= "icon is-small is-left",
-                  'i(
-                    'class /= "fas fa-search",
-                    'ariaHidden /= "true"
-                  )
                 )
               )
             ),
@@ -196,7 +227,7 @@ object SimpleExample extends KorolevBlazeServer {
                             'div(
                               'class /= "media-content",
                               'div(
-                                'class /= "content",
+                                'судьбыclass /= "content",
                                 'p(
                                   'strong(
                                     "Меч судьбы"
@@ -207,9 +238,9 @@ object SimpleExample extends KorolevBlazeServer {
                             'div(
                               'class /= "media-right",
                               'a(
-                                'class /= "button is-success",
+                                'class /= "button is-danger",
                                 'span(
-                                  "Купить"
+                                  "Удалить"
                                 )
                               )
                             )
@@ -230,6 +261,152 @@ object SimpleExample extends KorolevBlazeServer {
                   "Filter"
                 )
               )
+            )
+          )
+        )
+      case state: Auction =>
+        mainLayout(state,
+            'div(
+              'class /= "notification",
+              'height @= "100%",
+              'h3(
+                'class /= "title is-3",
+                "Торговая площадка"
+              ),
+              'div(
+                'class /= "",
+                'p(
+                  'class /= "control has-icons-left",
+                  'input(
+                    'class /= "input is-small",
+                    'type /= "text",
+                    'placeholder /= "search"
+                  ),
+                  'span(
+                    'class /= "icon is-small is-left",
+                    'i(
+                      'class /= "fas fa-search",
+                      'ariaHidden /= "true"
+                    )
+                  )
+                )
+              ),
+              'br(),
+              'div(
+                'class /= "columns",
+                'div(
+                  'class /= "column is-9",
+                  'div(
+                    'class /= "",
+                    'div(
+                      (1 to 3) map {
+                        x =>
+                          'div(
+                            'class /= "notification",
+                            'backgroundColor @= "#e0e0e0",
+                            'article(
+                              'class /= "media",
+                              'figure(
+                                'class /= "media-left",
+                                'p(
+                                  'class /= "image is-128x128",
+                                  'img(
+                                    'src /= "https://bulma.io/images/placeholders/256x256.png"
+                                  )
+                                )
+                              ),
+                              'div(
+                                'class /= "media-content",
+                                'div(
+                                  'class /= "content",
+                                  'p(
+                                    'strong(
+                                      "Меч судьбы"
+                                    )
+                                  )
+                                )
+                              ),
+                              'div(
+                                'class /= "media-right",
+                                'a(
+                                  'class /= "button is-success",
+                                  'span(
+                                    "Купить"
+                                  ),
+                                  event('click) { access =>
+                                    access.transition(_ => Auction(true))
+                                  }
+                                )
+                              )
+                            )
+                          )
+                      }
+                    )
+                  ),
+                  'br(),
+                  paginationMyLots(state)
+                ),
+                'div(
+                  'class /= "column is-3",
+                  'div(
+                    'class /= "notification",
+                    'backgroundColor @= "#e0e0e0",
+                    'height @= "100%",
+                    "Filter"
+                  )
+                )
+              )
+            ),
+            'div(
+            'class /= "modal" + (if (state.isBuying) {" is-active"} else {""}),
+            'div(
+              'class /= "modal-background",
+              'backgroundColor @= "rgba(0,0,0,0)"
+            ),
+            'div(
+              'class /= "modal-content",
+              'div(
+                'class /= "box",
+                'article(
+                  'class /= "media",
+                  'div(
+                    'class /= "media-content",
+                    'div(
+                      'class /= "content",
+                      'div(
+                        'span(
+                          'strong(
+                            "Меч судьбы"
+                          )
+                        ),
+                        'br(),
+                        'a(
+                          'class /= "button is-success",
+                          'span(
+                            "Купить"
+                          ),
+                          /*event('click) { access =>
+                            access.transition(_ => MyItems())
+                          }*/
+                        )
+                      )
+                    )
+                  ),
+                  'div(
+                    'class /= "media-right",
+                    'button(
+                      'class /= "delete",
+                      event('click) { access =>
+                        access.transition(_ => Auction())
+                      }
+                    )
+                  )
+                )
+              )
+            ),
+            'button(
+              'class /= "modal-close is-large",
+              'ariaLabel /= "close"
             )
           )
         )
@@ -317,6 +494,14 @@ object SimpleExample extends KorolevBlazeServer {
             'class /= "navbar-end",
             'div(
               'class /= "navbar-item",
+              'div(
+                'marginRight @= "1rem",
+                'span(
+                  'strong(
+                    "1,234,567 GameTokens"
+                  )
+                )
+              ),
               'div(
                 'class /= "buttons",
                 'a(
