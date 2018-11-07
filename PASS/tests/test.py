@@ -2,6 +2,7 @@
 
 import unittest
 from subprocess import call, Popen, DEVNULL, check_output
+import signal
 import json
 import requests
 import time
@@ -10,12 +11,16 @@ import compile
 
 class TestPASS(unittest.TestCase):
 
-    self.pravda = None
+    # Pravda instance
+    pravda = None
+    # Result of setUp work
+    res = None
 
     # Set up Pravda once before running the TestCase
+    @classmethod
     def setUpClass(self):
         # Compile main & test contracts
-        compile.compile_contracts()
+        compile.compile_contracts(['emit', 'transfer'])
 
         # Delete current pravda blockchain data
         call(["rm", "-rf", "pravda-data"])
@@ -38,20 +43,53 @@ class TestPASS(unittest.TestCase):
                 return check_pravda_status()
         print("Pravda status: {}".format(str(check_pravda_status())))
 
-    # Set up new PASS contract for each test
-    def setUp(self):
         # Deploy smart-contract to Pravda
-        res = check_output(["pravda", "broadcast", "deploy", "--wallet", "test-wallet.json", "--input", "PASS.pravda"])
-        address = json.loads(res)["result"]["effects"][0]["address"]
-        print("Deployed contract address: {}".format(address))
+        res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/test-wallet.json", "-l", "9000000",
+                            "-i", "PASS.pravda", "--program-wallet", "wallets/program-wallet.json"])
 
+        print("Deployed PASS to Pravda")
+
+    # Set up particular contract test
+    def setUp(self):
+        # Get the name of the test
+        name = self._testMethodName[5:]
+        # Generate program wallet for the test
+        call(["pravda", "gen", "address", "-o", "wallets/{}-test-wallet.json".format(name)])
+
+        # Deploy the tester program
+        address = json.loads(check_output(
+            ["pravda", "broadcast", "deploy", "-w", "wallets/test-wallet.json", "-l", "9000000",
+             "-i", "pcalls/{}.pravda".format(name), "--program-wallet",
+             "wallets/{}-test-wallet.json".format(name)]))['effects'][0]['address']
+
+        print("{}.pravda deployed on {}".format(name, address))
+
+        # Run ASM code calling test program and save output to res
+        res = str(check_output(
+            'echo "push \\"test_{}\\" push x{} push 1 pcall"'.format(name, address) +
+            '| pravda compile asm |'+
+            'pravda broadcast run -w wallets/program-wallet.json -l 9000000 '+
+            '--program-wallet wallets/{}-test-wallet.json'.format(name), shell=True)) \
+            .replace('\\n', '')[2:-1]
+        self.res = json.loads(res)["executionResult"]["success"]["stack"]
+
+        # Clean up the program wallet
+        call(["rm", "-rf", "wallets/{}-test-wallet.json".format(name)])
+
+    # Test if assets can be emitted
     def test_emit(self):
-        pass
+        self.assertEqual(['int32.1'], self.res)
 
-    # Terminate Pravda after testing
+    # Test if assets can be transfered
+    def test_transfer(self):
+        self.assertEqual(['int32.1'], self.res)
+
+    @classmethod
     def tearDownClass(self):
+        # Terminate Pravda after testing
         print('Terminating pravda')
-        self.pravda.kill()
+        self.pravda.send_signal(signal.SIGINT)
+        self.pravda.wait()
 
 if __name__ == '__main__':
     unittest.main()

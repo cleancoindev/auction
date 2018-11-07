@@ -25,7 +25,7 @@ namespace PcallNamespace {
         public static void Main() { }
 
         // Last id given to an asset
-        public UInt32 lastId;
+        public UInt32 lastId = 0;
 
         /*
         As Pravda blockchain doesn't currently support
@@ -102,7 +102,7 @@ namespace PcallNamespace {
             // Only the gameserver (or owner) can emit assets
             assertIsGameOwner();
             // Getting item's blockchain id
-            var id = lastId++;
+            UInt32 id = ++lastId;
 
             // Putting all assets's class fields
             // into the storage

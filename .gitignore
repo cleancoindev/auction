@@ -8,3 +8,4 @@ bin/
 *.pravda
 pravda-data/
 venv/
+__pycache__/
