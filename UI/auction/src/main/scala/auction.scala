@@ -59,6 +59,7 @@ object SimpleExample extends KorolevBlazeServer {
                                     'figure(
                                       'class /= "image is-128x128",
                                       'backgroundColor @= "#cacaca",
+                                      'boxShadow @= (if (index == state.selectedItem) {"0 0 0 3px rgba(0,0,0,0.5)"} else {"none"}),
                                       if (index < total) {
                                         'div(
                                           event('click) { access => 
