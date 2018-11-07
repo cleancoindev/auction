@@ -3,11 +3,11 @@ import korolev.execution._
 import scala.concurrent.Future
 import korolev.state.javaSerialization._
 
-abstract class GuiState()
-case class MyItems(isSelling: Boolean = false) extends GuiState
-case class MyLots() extends GuiState
-case class Auction(isBuying: Boolean = false) extends GuiState
-
 object GuiState {
+  sealed trait GuiState
+  final case class MyItems(selectedItem:Int = 0, sellingItem: Option[GameItem] = None) extends GuiState
+  final case class MyLots(removingItem: Option[GameItem] = None) extends GuiState
+  final case class Auction(buyingItem: Option[GameItem] = None) extends GuiState
+
   val globalContext = Context[Future, GuiState, Any]
 }

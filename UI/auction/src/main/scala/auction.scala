@@ -8,6 +8,8 @@ import scala.concurrent.Future
 
 object SimpleExample extends KorolevBlazeServer {
 
+  import GuiState._
+  import GameItem._
   import GuiState.globalContext._
   import GuiState.globalContext.symbolDsl._
 
@@ -39,37 +41,50 @@ object SimpleExample extends KorolevBlazeServer {
               'class /= "column is-8",
               'div(
                 'class /= "tile is-ancestor",
-                (1 to 5) map {
-                  x =>
-                    'div(
-                      'class /= "tile is-vertical",
-                      (1 to 4) map {
-                        y =>
-                          'div(
-                            'class /= "tile is-parent",
-                            'div(
-                              'class /= "tile is-child",
+                {
+                  val total = GameItem.myItems.length
+                  (0 to 4) map {
+                    x =>
+                      'div(
+                        'class /= "tile is-vertical",
+                        (0 to 3) map {
+                          y =>
+                            {
+                              val index = y * 5 + x
                               'div(
-                                'figure(
-                                  'class /= "image is-128x128",
-                                  event('click) { access =>
-                                    access.transition(_ => MyItems())
-                                      .flatMap(_ => access.evalJs("alert('u pwned lol');").map(_ => ()))
-                                  },
-                                  'img(
-                                    'src /= "https://bulma.io/images/placeholders/128x128.png"
+                                'class /= "tile is-parent",
+                                'div(
+                                  'class /= "tile is-child",
+                                  'div(
+                                    'figure(
+                                      'class /= "image is-128x128",
+                                      'backgroundColor @= "#cacaca",
+                                      if (index < total) {
+                                        'div(
+                                          event('click) { access => 
+                                            access.transition(_ => state.copy(selectedItem = index))
+                                          },
+                                          'img(
+                                            'src /= {
+                                              val item = GameItem.myItems(index);
+                                              GameItem.items(item).previewImage
+                                            }
+                                          )
+                                        )
+                                      } else {'div()}
+                                    ),
+                                    'span(
+                                      'position @= "relative",
+                                      'top @= "-1.5rem",
+                                      //x + ", " + y + ": " + ((y - 1) * 5 + x - 1)
+                                    )
                                   )
-                                ),
-                                'span(
-                                  'position @= "relative",
-                                  'top @= "-1.5rem",
-                                  //x + ", " + y + ": " + ((y - 1) * 5 + x - 1)
                                 )
                               )
-                            )
-                          )
-                      }
-                    )
+                            }
+                        }
+                      )
+                  }
                 }
               ),
               'br(),
@@ -82,98 +97,81 @@ object SimpleExample extends KorolevBlazeServer {
                 'backgroundColor @= "#e0e0e0",
                 'height @= "100%",
                 'width @= "100%",
-                'div(
-                  'display @= "flex",
-                  'flexFlow @= "column",
-                  'height @= "100%",
-                  'figure(
-                    'class /= "image is-4by3",
-                    'img(
-                      'src /= "https://bulma.io/images/placeholders/640x480.png"
-                    )
-                  ),
-                  'br(),
-                  'span(
-                    'strong(
-                      "Меч судьбы"
-                    )
-                  ),
-                  'span(
-                    'strong(
-                      "100 GameTokens"
-                    )
-                  ),
+                if(state.selectedItem < GameItem.myItems.length) {
+                  val itemIndex = GameItem.myItems(state.selectedItem);
+                  val item = GameItem.items(itemIndex);
                   'div(
-                    'flexGrow @= "1",
-                    'position @= "relative",
-                    'a(
-                      'position @= "absolute",
-                      'bottom @= "0",
-                      'class /= "button is-warning",
-                      'span(
-                        "Продать"
-                      ),
-                      event('click) { access =>
-                        access.transition(_ => MyItems(true))
-                      }
-                    )
-                  )
-                )
-              )
-            )
-          ),
-        ),
-        'div(
-          'class /= "modal" + (if (state.isSelling) {" is-active"} else {""}),
-          'div(
-            'class /= "modal-background",
-            'backgroundColor @= "rgba(0,0,0,0)"
-          ),
-          'div(
-            'class /= "modal-content",
-            'div(
-              'class /= "box",
-              'article(
-                'class /= "media",
-                'div(
-                  'class /= "media-content",
-                  'div(
-                    'class /= "content",
+                    'display @= "flex",
+                    'flexFlow @= "column",
+                    'height @= "100%",
+                    'figure(
+                      'class /= "image is-4by3",
+                      'img(
+                        'src /= item.bigImage
+                      )
+                    ),
+                    'br(),
+                    'span(
+                      'strong(
+                        item.name
+                      )
+                    ),
+                    'span(
+                      'strong(
+                        "100 GameTokens"
+                      )
+                    ),
                     'div(
-                      'span(
-                        'strong(
-                          "Меч судьбы"
-                        )
-                      ),
-                      'br(),
+                      'flexGrow @= "1",
+                      'position @= "relative",
                       'a(
+                        'position @= "absolute",
+                        'bottom @= "0",
                         'class /= "button is-warning",
                         'span(
                           "Продать"
                         ),
-                        /*event('click) { access =>
-                          access.transition(_ => MyItems())
-                        }*/
+                        event('click) { access =>
+                          access.transition(_ => state.copy(sellingItem = Some(item)))
+                        }
                       )
                     )
                   )
-                ),
-                'div(
-                  'class /= "media-right",
-                  'button(
-                    'class /= "delete",
-                    event('click) { access =>
-                      access.transition(_ => MyItems())
-                    }
-                  )
-                )
+                } else{
+                  'div()
+                }
               )
             )
           ),
-          'button(
-            'class /= "modal-close is-large",
-            'ariaLabel /= "close"
-          )
+        ),
+        modal(
+          isActive = !(state.sellingItem eq None),
+          content = state.sellingItem match {
+            case Some(item) => {
+              'div(
+                'span(
+                  'strong(
+                    item.name
+                  )
+                ),
+                'br(),
+                'a(
+                  'class /= "button is-warning",
+                  'span(
+                    "Продать"
+                  ),
+                  /*event('click) { access =>
+                    access.transition(_ => MyItems())
+                  }*/
+                )
+              )
+            }
+            case None => {'div()}
+          },
+          onClose =
+            event('click) { access =>
+              access.transition(_ => state.copy(sellingItem = None))
+            }
         )
       )
     case state: MyLots =>
@@ -208,43 +206,13 @@ object SimpleExample extends KorolevBlazeServer {
                 'div(
                   'class /= "",
                   'div(
-                    (1 to 3) map {
-                      x =>
-                        'div(
-                          'class /= "notification",
-                          'backgroundColor @= "#e0e0e0",
-                          'article(
-                            'class /= "media",
-                            'figure(
-                              'class /= "media-left",
-                              'p(
-                                'class /= "image is-128x128",
-                                'img(
-                                  'src /= "https://bulma.io/images/placeholders/256x256.png"
-                                )
-                              )
-                            ),
-                            'div(
-                              'class /= "media-content",
-                              'div(
-                                'судьбыclass /= "content",
-                                'p(
-                                  'strong(
-                                    "Меч судьбы"
-                                  )
-                                )
-                              )
-                            ),
-                            'div(
-                              'class /= "media-right",
-                              'a(
-                                'class /= "button is-danger",
-                                'span(
-                                  "Удалить"
-                                )
-                              )
-                            )
-                          )
+                    (GameItem.myLots) map {
+                      x => 
+                        myLotsItem(
+                          GameItem.items(x),
+                          event('click) { access =>
+                            access.transition(_ => MyLots(Some(GameItem.items(x))))
+                          }
                         )
                     }
                   )
@@ -262,6 +230,43 @@ object SimpleExample extends KorolevBlazeServer {
                 )
               )
             )
+          ),
+          modal(
+            isActive = !(state.removingItem eq None),
+            content =
+              'div(
+                'span(
+                  'strong(
+                    "Вы уверены, что хотите убрать лот с продажи?"
+                  )
+                ),
+                'br(),
+                'div(
+                  'class /= "buttons",
+                  'a(
+                    'class /= "button is-danger",
+                    'span(
+                      "Удалить"
+                    ),
+                    /*event('click) { access =>
+                      access.transition(_ => MyItems())
+                    }*/
+                  ),
+                  'a(
+                    'class /= "button",
+                    'span(
+                      "Отмена"
+                    ),
+                    event('click) { access =>
+                      access.transition(_ => MyLots())
+                    }
+                  )
+                )
+              ),
+            onClose =
+              event('click) { access =>
+                access.transition(_ => MyLots())
+              }
           )
         )
       case state: Auction =>
@@ -299,46 +304,13 @@ object SimpleExample extends KorolevBlazeServer {
                   'div(
                     'class /= "",
                     'div(
-                      (1 to 3) map {
-                        x =>
-                          'div(
-                            'class /= "notification",
-                            'backgroundColor @= "#e0e0e0",
-                            'article(
-                              'class /= "media",
-                              'figure(
-                                'class /= "media-left",
-                                'p(
-                                  'class /= "image is-128x128",
-                                  'img(
-                                    'src /= "https://bulma.io/images/placeholders/256x256.png"
-                                  )
-                                )
-                              ),
-                              'div(
-                                'class /= "media-content",
-                                'div(
-                                  'class /= "content",
-                                  'p(
-                                    'strong(
-                                      "Меч судьбы"
-                                    )
-                                  )
-                                )
-                              ),
-                              'div(
-                                'class /= "media-right",
-                                'a(
-                                  'class /= "button is-success",
-                                  'span(
-                                    "Купить"
-                                  ),
-                                  event('click) { access =>
-                                    access.transition(_ => Auction(true))
-                                  }
-                                )
-                              )
-                            )
+                      (GameItem.auction) map {
+                        x => 
+                          auctionItem(
+                            GameItem.items(x),
+                            event('click) { access =>
+                              access.transition(_ => Auction(Some(GameItem.items(x))))
+                            }
                           )
                       }
                     )
@@ -357,59 +329,35 @@ object SimpleExample extends KorolevBlazeServer {
                 )
               )
             ),
-            'div(
-            'class /= "modal" + (if (state.isBuying) {" is-active"} else {""}),
-            'div(
-              'class /= "modal-background",
-              'backgroundColor @= "rgba(0,0,0,0)"
-            ),
-            'div(
-              'class /= "modal-content",
-              'div(
-                'class /= "box",
-                'article(
-                  'class /= "media",
-                  'div(
-                    'class /= "media-content",
-                    'div(
-                      'class /= "content",
-                      'div(
-                        'span(
-                          'strong(
-                            "Меч судьбы"
-                          )
-                        ),
-                        'br(),
-                        'a(
-                          'class /= "button is-success",
-                          'span(
-                            "Купить"
-                          ),
-                          /*event('click) { access =>
-                            access.transition(_ => MyItems())
-                          }*/
-                        )
-                      )
-                    )
-                  ),
-                  'div(
-                    'class /= "media-right",
-                    'button(
-                      'class /= "delete",
-                      event('click) { access =>
-                        access.transition(_ => Auction())
+            modal(
+              isActive = !(state.buyingItem eq None),
+              content =
+                'div(
+                  'span(
+                    'strong(
+                      state.buyingItem match {
+                        case Some(item) => item.name
+                        case None => ""
                       }
                     )
+                  ),
+                  'br(),
+                  'a(
+                    'class /= "button is-success",
+                    'span(
+                      "Купить"
+                    ),
+                    /*event('click) { access =>
+                      access.transition(_ => MyItems())
+                    }*/
                   )
-                )
-              )
-            ),
-            'button(
-              'class /= "modal-close is-large",
-              'ariaLabel /= "close"
+                ),
+              onClose =
+                event('click) { access =>
+                  access.transition(_ => Auction())
+                }
             )
           )
-        )
     },
     router = emptyRouter
   )
@@ -456,7 +404,7 @@ object SimpleExample extends KorolevBlazeServer {
             'a(
               'class /= (state match {
                 case state: MyItems =>
-                  "navbar-item is active"
+                  "navbar-item is-active"
                 case _ =>
                   "navbar-item"
               }),
@@ -468,7 +416,7 @@ object SimpleExample extends KorolevBlazeServer {
             'a(
               'class /= (state match {
                 case state: MyLots =>
-                  "navbar-item is active"
+                  "navbar-item is-active"
                 case _ =>
                   "navbar-item"
               }),
@@ -480,7 +428,7 @@ object SimpleExample extends KorolevBlazeServer {
             'a(
               'class /= (state match {
                 case state: Auction =>
-                  "navbar-item is active"
+                  "navbar-item is-active"
                 case _ =>
                   "navbar-item"
               }),
@@ -524,6 +472,120 @@ object SimpleExample extends KorolevBlazeServer {
         'div(
           'class /= "container",
           content
+        )
+      )
+    )
+  }
+
+  private def modal(isActive: Boolean, content: Node, onClose: Node) = {
+    'div(
+      'class /= "modal" + (if (isActive) {" is-active"} else {""}),
+      'div(
+        'class /= "modal-background",
+        'backgroundColor @= "rgba(0,0,0,0)",
+        onClose
+      ),
+      'div(
+        'class /= "modal-content",
+        'div(
+          'class /= "box",
+          'article(
+            'class /= "media",
+            'div(
+              'class /= "media-content",
+              'div(
+                'class /= "content",
+                content
+              )
+            ),
+            'div(
+              'class /= "media-right",
+              'button(
+                'class /= "delete",
+                onClose
+              )
+            )
+          )
+        )
+      )
+    )
+  }
+
+  private def myLotsItem(item: GameItem, onRemove: Node) = {
+    'div(
+      'class /= "notification",
+      'backgroundColor @= "#e0e0e0",
+      'article(
+        'class /= "media",
+        'figure(
+          'class /= "media-left",
+          'p(
+            'class /= "image is-128x128",
+            'img(
+              'src /= item.previewImage
+            )
+          )
+        ),
+        'div(
+          'class /= "media-content",
+          'div(
+            'class /= "content",
+            'p(
+              'strong(
+                item.name
+              )
+            )
+          )
+        ),
+        'div(
+          'class /= "media-right",
+          'a(
+            'class /= "button is-danger",
+            'span(
+              "Удалить"
+            ),
+            onRemove
+          )
+        )
+      )
+    )
+  }
+
+  private def auctionItem(item: GameItem, onBuy: Node) = {
+    'div(
+      'class /= "notification",
+      'backgroundColor @= "#e0e0e0",
+      'article(
+        'class /= "media",
+        'figure(
+          'class /= "media-left",
+          'p(
+            'class /= "image is-128x128",
+            'img(
+              'src /= item.previewImage
+            )
+          )
+        ),
+        'div(
+          'class /= "media-content",
+          'div(
+            'class /= "content",
+            'p(
+              'strong(
+                item.name
+              )
+            )
+          )
+        ),
+        'div(
+          'class /= "media-right",
+          'a(
+            'class /= "button is-success",
+            'span(
+              "Купить"
+            ),
+            onBuy
+          )
         )
       )
     )
