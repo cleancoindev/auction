@@ -10,27 +10,39 @@ object GameItem {
     val items = List(
         new GameItem(
             0,
-            "Меч судьбы 0"
+            "Меч судьбы 0",
+            "https://game-icons.net/icons/lorc/originals/svg/relic-blade.svg",
+            "https://game-icons.net/icons/lorc/originals/svg/relic-blade.svg"
         ),
         new GameItem(
             1,
-            "Топор"
+            "Топор",
+            "https://game-icons.net/icons/delapouite/originals/svg/axe-in-log.svg",
+            "https://game-icons.net/icons/delapouite/originals/svg/axe-in-log.svg"
         ),
         new GameItem(
             2,
-            "Меч судьбы 123"
+            "Меч судьбы 123",
+            "https://game-icons.net/icons/lorc/originals/svg/relic-blade.svg",
+            "https://game-icons.net/icons/lorc/originals/svg/relic-blade.svg"
         ),
         new GameItem(
             3,
-            "Сковородка"
+            "Лук",
+            "https://game-icons.net/icons/lorc/originals/svg/pocket-bow.svg",
+            "https://game-icons.net/icons/lorc/originals/svg/pocket-bow.svg"
         ),
         new GameItem(
             4,
-            "Лучший меч ever"
+            "Лучший меч ever",
+            "https://game-icons.net/icons/lorc/originals/svg/broadsword.svg",
+            "https://game-icons.net/icons/lorc/originals/svg/broadsword.svg"
         ),
         new GameItem(
             5,
-            "Ящик"
+            "Ящик",
+            "https://game-icons.net/icons/delapouite/originals/svg/wooden-crate.svg",
+            "https://game-icons.net/icons/delapouite/originals/svg/wooden-crate.svg"
         )
     )
 
