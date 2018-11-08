@@ -1,19 +1,25 @@
+import akka.actor.ActorSystem
+import akka.http.scaladsl.Http
+import akka.stream.{ActorMaterializer, Materializer}
 import korolev._
 import korolev.server._
-import korolev.blazeServer._
+import korolev.akkahttp._
 import korolev.execution._
 import korolev.state.javaSerialization._
 
 import scala.concurrent.Future
 
-object SimpleExample extends KorolevBlazeServer {
+object AuctionApp extends App {
 
   import GuiState._
   import GameItem._
   import GuiState.globalContext._
   import GuiState.globalContext.symbolDsl._
 
-  val service = blazeService[Future, GuiState, Any] from KorolevServiceConfig[Future, GuiState, Any] (
+  private implicit val actorSystem: ActorSystem = ActorSystem()
+  private implicit val materializer: Materializer = ActorMaterializer()
+
+  private val config = KorolevServiceConfig[Future, GuiState, Any] (
     head = Seq(
         'link ('href /= "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css", 'rel /= "stylesheet"),
         'link (
@@ -68,7 +74,7 @@ object SimpleExample extends KorolevBlazeServer {
                                           'img(
                                             'src /= {
                                               val item = GameItem.myItems(index);
-                                              GameItem.items(item).previewImage
+                                              GameItem.getItem(item).previewImage
                                             }
                                           )
                                         )
@@ -100,7 +106,7 @@ object SimpleExample extends KorolevBlazeServer {
                 'width @= "100%",
                 if(state.selectedItem < GameItem.myItems.length) {
                   val itemIndex = GameItem.myItems(state.selectedItem);
-                  val item = GameItem.items(itemIndex);
+                  val item = GameItem.getItem(itemIndex);                
                   'div(
                     'display @= "flex",
                     'flexFlow @= "column",
@@ -210,9 +216,9 @@ object SimpleExample extends KorolevBlazeServer {
                     (GameItem.myLots) map {
                       x => 
                         myLotsItem(
-                          GameItem.items(x),
+                          GameItem.getItem(x),
                           event('click) { access =>
-                            access.transition(_ => MyLots(Some(GameItem.items(x))))
+                            access.transition(_ => MyLots(Some(GameItem.getItem(x))))
                           }
                         )
                     }
@@ -249,9 +255,9 @@ object SimpleExample extends KorolevBlazeServer {
                     'span(
                       "Удалить"
                     ),
-                    /*event('click) { access =>
+                    event('click) { access =>
                       access.transition(_ => MyItems())
-                    }*/
+                    }
                   ),
                   'a(
                     'class /= "button",
@@ -308,9 +314,9 @@ object SimpleExample extends KorolevBlazeServer {
                       (GameItem.auction) map {
                         x => 
                           auctionItem(
-                            GameItem.items(x),
+                            GameItem.getItem(x),
                             event('click) { access =>
-                              access.transition(_ => Auction(Some(GameItem.items(x))))
+                              access.transition(_ => Auction(Some(GameItem.getItem(x))))
                             }
                           )
                       }
@@ -658,4 +664,8 @@ object SimpleExample extends KorolevBlazeServer {
       )
     )
   }
+
+  private val route = akkaHttpService(config).apply(AkkaHttpServerConfig())
+
+  Http().bindAndHandle(route, "0.0.0.0", 8080)
 }
