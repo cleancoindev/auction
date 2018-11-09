@@ -9,7 +9,7 @@ ensimeScalaVersion := "2.14.7"
 
 val korolevVersion = "0.9.0"
 
-resolvers += "Expload Bintray" at "https://dl.bintray.com/expload/oss/"
+resolvers += Resolver.bintrayRepo(owner="expload", repo="oss")
 
 libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-simple" % "1.7.+",
@@ -19,5 +19,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream" % "2.5.8",
   "com.typesafe.akka" %% "akka-http" % "10.0.11",
   "com.github.fomkin" %% "korolev-server-akkahttp" % "0.6.1",
-  "com.expload" %% "pravda-node" % "0.11.0"
+  "com.expload" %% "pravda-node" % "0.11.0",
+  "com.expload" %% "pravda-node-client" % "0.11.0"
 )

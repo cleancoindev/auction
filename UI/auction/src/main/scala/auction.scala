@@ -17,7 +17,7 @@ object AuctionApp extends App {
   import GuiState.globalContext.symbolDsl._
 
   private implicit val actorSystem: ActorSystem = ActorSystem()
-  private implicit val materializer: Materializer = ActorMaterializer()
+  private implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   private val config = KorolevServiceConfig[Future, GuiState, Any] (
     head = Seq(
@@ -73,7 +73,7 @@ object AuctionApp extends App {
                                           },
                                           'img(
                                             'src /= {
-                                              val item = GameItem.myItems(index);
+                                              val item = GameItem.myItems(index)
                                               GameItem.getItem(item).previewImage
                                             }
                                           )
@@ -105,8 +105,8 @@ object AuctionApp extends App {
                 'height @= "100%",
                 'width @= "100%",
                 if(state.selectedItem < GameItem.myItems.length) {
-                  val itemIndex = GameItem.myItems(state.selectedItem);
-                  val item = GameItem.getItem(itemIndex);                
+                  val itemIndex = GameItem.myItems(state.selectedItem)
+                  val item = GameItem.getItem(itemIndex)
                   'div(
                     'display @= "flex",
                     'flexFlow @= "column",
@@ -154,7 +154,7 @@ object AuctionApp extends App {
         modal(
           isActive = !(state.sellingItem eq None),
           content = state.sellingItem match {
-            case Some(item) => {
+            case Some(item) =>
               'div(
                 'span(
                   'strong(
@@ -172,8 +172,7 @@ object AuctionApp extends App {
                   }*/
                 )
               )
-            }
-            case None => {'div()}
+            case None => 'div()
           },
           onClose =
             event('click) { access =>
@@ -213,7 +212,7 @@ object AuctionApp extends App {
                 'div(
                   'class /= "",
                   'div(
-                    (GameItem.myLots) map {
+                    GameItem.myLots map {
                       x => 
                         myLotsItem(
                           GameItem.getItem(x),
@@ -256,7 +255,11 @@ object AuctionApp extends App {
                       "Удалить"
                     ),
                     event('click) { access =>
-                      access.transition(_ => MyItems())
+                      {
+                        materializer.executionContext
+                        ApiHelper.callMethod()
+                        access.transition(_ => MyItems())
+                      }
                     }
                   ),
                   'a(
@@ -311,7 +314,7 @@ object AuctionApp extends App {
                   'div(
                     'class /= "",
                     'div(
-                      (GameItem.auction) map {
+                      GameItem.auction map {
                         x => 
                           auctionItem(
                             GameItem.getItem(x),

@@ -10,7 +10,7 @@ case class GameItem (
   )
 
 object GameItem {
-  def getItem(id: Int) = {
+  def getItem(id: Int): GameItem = {
     //Get from server
     val itemJson = jsonItems(id);
     val item = itemJson.jsonAs[GameItem];
