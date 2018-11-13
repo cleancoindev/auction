@@ -14,65 +14,77 @@ namespace PcallNamespace {
         to be able to interact with game contracts,
         for example, in order to use Expload assets auction.
 
-        Each asset has two types of IDs:
+        ---------------------------------
+
+        Each asset has three types of IDs:
+
+        ---------------------------------
 
         Blockchain id - used to navigate storage mappings in
         PASS contract, has no in-game meaning
 
-        Internal game id - the id which shows what particular
+        ---------------------------------
+
+        External game id - the id which shows what particular
         in-game item is behind the asset stored in the contract
+
+        ---------------------------------
+
+        Meta id - id of object meta-data (name, description, ...),
+        getMeta(metaId) should return a link to JSON file:
+
+        {
+            "name": <itemName>,
+            "desc": <itemShortDescription>,
+            "pic": <itemPictureURL>,
+            "misc": <miscData*>
+        }
+
+        *miscData - full item description, item stats, etc.
+
+        ---------------------------------
+
+        Also the storage and methods are split into two groups:
+        For interacting with GT (GameToken) assets,
+        For interacting with XC (XCoin) assets.
+
+        Assets bought for GT can't be sold on XC auction, and vice-versa,
+        only GT methods should be use for GT assets, similarly for XC assets.
         */
+
         public static void Main() { }
 
-        // Last id given to an asset
-        public UInt32 lastId = 0;
+        // Last id given to a GT asset
+        public UInt32 lastGTId = 0;
 
-        /*
-        As Pravda blockchain doesn't currently support
-        Objects storage, the mappings below are used
-        To store class fields of asset objects
-        */
+        // Last id given to an XC asset
+        public UInt32 lastXCId = 0;
 
-        // Mapping storing the owners of assets
-        public Mapping<UInt32, Bytes> Owners =
-            new Mapping<UInt32, Bytes>();
+        // Mapping storing GT assets
+        // This mapping's key is asset's blockchain id
+        public Mapping<UInt32, Asset> GTAssets =
+            new Mapping<UInt32, Asset>();
 
-        public Bytes getOwner(UInt32 id){
-            return Owners.getDefault(id, Bytes.EMPTY);
+        public Asset getGTAsset(UInt32 id){
+            return GTAssets.getDefault(id, new Asset());
         }
 
-        // Mapping storing the assets' game ids
-        public Mapping<UInt32, UInt32> GameIds =
-            new Mapping<UInt32, UInt32>();
+        // Mapping storing XC assets
+        // This mapping's key is asset's blockchain id
+        public Mapping<UInt32, Asset> XCAssets =
+            new Mapping<UInt32, Asset>();
 
-        public UInt32 getGameId(UInt32 id){
-            return GameIds.getDefault(id, 0);
+        public Asset getXCAsset(UInt32 id){
+            return XCAssets.getDefault(id, new Asset());
         }
 
-        // Mapping storing assets' sellability types
-        // (If they can be sold for XCoin or not)
-        public Mapping<UInt32, bool> Sellability =
-            new Mapping<UInt32, bool>();
-
-        public bool getSellability(UInt32 id){
-            return Sellability.getDefault(id, false);
+        // Get asset meta data using his metaId
+        public string getMeta(Bytes metaId){
+            return "some_url";
         }
 
-        // Mapping storing assets' in-game names
-        public Mapping<UInt32, string> ItemNames =
-            new Mapping<UInt32, string>();
-
-        public string getItemName(UInt32 id){
-            return ItemNames.getDefault(id, "");
-        }
-
-        // Mapping storing assets' in-game descriptions
-        public Mapping<UInt32, string> ItemDescs =
-            new Mapping<UInt32, string>();
-
-        public string getItemDesc(UInt32 id){
-            return ItemDescs.getDefault(id, "");
-        }
+        // Expload's auction smart contract address
+        Bytes auctionAddress = new Bytes("0000000000000000000000000000000000000000000000000000000000000000");
 
         /*
         Permission-checkers
@@ -86,9 +98,23 @@ namespace PcallNamespace {
             }
         }
 
-        // Checks if caller is owner of the specified asset
-        private void assertIsAssetOwner(UInt32 assetId){
-            if (Owners.getDefault(assetId, Bytes.EMPTY) != Info.Sender()){
+        // Checks if caller is the auction contract
+        private void assertIsAuction(){
+            if (Info.Callers()[-2] != auctionAddress){
+                Error.Throw("Only Expload auction can do that.");
+            }
+        }
+
+        // Checks if caller is owner of the specified GT asset
+        private void assertIsGTAssetOwner(UInt32 assetId){
+            if (getGTAsset(assetId).owner != Info.Sender()){
+                Error.Throw("Only owner of the asset can do that.");
+            }
+        }
+
+        // Checks if caller is owner of the specified XC asset
+        private void assertIsXCAssetOwner(UInt32 assetId){
+            if (getXCAsset(assetId).owner != Info.Sender()){
                 Error.Throw("Only owner of the asset can do that.");
             }
         }
@@ -97,80 +123,69 @@ namespace PcallNamespace {
         Interaction with the storage
         */
 
-        public UInt32 EmitAsset(UInt32 gameId, bool XCoinSellable,
-            string ItemName, string ItemDesc, Bytes owner){
+        // Setting up auction address
+        public void SetAuction(Bytes addr){
+            assertIsGameOwner();
+            auctionAddress = addr;
+        }
+
+        // Interaction with GT assets storage
+
+        public UInt32 EmitGTAsset(Asset asset, Bytes owner){
             // Only the gameserver (or owner) can emit assets
             assertIsGameOwner();
             // Getting item's blockchain id
-            UInt32 id = ++lastId;
+            UInt32 id = ++lastGTId;
 
-            // Putting all assets's class fields
-            // into the storage
-            Owners.put(id, owner);
-            GameIds.put(id, gameId);
-            Sellability.put(id, XCoinSellable);
-            ItemNames.put(id, ItemName);
-            ItemDescs.put(id, ItemDesc);
+            // Putting the asset into storage
+            GTAssets.put(id, asset);
 
             return id;
         }
 
-        public void TransferAsset(UInt32 id, Bytes to){
-            // Only the asset owner can give it
-            // to someone else
-            assertIsAssetOwner(id);
-
+        public void TransferGTAsset(UInt32 id, Bytes to){
+            // Only the auction can transfer assets
+            assertIsAuction();
             // Passing the ownership
-            Owners.put(id, to);
+            getGTAsset(id).owner = to;
+        }
+
+        // Interaction with GT assets storage
+
+        public UInt32 EmitXCAsset(Asset asset, Bytes owner){
+            // Only the gameserver (or owner) can emit assets
+            assertIsGameOwner();
+            // Getting item's blockchain id
+            UInt32 id = ++lastXCId;
+
+            // Putting the asset into storage
+            XCAssets.put(id, asset);
+
+            return id;
+        }
+
+        public void TransferXCAsset(UInt32 id, Bytes to){
+            // Only the auction can transfer assets
+            assertIsAuction();
+            // Passing the ownership
+            getXCAsset(id).owner = to;
         }
     }
 
     public class Asset {
         /*
-        Class defining a common game asset
+        Class defining a game asset
         */
-
-        // Blockchain asset id
-        // E.g. two identical in-game swords
-        // Have different blockchain id
-        public UInt32 id;
-
-        // Game's internal asset id
-        // E.g. two identical in-game swords
-        // Have same internal game id
-        public UInt32 gameId;
 
         // Adress of asset's owner
         public Bytes owner;
 
-        // Asset auction accessebility type:
-        // 1 - may be sold for XCoin
-        // 0 - may be sold for GameToken only
-        public bool XCoinSellable;
+        // Game's external asset id
+        // E.g. two identical in-game swords
+        // Have same internal game id
+        public Bytes externalId;
 
-        // Asset's metadata for UI
-
-        // Asset's in-game name
-        public string ItemName;
-        // Asset's description
-        public string ItemDesc;
-    }
-
-    public class Lot {
-        /*
-        Class defining auction lot
-        */
-
-        // The asset to be sold
-        public Asset item;
-
-        // Lot's starting price
-        public UInt32 startingPrice;
-
-        // Current highest bid
-        public UInt32 lastBid;
-
-        // Current highest bidder
-        public Bytes bidder;
+        // External meta-data identifier
+        public Bytes metaId;
     }
 }
