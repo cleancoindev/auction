@@ -255,11 +255,7 @@ object AuctionApp extends App {
                       "Удалить"
                     ),
                     event('click) { access =>
-                      {
-                        materializer.executionContext
-                        ApiHelper.callMethod()
                         access.transition(_ => MyItems())
-                      }
                     }
                   ),
                   'a(
@@ -351,15 +347,31 @@ object AuctionApp extends App {
                       }
                     )
                   ),
+                  if (state.result != None) 'div(state.result) else void,
                   'br(),
                   'a(
-                    'class /= "button is-success",
+                    'class /= ("button is-success" + (if(state.inProgress) " is-loading" else "")),
+                    if(state.inProgress) 'disabled /= "" else void,
                     'span(
                       "Купить"
                     ),
-                    /*event('click) { access =>
-                      access.transition(_ => MyItems())
-                    }*/
+                    event('click) { access =>
+                      for {
+                        _ <- access.transition(_ => state.copy(inProgress = true))
+                        result <- ApiHelper.getMeta(0)
+                        _ = println(result)
+                        _ <- access.transition {
+                          result match {
+                            case Left(error) =>
+                              _ => state.copy(inProgress = false, result = Some(error))
+                            case Right(meta) =>
+                              _ => state.copy(inProgress = false, result = Some(meta))
+                          }
+                        }
+                      } yield {
+                        ()
+                      }
+                    }
                   )
                 ),
               onClose =
