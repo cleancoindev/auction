@@ -32,6 +32,7 @@ object ApiHelper {
     val ops = argsOps ++ Seq(
       Push(Utf8(methodName)),
       Push(Bytes(bytes.hex2byteString(address))),
+      Push(Int32(argsOps.length + 1)),
       Orphan(Opcodes.PCALL)
     )
 
@@ -66,11 +67,34 @@ object ApiHelper {
                         materializer: ActorMaterializer,
                         executionContext: ExecutionContextExecutor) : Future[Either[String, String]] = {
     //val idD = Data(id)
-    val result = callMethod("xfb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b", "getMeta", Nil)
+    val result = callMethod("fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b", "getMeta", Nil)
     result map {
       case Right(txResult) =>
         txResult.executionResult match {
           case Right(state) =>
+            state.stack.head match {
+              case Utf8(meta) => Right(meta)
+              case _ => Left("Unknown stack value")
+            }
+          case Left(runtimeException) =>
+            println(runtimeException.finalState.stack.head.mkString())
+            Left("RuntimeException code: " + runtimeException.error.code.toString)
+        }
+      case Left(error) =>
+        Left(error)
+    }
+  }
+
+  def test(t: String)(implicit system: ActorSystem,
+                      materializer: ActorMaterializer,
+                      executionContext: ExecutionContextExecutor) : Future[Either[String, String]] = {
+    val tData = Utf8(t)
+    val result = callMethod("fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b", "test", List(tData))
+    result map {
+      case Right(txResult) =>
+        txResult.executionResult match {
+          case Right(state) =>
+            println(state.stack)
             state.stack.head match {
               case Utf8(meta) => Right(meta)
               case _ => Left("Unknown stack value")

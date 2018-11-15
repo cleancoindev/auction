@@ -358,7 +358,7 @@ object AuctionApp extends App {
                     event('click) { access =>
                       for {
                         _ <- access.transition(_ => state.copy(inProgress = true))
-                        result <- ApiHelper.getMeta(0)
+                        result <- ApiHelper.test("world")
                         _ = println(result)
                         _ <- access.transition {
                           result match {
