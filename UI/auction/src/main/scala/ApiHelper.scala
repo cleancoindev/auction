@@ -10,11 +10,13 @@ import pravda.vm.asm.{Operation, PravdaAssembler}
 import pravda.node.data.serialization._
 import pravda.node.data.serialization.json._
 import pravda.vm.Data
+import pravda.vm.Data.Primitive
 import pravda.vm.Data.Primitive._
 import pravda.vm.asm.Operation._
 import pravda.vm.Opcodes
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.reflect.runtime.universe._
 
 object ApiHelper {
 
@@ -62,49 +64,69 @@ object ApiHelper {
         println(x)
     }
   }
+}
 
-  def getMeta(id : Int)(implicit system: ActorSystem,
-                        materializer: ActorMaterializer,
-                        executionContext: ExecutionContextExecutor) : Future[Either[String, String]] = {
-    //val idD = Data(id)
-    val result = callMethod("fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b", "getMeta", Nil)
-    result map {
-      case Right(txResult) =>
-        txResult.executionResult match {
-          case Right(state) =>
-            state.stack.head match {
-              case Utf8(meta) => Right(meta)
-              case _ => Left("Unknown stack value")
-            }
-          case Left(runtimeException) =>
-            println(runtimeException.finalState.stack.head.mkString())
-            Left("RuntimeException code: " + runtimeException.error.code.toString)
-        }
-      case Left(error) =>
-        Left(error)
+class ApiHelper()(implicit system: ActorSystem,
+                materializer: ActorMaterializer,
+                executionContext: ExecutionContextExecutor) {
+
+  def apiSimple0[R <: Primitive : Manifest](address: String, methodName: String): () => Future[Either[String, R]] = {
+    () => {
+      val callResult = ApiHelper.callMethod(address, methodName, Nil)
+      callResult map {
+        case Right(txResult) =>
+          txResult.executionResult match {
+            case Right(state) =>
+              state.stack.head match {
+                case result: R => Right(result)
+                case _ => Left("Unknown stack value")
+              }
+            case Left(runtimeException) =>
+              Left("RuntimeException code: " + runtimeException.error.code.toString)
+          }
+        case Left(error) =>
+          Left(error)
+      }
     }
   }
 
-  def test(t: String)(implicit system: ActorSystem,
-                      materializer: ActorMaterializer,
-                      executionContext: ExecutionContextExecutor) : Future[Either[String, String]] = {
-    val tData = Utf8(t)
-    val result = callMethod("fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b", "test", List(tData))
-    result map {
-      case Right(txResult) =>
-        txResult.executionResult match {
-          case Right(state) =>
-            println(state.stack)
-            state.stack.head match {
-              case Utf8(meta) => Right(meta)
-              case _ => Left("Unknown stack value")
-            }
-          case Left(runtimeException) =>
-            println(runtimeException.finalState.stack.head.mkString())
-            Left("RuntimeException code: " + runtimeException.error.code.toString)
-        }
-      case Left(error) =>
-        Left(error)
+  def apiSimple[R <: Primitive : Manifest](address: String, methodName: String): List[Primitive] => Future[Either[String, R]] = {
+    dataList => {
+      val callResult = ApiHelper.callMethod(address, methodName, dataList)
+      callResult map {
+        case Right(txResult) =>
+          txResult.executionResult match {
+            case Right(state) =>
+              state.stack.head match {
+                case result: R => Right(result)
+                case _ => Left("Unknown stack value")
+              }
+            case Left(runtimeException) =>
+              Left("RuntimeException code: " + runtimeException.error.code.toString)
+          }
+        case Left(error) =>
+          Left(error)
+      }
+    }
+  }
+
+  def apiSimple1[T <: Primitive, R <: Primitive : Manifest](address: String, methodName: String) : T => Future[Either[String, R]] = {
+    t => {
+      val callResult = ApiHelper.callMethod(address, methodName, List(t))
+      callResult map {
+        case Right(txResult) =>
+          txResult.executionResult match {
+            case Right(state) =>
+              state.stack.head match {
+                case result: R => Right(result)
+                case _ => Left("Unknown stack value")
+              }
+            case Left(runtimeException) =>
+              Left("RuntimeException code: " + runtimeException.error.code.toString)
+          }
+        case Left(error) =>
+          Left(error)
+      }
     }
   }
 }

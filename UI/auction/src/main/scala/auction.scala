@@ -6,18 +6,20 @@ import korolev.server._
 import korolev.akkahttp._
 import korolev.execution._
 import korolev.state.javaSerialization._
+import pravda.vm.Data.Primitive._
 
 import scala.concurrent.Future
 
 object AuctionApp extends App {
 
   import GuiState._
-  import GameItem._
+  import ApiHelper._
   import GuiState.globalContext._
   import GuiState.globalContext.symbolDsl._
 
   private implicit val actorSystem: ActorSystem = ActorSystem()
   private implicit val materializer: ActorMaterializer = ActorMaterializer()
+  private val api:API = new API()
 
   private val config = KorolevServiceConfig[Future, GuiState, Any] (
     head = Seq(
@@ -358,14 +360,13 @@ object AuctionApp extends App {
                     event('click) { access =>
                       for {
                         _ <- access.transition(_ => state.copy(inProgress = true))
-                        result <- ApiHelper.test("world")
-                        _ = println(result)
+                        result <- api.test(Utf8("world"))
                         _ <- access.transition {
                           result match {
                             case Left(error) =>
                               _ => state.copy(inProgress = false, result = Some(error))
                             case Right(meta) =>
-                              _ => state.copy(inProgress = false, result = Some(meta))
+                              _ => state.copy(inProgress = false, result = Some(meta.data))
                           }
                         }
                       } yield {
