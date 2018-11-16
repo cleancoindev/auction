@@ -70,26 +70,6 @@ class ApiHelper()(implicit system: ActorSystem,
                 materializer: ActorMaterializer,
                 executionContext: ExecutionContextExecutor) {
 
-  def apiSimple0[R <: Primitive : Manifest](address: String, methodName: String): () => Future[Either[String, R]] = {
-    () => {
-      val callResult = ApiHelper.callMethod(address, methodName, Nil)
-      callResult map {
-        case Right(txResult) =>
-          txResult.executionResult match {
-            case Right(state) =>
-              state.stack.head match {
-                case result: R => Right(result)
-                case _ => Left("Unknown stack value")
-              }
-            case Left(runtimeException) =>
-              Left("RuntimeException code: " + runtimeException.error.code.toString)
-          }
-        case Left(error) =>
-          Left(error)
-      }
-    }
-  }
-
   def apiSimple[R <: Primitive : Manifest](address: String, methodName: String): List[Primitive] => Future[Either[String, R]] = {
     dataList => {
       val callResult = ApiHelper.callMethod(address, methodName, dataList)
@@ -110,9 +90,109 @@ class ApiHelper()(implicit system: ActorSystem,
     }
   }
 
+  def apiSimple0[R <: Primitive : Manifest](address: String, methodName: String): () => Future[Either[String, R]] = {
+    () => {
+      val callResult = ApiHelper.callMethod(address, methodName, Nil)
+      callResult map {
+        case Right(txResult) =>
+          txResult.executionResult match {
+            case Right(state) =>
+              state.stack.head match {
+                case result: R => Right(result)
+                case _ => Left("Unknown stack value")
+              }
+            case Left(runtimeException) =>
+              Left("RuntimeException code: " + runtimeException.error.code.toString)
+          }
+        case Left(error) =>
+          Left(error)
+      }
+    }
+  }
+
   def apiSimple1[T <: Primitive, R <: Primitive : Manifest](address: String, methodName: String) : T => Future[Either[String, R]] = {
     t => {
       val callResult = ApiHelper.callMethod(address, methodName, List(t))
+      callResult map {
+        case Right(txResult) =>
+          txResult.executionResult match {
+            case Right(state) =>
+              state.stack.head match {
+                case result: R => Right(result)
+                case _ => Left("Unknown stack value")
+              }
+            case Left(runtimeException) =>
+              Left("RuntimeException code: " + runtimeException.error.code.toString)
+          }
+        case Left(error) =>
+          Left(error)
+      }
+    }
+  }
+
+  def apiSimple2[T1 <: Primitive, T2 <: Primitive, R <: Primitive : Manifest](address: String, methodName: String) : (T1, T2) => Future[Either[String, R]] = {
+    (t1, t2) => {
+      val callResult = ApiHelper.callMethod(address, methodName, List(t1, t2))
+      callResult map {
+        case Right(txResult) =>
+          txResult.executionResult match {
+            case Right(state) =>
+              state.stack.head match {
+                case result: R => Right(result)
+                case _ => Left("Unknown stack value")
+              }
+            case Left(runtimeException) =>
+              Left("RuntimeException code: " + runtimeException.error.code.toString)
+          }
+        case Left(error) =>
+          Left(error)
+      }
+    }
+  }
+
+  def apiSimple3[T1 <: Primitive, T2 <: Primitive, T3 <: Primitive, R <: Primitive : Manifest](address: String, methodName: String) : (T1, T2, T3) => Future[Either[String, R]] = {
+    (t1, t2, t3) => {
+      val callResult = ApiHelper.callMethod(address, methodName, List(t1, t2, t3))
+      callResult map {
+        case Right(txResult) =>
+          txResult.executionResult match {
+            case Right(state) =>
+              state.stack.head match {
+                case result: R => Right(result)
+                case _ => Left("Unknown stack value")
+              }
+            case Left(runtimeException) =>
+              Left("RuntimeException code: " + runtimeException.error.code.toString)
+          }
+        case Left(error) =>
+          Left(error)
+      }
+    }
+  }
+
+  def apiSimple4[T1 <: Primitive, T2 <: Primitive, T3 <: Primitive, T4 <: Primitive, R <: Primitive : Manifest](address: String, methodName: String) : (T1, T2, T3, T4) => Future[Either[String, R]] = {
+    (t1, t2, t3, t4) => {
+      val callResult = ApiHelper.callMethod(address, methodName, List(t1, t2, t3, t4))
+      callResult map {
+        case Right(txResult) =>
+          txResult.executionResult match {
+            case Right(state) =>
+              state.stack.head match {
+                case result: R => Right(result)
+                case _ => Left("Unknown stack value")
+              }
+            case Left(runtimeException) =>
+              Left("RuntimeException code: " + runtimeException.error.code.toString)
+          }
+        case Left(error) =>
+          Left(error)
+      }
+    }
+  }
+
+  def apiSimple5[T1 <: Primitive, T2 <: Primitive, T3 <: Primitive, T4 <: Primitive, T5 <: Primitive, R <: Primitive : Manifest](address: String, methodName: String) : (T1, T2, T3, T4, T5) => Future[Either[String, R]] = {
+    (t1, t2, t3, t4, t5) => {
+      val callResult = ApiHelper.callMethod(address, methodName, List(t1, t2, t3, t4, t5))
       callResult map {
         case Right(txResult) =>
           txResult.executionResult match {
