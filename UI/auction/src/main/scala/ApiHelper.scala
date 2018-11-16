@@ -16,7 +16,6 @@ import pravda.vm.asm.Operation._
 import pravda.vm.Opcodes
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
-import scala.reflect.runtime.universe._
 
 object ApiHelper {
 

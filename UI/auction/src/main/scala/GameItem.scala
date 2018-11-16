@@ -12,8 +12,8 @@ case class GameItem (
 object GameItem {
   def getItem(id: Int): GameItem = {
     //Get from server
-    val itemJson = jsonItems(id);
-    val item = itemJson.jsonAs[GameItem];
+    val itemJson = jsonItems(id)
+    val item = itemJson.jsonAs[GameItem]
     item match {
       case Right(x) => x
       case Left(x) => GameItem(-1, "Error")

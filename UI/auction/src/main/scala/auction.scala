@@ -349,7 +349,7 @@ object AuctionApp extends App {
                       }
                     )
                   ),
-                  if (state.result != None) 'div(state.result) else void,
+                  if (state.result.isDefined) 'div(state.result) else void,
                   'br(),
                   'a(
                     'class /= ("button is-success" + (if(state.inProgress) " is-loading" else "")),
@@ -376,9 +376,11 @@ object AuctionApp extends App {
                   )
                 ),
               onClose =
-                event('click) { access =>
-                  access.transition(_ => Auction())
-                }
+                if (!state.inProgress) {
+                  event('click) { access =>
+                    access.transition(_ => Auction())
+                  }
+                } else void
             )
           )
     },
