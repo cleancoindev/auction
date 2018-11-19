@@ -60,13 +60,36 @@ namespace PcallNamespace {
         // Last id given to an XC asset
         public UInt32 lastXCId = 0;
 
+        // Parse arguments into Asset object
+        private Asset ParseAsset(Bytes owner, Bytes externalId, Bytes metaId){
+            var asset = new Asset();
+            asset.owner = owner;
+            asset.externalId = externalId;
+            asset.metaId = metaId;
+            return asset;
+        }
+
+        // Dump Asset into JSON
+        private string DumpAsset(Asset asset){
+            return
+            "{" +
+                "\"owner\": \""      + BytesToHex(asset.owner)      + "\"," +
+                "\"externalId\": \"" + BytesToHex(asset.externalId) + "\"," +
+                "\"metaId\": \""     + getMetaData(asset.metaId)    + "\""  +
+            "}";
+        }
+
         // Mapping storing GT assets
         // This mapping's key is asset's blockchain id
         public Mapping<UInt32, Asset> GTAssets =
             new Mapping<UInt32, Asset>();
 
-        public Asset getGTAsset(UInt32 id){
+        private Asset getGTAsset(UInt32 id){
             return GTAssets.getDefault(id, new Asset());
+        }
+
+        public string getGTAssetData(UInt32 id){
+            return DumpAsset(getGTAsset(id));
         }
 
         // Mapping storing XC assets
@@ -74,13 +97,19 @@ namespace PcallNamespace {
         public Mapping<UInt32, Asset> XCAssets =
             new Mapping<UInt32, Asset>();
 
-        public Asset getXCAsset(UInt32 id){
+        private Asset getXCAsset(UInt32 id){
             return XCAssets.getDefault(id, new Asset());
         }
 
+        public string getXCAssetData(UInt32 id){
+            return DumpAsset(getXCAsset(id));
+        }
+
         // Get asset meta data using his metaId
-        public string getMeta(Bytes metaId){
-            return "some_url";
+        // IMPORTANT: this method MUST be changed
+        // to return valid metadata url
+        private string getMetaData(Bytes metaId){
+            return "https://some_url/"+BytesToHex(metaId);
         }
 
         // Expload's auction smart contract address
@@ -100,19 +129,20 @@ namespace PcallNamespace {
 
         // Checks if caller is the auction contract
         private void assertIsAuction(){
-            if (Info.Callers()[-2] != auctionAddress){
+            if (Info.Callers()[Info.Callers().Length-2] != auctionAddress){
                 Error.Throw("Only Expload auction can do that.");
             }
         }
 
-        // Checks if caller is owner of the specified GT asset
+
+        // // Checks if caller is owner of the specified GT asset
         private void assertIsGTAssetOwner(UInt32 assetId){
             if (getGTAsset(assetId).owner != Info.Sender()){
                 Error.Throw("Only owner of the asset can do that.");
             }
         }
 
-        // Checks if caller is owner of the specified XC asset
+        // // Checks if caller is owner of the specified XC asset
         private void assertIsXCAssetOwner(UInt32 assetId){
             if (getXCAsset(assetId).owner != Info.Sender()){
                 Error.Throw("Only owner of the asset can do that.");
@@ -131,9 +161,11 @@ namespace PcallNamespace {
 
         // Interaction with GT assets storage
 
-        public UInt32 EmitGTAsset(Asset asset, Bytes owner){
+        public UInt32 EmitGTAsset(Bytes owner, Bytes externalId, Bytes metaId){
             // Only the gameserver (or owner) can emit assets
             assertIsGameOwner();
+            // Parsing the asset
+            Asset asset = ParseAsset(owner, externalId, metaId);
             // Getting item's blockchain id
             UInt32 id = ++lastGTId;
 
@@ -147,14 +179,18 @@ namespace PcallNamespace {
             // Only the auction can transfer assets
             assertIsAuction();
             // Passing the ownership
-            getGTAsset(id).owner = to;
+            Asset asset = getGTAsset(id);
+            asset.owner = to;
+            GTAssets.put(id, asset);
         }
 
-        // Interaction with GT assets storage
+        // Interaction with XC assets storage
 
-        public UInt32 EmitXCAsset(Asset asset, Bytes owner){
+        public UInt32 EmitXCAsset(Bytes owner, Bytes externalId, Bytes metaId){
             // Only the gameserver (or owner) can emit assets
             assertIsGameOwner();
+            // Parsing the asset
+            Asset asset = ParseAsset(owner, externalId, metaId);
             // Getting item's blockchain id
             UInt32 id = ++lastXCId;
 
@@ -170,6 +206,60 @@ namespace PcallNamespace {
             // Passing the ownership
             getXCAsset(id).owner = to;
         }
+
+        /*
+        Some string operations
+        */
+
+        private string HexPart(int b) {
+            if (b == 0)
+                return "0";
+            else if (b == 1)
+                return "1";
+            else if (b == 2)
+                return "2";
+            else if (b == 3)
+                return "3";
+            else if (b == 4)
+                return "4";
+            else if (b == 5)
+                return "5";
+            else if (b == 6)
+                return "6";
+            else if (b == 7)
+                return "7";
+            else if (b == 8)
+                return "8";
+            else if (b == 9)
+                return "9";
+            else if (b == 10)
+                return "A";
+            else if (b == 11)
+                return "B";
+            else if (b == 12)
+                return "C";
+            else if (b == 13)
+                return "D";
+            else if (b == 14)
+                return "E";
+            else if (b == 15)
+                return "F";
+            return "";
+        }
+
+        private string ByteToHex(byte b)
+        {
+            return HexPart(b / 16) + HexPart(b % 16);
+        }
+
+        private string BytesToHex(Bytes bytes)
+        {
+            string res = "";
+            for (int i = 0; i < bytes.Length(); i++) {
+                res += ByteToHex(bytes[i]);
+            }
+            return res;
+        }
     }
 
     public class Asset {
@@ -178,14 +268,15 @@ namespace PcallNamespace {
         */
 
         // Adress of asset's owner
-        public Bytes owner;
+        public Bytes owner { get; set; }
 
         // Game's external asset id
         // E.g. two identical in-game swords
         // Have same internal game id
-        public Bytes externalId;
+        public Bytes externalId { get; set; }
 
         // External meta-data identifier
-        public Bytes metaId;
+        public Bytes metaId { get; set; }
     }
+
 }

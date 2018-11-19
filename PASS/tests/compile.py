@@ -4,6 +4,7 @@ from subprocess import call, DEVNULL
 
 def compile_contracts(tests):
       # Compile main PASS.cs contract to .exe and .dll
+      # TODO: compile using `dotnet publish` instead of csc
       call(["csc", "../PASS.cs", "/reference:Pravda.dll", "/debug:portable"], stdout=DEVNULL)
       call(["csc", "../PASS.cs", "/reference:Pravda.dll", "/debug:portable", "/target:library"], stdout=DEVNULL)
 

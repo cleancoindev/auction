@@ -7,13 +7,23 @@ namespace PcallNamespace {
     public class emit {
         public static int Main() {return 1;}
 
-        public bool test_emit() {
-            Bytes address = new Bytes("fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b");
-            UInt32 id = ProgramHelper.Program<PASS>(address).EmitAsset(
-                1, true, "TestItemName", "TestItemDesc", Info.Sender()
+        public string test_emit() {
+            // Init addresses and get program by address
+            Bytes programOwner = new Bytes("fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b");
+            Bytes assetOwner   = new Bytes("e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342");
+
+            // Emit the asset
+            Bytes externalId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
+            Bytes metaId = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
+            UInt32 assetId = ProgramHelper.Program<PASS>(programOwner).EmitGTAsset(
+                assetOwner, externalId, metaId
             );
-            Bytes itemOwner = ProgramHelper.Program<PASS>(address).getOwner(id);
-            return (Info.Sender() == itemOwner);
+
+            // Get asset data
+            string assetData = ProgramHelper.Program<PASS>(programOwner).getGTAssetData(assetId);
+
+            // Return JSON data
+            return assetData;
         }
     }
 }

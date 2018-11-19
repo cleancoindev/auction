@@ -43,11 +43,12 @@ class TestPASS(unittest.TestCase):
                 return check_pravda_status()
         print("Pravda status: {}".format(str(check_pravda_status())))
 
+        time.sleep(3)
+
         # Deploy smart-contract to Pravda
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/test-wallet.json", "-l", "9000000",
                             "-i", "PASS.pravda", "--program-wallet", "wallets/program-wallet.json"])
-
-        print("Deployed PASS to Pravda")
+        print("PASS.pravda deployed on fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b")
 
     # Set up particular contract test
     def setUp(self):
@@ -65,29 +66,37 @@ class TestPASS(unittest.TestCase):
         print("{}.pravda deployed on {}".format(name, address))
 
         # Run ASM code calling test program and save output to res
-        res = str(check_output(
+        res = check_output(
             'echo "push \\"test_{}\\" push x{} push 1 pcall"'.format(name, address) +
             '| pravda compile asm |'+
             'pravda broadcast run -w wallets/program-wallet.json -l 9000000 '+
-            '--program-wallet wallets/{}-test-wallet.json'.format(name), shell=True)) \
-            .replace('\\n', '')[2:-1]
-        self.res = json.loads(res)["executionResult"]["success"]["stack"]
+            '--program-wallet wallets/{}-test-wallet.json'.format(name), shell=True)
+        self.res = json.loads(res.decode('utf-8-sig'))["executionResult"]["success"]
 
         # Clean up the program wallet
         call(["rm", "-rf", "wallets/{}-test-wallet.json".format(name)])
 
     # Test if assets can be emitted
     def test_emit(self):
-        self.assertEqual(['int32.1'], self.res)
+        self.assertEqual(self.res["stack"][0], 'utf8.{'+
+            '"owner": "E04919086E3FEE6F1D8F6247A2C0B38F874AB40A50AD2C62775FB09BAA05E342",'+
+            '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",'+
+            '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000002"'+
+        '}')
 
     # Test if assets can be transfered
     def test_transfer(self):
-        self.assertEqual(['int32.1'], self.res)
+        self.assertEqual(self.res["stack"][0], 'utf8.{'+
+            '"owner": "0000000000000000000000000000000000000000000000000000000000000000",'+
+            '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",'+
+            '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000002"'+
+        '}')
 
     @classmethod
     def tearDownClass(self):
         # Terminate Pravda after testing
         print('Terminating pravda')
+        time.sleep(2)
         self.pravda.send_signal(signal.SIGINT)
         self.pravda.wait()
 
