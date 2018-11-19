@@ -13,7 +13,6 @@ import scala.concurrent.Future
 object AuctionApp extends App {
 
   import GuiState._
-  import ApiHelper._
   import GuiState.globalContext._
   import GuiState.globalContext.symbolDsl._
 
@@ -360,13 +359,13 @@ object AuctionApp extends App {
                     event('click) { access =>
                       for {
                         _ <- access.transition(_ => state.copy(inProgress = true))
-                        result <- api.test(Utf8("world"))
+                        result <- api.testAsset(Int32(0))
                         _ <- access.transition {
                           result match {
                             case Left(error) =>
                               _ => state.copy(inProgress = false, result = Some(error))
-                            case Right(meta) =>
-                              _ => state.copy(inProgress = false, result = Some(meta.data))
+                            case Right(asset) =>
+                              _ => state.copy(inProgress = false, result = Some(asset.name))
                           }
                         }
                       } yield {
