@@ -1,3 +1,11 @@
 obj/
 bin/
 .vscode/
+.idea/
+target/
+project/project/target/
+.cache
+.classpath
+.project
+.settings/
+
