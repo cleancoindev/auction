@@ -33,4 +33,4 @@ def compile_contracts(tests):
       call(["rm", "-rf", "PASS.exe", "PASS.dll", "PASS.pdb"])
 
 if __name__ == '__main__':
-      compile_contracts(['emit', 'transfer'])
+      compile_contracts(['emit', 'transfer', 'itemlist'])

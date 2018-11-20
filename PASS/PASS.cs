@@ -54,12 +54,6 @@ namespace PcallNamespace {
 
         public static void Main() { }
 
-        // Last id given to a GT asset
-        public UInt32 lastGTId = 0;
-
-        // Last id given to an XC asset
-        public UInt32 lastXCId = 0;
-
         // Parse arguments into Asset object
         private Asset ParseAsset(Bytes owner, Bytes externalId, Bytes metaId){
             var asset = new Asset();
@@ -78,6 +72,12 @@ namespace PcallNamespace {
                 "\"metaId\": \""     + getMetaData(asset.metaId)    + "\""  +
             "}";
         }
+
+        // Last id given to a GT asset
+        public UInt32 lastGTId = 0;
+
+        // Last id given to an XC asset
+        public UInt32 lastXCId = 0;
 
         // Mapping storing GT assets
         // This mapping's key is asset's blockchain id
@@ -103,6 +103,58 @@ namespace PcallNamespace {
 
         public string getXCAssetData(UInt32 id){
             return DumpAsset(getXCAsset(id));
+        }
+
+        // Mapping storing GT assets ids belonging to a user
+        // Key is the concatenation of user address and asset number in his storage
+        public Mapping<string, UInt32> GTUsersAssetIds =
+            new Mapping<string, UInt32>();
+
+        // Mapping storing GT user's asset counter
+        public Mapping<Bytes, UInt32> GTUsersAssetCount =
+            new Mapping<Bytes, UInt32>();
+
+        // Get user's asset counter
+        public UInt32 getGTUsersAssetCount(Bytes address) {
+            return GTUsersAssetCount.getDefault(address, 0);
+        }
+
+        // Get one of user's GT assets
+        public UInt32 getUsersGTAssetId(Bytes address, UInt32 number) {
+            // We can't get more assets than user owns
+            if(number >= GTUsersAssetCount.getDefault(address, 0)){
+                Error.Throw("This asset doesn't exist!");
+            }
+            string key = getUserAssetKey(address, number);
+            return GTUsersAssetIds.get(key);
+        }
+
+        // Mapping storing XC assets ids belonging to a user
+        public Mapping<string, UInt32> XCUsersAssetIds =
+            new Mapping<string, UInt32>();
+
+        // Mapping storing XC user's asset counter
+        public Mapping<Bytes, UInt32> XCUsersAssetCount =
+            new Mapping<Bytes, UInt32>();
+
+        // Get user's asset counter
+        public UInt32 getXCUsersAssetCount(Bytes address) {
+            return XCUsersAssetCount.getDefault(address, 0);
+        }
+
+        // Get one of user's XC assets
+        public UInt32 getUsersXCAssetId(Bytes address, UInt32 number) {
+            // We can't get more assets than user owns
+            if(number >= XCUsersAssetCount.getDefault(address, 0)){
+                Error.Throw("This asset doesn't exist!");
+            }
+            string key = getUserAssetKey(address, number);
+            return XCUsersAssetIds.get(key);
+        }
+
+        // Get key for users asset storage
+        private string getUserAssetKey(Bytes address, UInt32 number){
+            return (BytesToHex(address) + System.Convert.ToString(number));
         }
 
         // Get asset meta data using his metaId
@@ -171,6 +223,14 @@ namespace PcallNamespace {
 
             // Putting the asset into storage
             GTAssets.put(id, asset);
+            // Putting asset into user's storage
+            UInt32 assetCount = GTUsersAssetCount.getDefault(owner, 0);
+            string key = getUserAssetKey(owner, assetCount);
+            GTUsersAssetIds.put(key, id);
+            GTUsersAssetCount.put(owner, assetCount + 1);
+
+            // Log an event
+            Log.Event("EmitGT", DumpAsset(asset));
 
             return id;
         }
@@ -180,8 +240,34 @@ namespace PcallNamespace {
             assertIsAuction();
             // Passing the ownership
             Asset asset = getGTAsset(id);
+            Bytes oldOwner  = asset.owner;
             asset.owner = to;
             GTAssets.put(id, asset);
+
+            /*
+            Making changes to users assets storage
+            */ 
+
+            // Delete from old owner's storage
+            UInt32 oldOwnerassetCount = GTUsersAssetCount.getDefault(oldOwner, 0);
+            for(UInt32 i = 0; i < oldOwnerassetCount; i++){
+                if(GTUsersAssetIds.get(getUserAssetKey(oldOwner, i)) == id){
+                    UInt32 lastAsset = GTUsersAssetIds.get(getUserAssetKey(oldOwner, oldOwnerassetCount-1));
+                    GTUsersAssetIds.put(getUserAssetKey(oldOwner, i), lastAsset);
+                    GTUsersAssetIds.put(getUserAssetKey(oldOwner,oldOwnerassetCount-1), 0);
+                    GTUsersAssetCount.put(oldOwner, oldOwnerassetCount - 1);
+                    break;
+                }
+            }
+
+            // Add to new onwer's storage
+            UInt32 assetCount = GTUsersAssetCount.getDefault(to, 0);
+            string key = getUserAssetKey(to, assetCount);
+            GTUsersAssetIds.put(key, id);
+            GTUsersAssetCount.put(to, assetCount + 1);
+
+            // Log an event
+            Log.Event("TransferGT", DumpAsset(asset));
         }
 
         // Interaction with XC assets storage
@@ -196,6 +282,14 @@ namespace PcallNamespace {
 
             // Putting the asset into storage
             XCAssets.put(id, asset);
+            // Putting asset into user's storage
+            UInt32 assetCount = XCUsersAssetCount.getDefault(owner, 0);
+            string key = getUserAssetKey(owner, assetCount);
+            XCUsersAssetIds.put(key, id);
+            XCUsersAssetCount.put(owner, assetCount + 1);
+
+            // Log an event
+            Log.Event("EmitXC", DumpAsset(asset));
 
             return id;
         }
@@ -204,11 +298,39 @@ namespace PcallNamespace {
             // Only the auction can transfer assets
             assertIsAuction();
             // Passing the ownership
-            getXCAsset(id).owner = to;
+            Asset asset = getXCAsset(id);
+            Bytes oldOwner  = asset.owner;
+            asset.owner = to;
+            XCAssets.put(id, asset);
+
+            /*
+            Making changes to users assets storage
+            */ 
+
+            // Delete from old owner's storage
+            UInt32 oldOwnerassetCount = XCUsersAssetCount.getDefault(oldOwner, 0);
+            for(UInt32 i = 0; i < oldOwnerassetCount; i++){
+                if(XCUsersAssetIds.get(getUserAssetKey(oldOwner, i)) == id){
+                    UInt32 lastAsset = XCUsersAssetIds.get(getUserAssetKey(oldOwner, oldOwnerassetCount-1));
+                    XCUsersAssetIds.put(getUserAssetKey(oldOwner, i), lastAsset);
+                    XCUsersAssetIds.put(getUserAssetKey(oldOwner,oldOwnerassetCount-1), 0);
+                    XCUsersAssetCount.put(oldOwner, oldOwnerassetCount - 1);
+                    break;
+                }
+            }
+
+            // Add to new onwer's storage
+            UInt32 assetCount = XCUsersAssetCount.getDefault(to, 0);
+            string key = getUserAssetKey(to, assetCount);
+            XCUsersAssetIds.put(key, id);
+            XCUsersAssetCount.put(to, assetCount + 1);
+
+            // Log an event
+            Log.Event("TransferXC", DumpAsset(asset));
         }
 
         /*
-        Some string operations
+        Some string & bytes operations
         */
 
         private string HexPart(int b) {

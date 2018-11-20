@@ -20,7 +20,7 @@ class TestPASS(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         # Compile main & test contracts
-        compile.compile_contracts(['emit', 'transfer'])
+        compile.compile_contracts(['emit', 'transfer', 'itemlist'])
 
         # Delete current pravda blockchain data
         call(["rm", "-rf", "pravda-data"])
@@ -91,6 +91,10 @@ class TestPASS(unittest.TestCase):
             '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",'+
             '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000002"'+
         '}')
+
+    # Test if item list is working
+    def test_itemlist(self):
+        self.assertEqual(len(self.res["stack"]), 0)
 
     @classmethod
     def tearDownClass(self):
