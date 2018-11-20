@@ -9,3 +9,10 @@ bin/
 pravda-data/
 venv/
 __pycache__/
+.idea/
+target/
+project/project/target/
+.cache
+.classpath
+.project
+.settings/
