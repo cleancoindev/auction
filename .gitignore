@@ -1,6 +1,14 @@
 obj/
 bin/
 .vscode/
+*.dll
+*.exe
+*.exe.mdb
+*.pdb
+*.pravda
+pravda-data/
+venv/
+__pycache__/
 .idea/
 target/
 project/project/target/
@@ -8,4 +16,3 @@ project/project/target/
 .classpath
 .project
 .settings/
-
