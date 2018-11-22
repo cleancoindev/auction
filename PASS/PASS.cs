@@ -52,7 +52,7 @@ namespace PcallNamespace {
         only GT methods should be use for GT assets, similarly for XC assets.
         */
 
-        public static void Main() { }
+        public static void Main(){ }
 
         // Parse arguments into Asset object
         private Asset ParseAsset(Bytes owner, Bytes externalId, Bytes metaId){
@@ -92,6 +92,14 @@ namespace PcallNamespace {
             return DumpAsset(getGTAsset(id));
         }
 
+        public Bytes getGTAssetOwner(UInt32 id){
+            return getGTAsset(id).owner;
+        }
+
+        public Bytes getGTAssetExternalId(UInt32 id){
+            return getGTAsset(id).externalId;
+        }
+
         // Mapping storing XC assets
         // This mapping's key is asset's blockchain id
         public Mapping<UInt32, Asset> XCAssets =
@@ -105,6 +113,14 @@ namespace PcallNamespace {
             return DumpAsset(getXCAsset(id));
         }
 
+        public Bytes getXCAssetOwner(UInt32 id){
+            return getXCAsset(id).owner;
+        }
+
+        public Bytes getXCAssetExternalId(UInt32 id){
+            return getXCAsset(id).externalId;
+        }
+
         // Mapping storing GT assets ids belonging to a user
         // Key is the concatenation of user address and asset number in his storage
         public Mapping<string, UInt32> GTUsersAssetIds =
@@ -115,12 +131,12 @@ namespace PcallNamespace {
             new Mapping<Bytes, UInt32>();
 
         // Get user's asset counter
-        public UInt32 getGTUsersAssetCount(Bytes address) {
+        public UInt32 getGTUsersAssetCount(Bytes address){
             return GTUsersAssetCount.getDefault(address, 0);
         }
 
         // Get one of user's GT assets
-        public UInt32 getUsersGTAssetId(Bytes address, UInt32 number) {
+        public UInt32 getUsersGTAssetId(Bytes address, UInt32 number){
             // We can't get more assets than user owns
             if(number >= GTUsersAssetCount.getDefault(address, 0)){
                 Error.Throw("This asset doesn't exist!");
@@ -138,12 +154,12 @@ namespace PcallNamespace {
             new Mapping<Bytes, UInt32>();
 
         // Get user's asset counter
-        public UInt32 getXCUsersAssetCount(Bytes address) {
+        public UInt32 getXCUsersAssetCount(Bytes address){
             return XCUsersAssetCount.getDefault(address, 0);
         }
 
         // Get one of user's XC assets
-        public UInt32 getUsersXCAssetId(Bytes address, UInt32 number) {
+        public UInt32 getUsersXCAssetId(Bytes address, UInt32 number){
             // We can't get more assets than user owns
             if(number >= XCUsersAssetCount.getDefault(address, 0)){
                 Error.Throw("This asset doesn't exist!");
@@ -333,7 +349,7 @@ namespace PcallNamespace {
         Some string & bytes operations
         */
 
-        private string HexPart(int b) {
+        private string HexPart(int b){
             if (b == 0)
                 return "0";
             else if (b == 1)
@@ -369,15 +385,13 @@ namespace PcallNamespace {
             return "";
         }
 
-        private string ByteToHex(byte b)
-        {
+        private string ByteToHex(byte b){
             return HexPart(b / 16) + HexPart(b % 16);
         }
 
-        private string BytesToHex(Bytes bytes)
-        {
+        private string BytesToHex(Bytes bytes){
             string res = "";
-            for (int i = 0; i < bytes.Length(); i++) {
+            for (int i = 0; i < bytes.Length(); i++){
                 res += ByteToHex(bytes[i]);
             }
             return res;
