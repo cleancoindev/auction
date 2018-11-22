@@ -1,7 +1,7 @@
-using Expload.Pravda;
-using System;
+namespace auction {
 
-namespace PcallNamespace {
+    using Expload.Pravda;
+    using System;
 
     [Program]
     public class PASS {

@@ -1,7 +1,7 @@
-using Expload.Pravda;
-using System;
+namespace auction {
 
-namespace PcallNamespace {
+    using Expload.Pravda;
+    using System;
 
     [Program]
     public class Auction {
@@ -43,7 +43,7 @@ namespace PcallNamespace {
         // Parse arguments into Lot object
         private Lot ParseLot(
             Bytes creator, UInt32 gameId, UInt32 assetId,
-            Bytes externalId, UInt32 startingPrice, UInt64 endTime
+            Bytes externalId, UInt32 startingPrice, UInt32 endTime
         ){
             var lot = new Lot();
             lot.creator = creator;
@@ -200,7 +200,7 @@ namespace PcallNamespace {
         /// </remarks>
         public UInt32 createLot(
             UInt32 gameId, UInt32 assetId, 
-            UInt32 startingPrice, UInt64 endTime
+            UInt32 startingPrice, UInt32 endTime
         ){
             // Check if user has the item he wants to sell
             assertIsItemOwner(gameId, assetId);
@@ -436,7 +436,7 @@ namespace PcallNamespace {
         public Bytes lastBidder = Bytes.VOID_ADDRESS;
 
         // UNIX timestamp for lot end
-        public UInt64 endTime;
+        public UInt32 endTime;
 
         // If the lot is already closed
         public bool closed = false;
