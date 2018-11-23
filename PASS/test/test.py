@@ -20,7 +20,7 @@ class TestPASS(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         # Compile main & test contracts
-        compile.compile_contracts(['emit', 'transfer', 'itemlist'])
+        compile.compile_contracts(['emit', 'transfer', 'itemlist', 'usersitems'])
 
         # Delete current pravda blockchain data
         call(["rm", "-rf", "pravda-data"])
@@ -95,6 +95,26 @@ class TestPASS(unittest.TestCase):
     # Test if item list is working
     def test_itemlist(self):
         self.assertEqual(len(self.res["stack"]), 0)
+
+    # Test if getting all user items works
+    def test_usersitems(self):
+        self.assertEqual(self.res["stack"][0], 'utf8.['+
+            '{' +
+                '"owner": "A1FE824F193BCEE32F33B9E01245BD41F05A157ECA73DAF65D70EBD27430836D",' +
+                '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
+                '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000001"' +
+            '},' +
+            '{' +
+                '"owner": "A1FE824F193BCEE32F33B9E01245BD41F05A157ECA73DAF65D70EBD27430836D",' +
+                '"externalId": "0000000000000000000000000000000000000000000000000000000000000002",' +
+                '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000002"' +
+            '},' +
+            '{' +
+                '"owner": "A1FE824F193BCEE32F33B9E01245BD41F05A157ECA73DAF65D70EBD27430836D",' +
+                '"externalId": "0000000000000000000000000000000000000000000000000000000000000003",' +
+                '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000003"' +
+            '}' +
+        ']')
 
     @classmethod
     def tearDownClass(self):
