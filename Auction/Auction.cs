@@ -27,7 +27,7 @@ namespace auction {
             // Only Auction Owner can do this
             assertIsAuctionOwner();
             // Add game address to the storage
-            gamesAddresses.put(lastGameId++, address);
+            gamesAddresses.put(++lastGameId, address);
             return lastGameId;
         }
 
@@ -64,7 +64,10 @@ namespace auction {
                 "\"assetId\": \""       + System.Convert.ToString(lot.assetId)       + "\"," +
                 "\"externalId\": \""    + BytesToHex(lot.externalId)                 + "\"," +
                 "\"startingPrice\": \"" + System.Convert.ToString(lot.startingPrice) + "\"," +
-                "\"endTime\": \""       + System.Convert.ToString(lot.endTime)       + "\""  +
+                "\"lastBid\": \""       + System.Convert.ToString(lot.lastBid)       + "\"," +
+                "\"lastBidder\": \""    + BytesToHex(lot.lastBidder)                 + "\"," +
+                "\"endTime\": \""       + System.Convert.ToString(lot.endTime)       + "\"," +
+                "\"closed\": \""        + System.Convert.ToString(lot.closed)        + "\"" +
             "}";
         }
 
@@ -104,7 +107,7 @@ namespace auction {
         public UInt32 getUserLotId(Bytes address, UInt32 number){
             // We can't get more lots than user has
             if(number >= userLotsCount.getDefault(address, 0)){
-                Error.Throw("This asset doesn't exist!");
+                Error.Throw("This user's lot doesn't exist!");
             }
             string key = getUserLotKey(address, number);
             return userLots.get(key);
@@ -131,7 +134,7 @@ namespace auction {
         public UInt32 getAssetLotId(UInt32 gameId, Bytes externalId, UInt32 number){
             // We can't get more lots than asset has
             if(number >= assetLotsCount.getDefault(getAssetCountKey(gameId, externalId), 0)){
-                Error.Throw("This asset doesn't exist!");
+                Error.Throw("This asset's lot doesn't exist!");
             }
             string key = getAssetLotKey(gameId, externalId, number);
             return assetLots.get(key);
@@ -221,8 +224,8 @@ namespace auction {
 
             // Create lot object and put it into main storage
             Lot lot = ParseLot(Info.Sender(), gameId, assetId, externalId, startingPrice, endTime);
-            UInt32 lotId = lastLotId;
-            Lots.put(lastLotId++, lot);
+            UInt32 lotId = ++lastLotId;
+            Lots.put(lastLotId, lot);
 
             // Put the lot into user storage
             UInt32 userStorageLastId = userLotsCount.getDefault(Info.Sender(), 0);
@@ -235,7 +238,7 @@ namespace auction {
             UInt32 assetCount = assetLotsCount.getDefault(assetLotsCountKey, 0);
             string assetLotsKey = getAssetLotKey(gameId, externalId, assetCount);
             assetLots.put(assetLotsKey, lotId);
-            assetLotsCount.put(assetLotsKey, assetCount+1);
+            assetLotsCount.put(assetLotsCountKey, assetCount+1);
 
             // TODO: add event
 
@@ -310,6 +313,11 @@ namespace auction {
             // Get the lot object
             Lot lot = getLot(lotId);
 
+            // Check if the lot is already closed
+            if(lot.closed){
+                Error.Throw("The lot is already closed.");
+            }
+
             // Change the lot state and write it to the storage
             lot.closed = true;
             Lots.put(lotId, lot);
@@ -341,6 +349,11 @@ namespace auction {
 
             // Get the lot object
             Lot lot = getLot(lotId);
+
+            // Check if the lot is already closed
+            if(lot.closed){
+                Error.Throw("The lot is already closed.");
+            }
 
             // Change the lot state and write it to the storage
             lot.closed = true;
@@ -415,30 +428,30 @@ namespace auction {
         */
 
         // Address of lot creator
-        public Bytes creator;
+        public Bytes creator { get; set; } = Bytes.VOID_ADDRESS;
 
         // Id of the game the asset is from
-        public UInt32 gameId;
+        public UInt32 gameId { get; set; } = 0;
 
         // Blockchain id of the asset sold (see PASS.cs)
-        public UInt32 assetId;
+        public UInt32 assetId { get; set; } = 0;
 
         // External game id of the asset sold (see PASS.cs)
-        public Bytes externalId;
+        public Bytes externalId { get; set; } = Bytes.VOID_ADDRESS;
 
         // Starting price of the asset
-        public UInt32 startingPrice;
+        public UInt32 startingPrice { get; set; } = 0;
 
         // Last (highest) lot bid
-        public UInt32 lastBid = 0;
+        public UInt32 lastBid { get; set; } = 0;
 
         // The owner of the last bid
-        public Bytes lastBidder = Bytes.VOID_ADDRESS;
+        public Bytes lastBidder { get; set; } = Bytes.VOID_ADDRESS;
 
         // UNIX timestamp for lot end
-        public UInt32 endTime;
+        public UInt32 endTime { get; set; } = 0;
 
         // If the lot is already closed
-        public bool closed = false;
+        public bool closed { get; set; } = false;
     }
 }

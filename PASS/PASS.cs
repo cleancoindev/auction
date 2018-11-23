@@ -22,6 +22,7 @@ namespace auction {
 
         Blockchain id - used to navigate storage mappings in
         PASS contract, has no in-game meaning
+        Can't equal 0 (0 means no asset exists)
 
         ---------------------------------
 
@@ -73,10 +74,10 @@ namespace auction {
             "}";
         }
 
-        // Last id given to a GT asset
+        // Last id given to a GT asset (id=0 is invalid)
         public UInt32 lastGTId = 0;
 
-        // Last id given to an XC asset
+        // Last id given to an XC asset (id=0 is invalid)
         public UInt32 lastXCId = 0;
 
         // Mapping storing GT assets
@@ -257,6 +258,12 @@ namespace auction {
             // Passing the ownership
             Asset asset = getGTAsset(id);
             Bytes oldOwner  = asset.owner;
+
+            // Check if this asset actually exists
+            if(oldOwner == Bytes.VOID_ADDRESS){
+                Error.Throw("This asset doesn't exist.");
+            }
+
             asset.owner = to;
             GTAssets.put(id, asset);
 
@@ -316,6 +323,12 @@ namespace auction {
             // Passing the ownership
             Asset asset = getXCAsset(id);
             Bytes oldOwner  = asset.owner;
+
+            // Check if this asset actually exists
+            if(oldOwner == Bytes.VOID_ADDRESS){
+                Error.Throw("This asset doesn't exist.");
+            }
+            
             asset.owner = to;
             XCAssets.put(id, asset);
 
@@ -404,15 +417,15 @@ namespace auction {
         */
 
         // Adress of asset's owner
-        public Bytes owner { get; set; }
+        public Bytes owner { get; set; } = Bytes.VOID_ADDRESS;
 
         // Game's external asset id
         // E.g. two identical in-game swords
         // Have same internal game id
-        public Bytes externalId { get; set; }
+        public Bytes externalId { get; set; } = Bytes.VOID_ADDRESS;
 
         // External meta-data identifier
-        public Bytes metaId { get; set; }
+        public Bytes metaId { get; set; } = Bytes.VOID_ADDRESS;
     }
 
 }
