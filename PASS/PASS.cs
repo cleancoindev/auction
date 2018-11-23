@@ -137,13 +137,30 @@ namespace auction {
         }
 
         // Get one of user's GT assets
-        public UInt32 getUsersGTAssetId(Bytes address, UInt32 number){
+        private UInt32 _getUsersGTAssetId(Bytes address, UInt32 number){
             // We can't get more assets than user owns
             if(number >= GTUsersAssetCount.getDefault(address, 0)){
                 Error.Throw("This asset doesn't exist!");
             }
             string key = getUserAssetKey(address, number);
             return GTUsersAssetIds.get(key);
+        }
+
+        public UInt32 getUsersGTAssetId(Bytes address, UInt32 number){
+            return _getUsersGTAssetId(address, number);
+        }
+
+        // Get all of user's GT assets data
+        public string getUsersAllGTAssetsData(Bytes address){
+            string result = "[";
+            UInt32 amount = GTUsersAssetCount.getDefault(address, 0);
+            for(UInt32 num = 0; num < amount; num++){
+                result += DumpAsset(getGTAsset(_getUsersGTAssetId(address, num)));
+                if(num < amount - 1){
+                    result += ",";
+                }
+            }
+            return result + "]";
         }
 
         // Mapping storing XC assets ids belonging to a user
@@ -160,13 +177,30 @@ namespace auction {
         }
 
         // Get one of user's XC assets
-        public UInt32 getUsersXCAssetId(Bytes address, UInt32 number){
+        private UInt32 _getUsersXCAssetId(Bytes address, UInt32 number){
             // We can't get more assets than user owns
             if(number >= XCUsersAssetCount.getDefault(address, 0)){
                 Error.Throw("This asset doesn't exist!");
             }
             string key = getUserAssetKey(address, number);
             return XCUsersAssetIds.get(key);
+        }
+
+        public UInt32 getUsersXCAssetId(Bytes address, UInt32 number){
+            return _getUsersXCAssetId(address, number);
+        }
+
+        // Get all of user's XC assets data
+        public string getUsersAllXCAssetsData(Bytes address){
+            string result = "[";
+            UInt32 amount = XCUsersAssetCount.getDefault(address, 0);
+            for(UInt32 num = 0; num < amount; num++){
+                result += DumpAsset(getXCAsset(_getUsersXCAssetId(address, num)));
+                if(num < amount - 1){
+                    result += ",";
+                }
+            }
+            return result + "]";
         }
 
         // Get key for users asset storage
