@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageName>PASS</PackageName>
+    <PackageName>Auction</PackageName>
     <PackageId>auction.$(PackageName)</PackageId>
     <PackageVersion>1.0.0</PackageVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Expload.Pravda" Version="0.*" />
+    <ProjectReference Include="../PASS/PASS.csproj" />
   </ItemGroup>
   <Target Name="BuildPravdaAfterPublish" AfterTargets="Publish" Condition="'$(Configuration)' == 'Debug'">
     <Exec Command="pravda compile dotnet -i &quot;bin/Debug/netstandard2.0/publish&quot; -o bin/$(PackageName).pravda --main-class $(PackageId)" />

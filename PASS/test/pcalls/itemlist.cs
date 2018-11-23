@@ -1,11 +1,11 @@
-using Expload.Pravda;
-using System;
+namespace auction {
 
-namespace PcallNamespace {
+    using Expload.Pravda;
+    using System;
 
     [Program]
     public class itemlist {
-        public static int Main() {return 1;}
+        public static void Main() { }
 
         public void test_itemlist() {
             // Init addresses and get program by address

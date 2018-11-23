@@ -22,7 +22,7 @@ def compile_contracts(tests):
             # Generate Pravda-code
             call(["pravda", "compile", "dotnet", "--input",
                   "pcalls/{}.exe,pcalls/{}.pdb,PASS.exe,PASS.pdb".format(test, test), "--output",
-                  "pcalls/{}.pravda".format(test), "--main-class", "PcallNamespace.{}".format(test)])
+                  "pcalls/{}.pravda".format(test), "--main-class", "auction.{}".format(test)])
 
             # A litle clean-up
             call(["rm", "-rf", "pcalls/{}.exe".format(test), "pcalls/{}.pdb".format(test)])
