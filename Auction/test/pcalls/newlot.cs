@@ -13,8 +13,8 @@ namespace auction {
             Bytes AuctionAddress   = new Bytes("e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342");
 
             // Make 2 lots
-            UInt32 lotId = ProgramHelper.Program<Auction>(AuctionAddress).createLot(1, 1, 100, 1897084800);
-            UInt32 lotId_2 = ProgramHelper.Program<Auction>(AuctionAddress).createLot(1, 2, 150, 1897084600);
+            UInt32 lotId = ProgramHelper.Program<Auction>(AuctionAddress).createLot(1, 1, 200);
+            UInt32 lotId_2 = ProgramHelper.Program<Auction>(AuctionAddress).createLot(1, 2, 200);
 
             // Check if asset was transfered to auction wallet
             if(AuctionAddress != ProgramHelper.Program<PASS>(PassAddress).getXCAssetOwner(1)){
@@ -34,7 +34,7 @@ namespace auction {
             }
 
             // Check lot json dump
-            return ProgramHelper.Program<Auction>(AuctionAddress).getLotData(lotId);
+            return ProgramHelper.Program<Auction>(AuctionAddress).getUserLotsDataData(Info.Sender());
         }
     }
 }

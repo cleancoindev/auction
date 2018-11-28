@@ -80,6 +80,10 @@ namespace auction {
         // Last id given to an XC asset (id=0 is invalid)
         public UInt32 lastXCId = 0;
 
+        /*
+        Main asset storage
+        */
+        
         // Mapping storing GT assets
         // This mapping's key is asset's blockchain id
         public Mapping<UInt32, Asset> GTAssets =
@@ -122,6 +126,10 @@ namespace auction {
             return getXCAsset(id).externalId;
         }
 
+        /*
+        Users' asset storage
+        */
+
         // Mapping storing GT assets ids belonging to a user
         // Key is the concatenation of user address and asset number in his storage
         public Mapping<string, UInt32> GTUsersAssetIds =
@@ -150,7 +158,7 @@ namespace auction {
             return _getUsersGTAssetId(address, number);
         }
 
-        // Get all of user's GT assets data
+        // Get all of user's GT assets data JSONified
         public string getUsersAllGTAssetsData(Bytes address){
             string result = "[";
             UInt32 amount = GTUsersAssetCount.getDefault(address, 0);
@@ -190,7 +198,7 @@ namespace auction {
             return _getUsersXCAssetId(address, number);
         }
 
-        // Get all of user's XC assets data
+        // Get all of user's XC assets data JSONified
         public string getUsersAllXCAssetsData(Bytes address){
             string result = "[";
             UInt32 amount = XCUsersAssetCount.getDefault(address, 0);
@@ -207,16 +215,6 @@ namespace auction {
         private string getUserAssetKey(Bytes address, UInt32 number){
             return (BytesToHex(address) + System.Convert.ToString(number));
         }
-
-        // Get asset meta data using his metaId
-        // IMPORTANT: this method MUST be changed
-        // to return valid metadata url
-        private string getMetaData(Bytes metaId){
-            return "https://some_url/"+BytesToHex(metaId);
-        }
-
-        // Expload's auction smart contract address
-        Bytes auctionAddress = new Bytes("0000000000000000000000000000000000000000000000000000000000000000");
 
         /*
         Permission-checkers
@@ -253,14 +251,28 @@ namespace auction {
         }
 
         /*
-        Interaction with the storage
+        PASS data
         */
+
+        // Get asset meta data using his metaId
+        // IMPORTANT: this method MUST be changed
+        // to return valid metadata url
+        private string getMetaData(Bytes metaId){
+            return "https://some_url/"+BytesToHex(metaId);
+        }
+
+        // Expload's auction smart contract address
+        Bytes auctionAddress = new Bytes("0000000000000000000000000000000000000000000000000000000000000000");
 
         // Setting up auction address
         public void SetAuction(Bytes addr){
             assertIsGameOwner();
             auctionAddress = addr;
         }
+
+        /*
+        Interaction with the storage
+        */
 
         // Interaction with GT assets storage
 
@@ -301,9 +313,7 @@ namespace auction {
             asset.owner = to;
             GTAssets.put(id, asset);
 
-            /*
-            Making changes to users assets storage
-            */ 
+            // Making changes to users assets storage
 
             // Delete from old owner's storage
             UInt32 oldOwnerassetCount = GTUsersAssetCount.getDefault(oldOwner, 0);
@@ -366,9 +376,7 @@ namespace auction {
             asset.owner = to;
             XCAssets.put(id, asset);
 
-            /*
-            Making changes to users assets storage
-            */ 
+            // Making changes to users assets storage
 
             // Delete from old owner's storage
             UInt32 oldOwnerassetCount = XCUsersAssetCount.getDefault(oldOwner, 0);

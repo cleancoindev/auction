@@ -15,14 +15,16 @@ class TestPASS(unittest.TestCase):
     pravda = None
     # Result of setUp work
     res = None
+    
+    test_calls = ['setuppass', 'setupauction', 'newlot', 'buy', 'closelot']
 
     # Set up Pravda once before running the TestCase
     @classmethod
     def setUpClass(self):
         # Compile main & test contracts
-        compile.compile_contracts(['setuppass', 'setupauction', 'newlot', 'bid', 'closelot', 'timeout'])
+        compile.compile_contracts(self.test_calls)
 
-        # Delete current pravda blockchain data
+        
         call(["rm", "-rf", "pravda-data"])
         # Init new local pravda blockchain
         call(["pravda", "node", "init", "--local", "--coin-distribution", "test-coin-dist.json"])
@@ -95,42 +97,42 @@ class TestPASS(unittest.TestCase):
         # Create a new lot
         self.runContract("newlot", "test-wallet")
         self.assertEqual(self.res['stack'][0],
-        'utf8.{"creator": "8FC47DE7507F0881FB0133CBBD82733B69426B1B55904907F3DE3DBFB262210F",' +
+        'utf8.[' +
+              '{"creator": "8FC47DE7507F0881FB0133CBBD82733B69426B1B55904907F3DE3DBFB262210F",' +
               '"gameId": "1",' +
               '"assetId": "1",' +
               '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
-              '"startingPrice": "100",' +
-              '"lastBid": "0",' +
-              '"lastBidder": "0000000000000000000000000000000000000000000000000000000000000000",' +
-              '"endTime": "1897084800",' +
-              '"closed": "0"}')
+              '"price": "200",' +
+              '"closed": "0",' +
+              '"buyer": "0000000000000000000000000000000000000000000000000000000000000000"},' +
+              '{"creator": "8FC47DE7507F0881FB0133CBBD82733B69426B1B55904907F3DE3DBFB262210F",' +
+              '"gameId": "1",' +
+              '"assetId": "2",' +
+              '"externalId": "0000000000000000000000000000000000000000000000000000000000000002",' +
+              '"price": "200",' +
+              '"closed": "0",' +
+              '"buyer": "0000000000000000000000000000000000000000000000000000000000000000"}' +
+        ']')
 
         print("2 lots were created")
 
-        # Bid on a lot
-        self.runContract("bid", "test-wallet2")
+        # Buy  a lot
+        self.runContract("buy", "test-wallet2")
         self.assertEqual(self.res['stack'][0],
         'utf8.{"creator": "8FC47DE7507F0881FB0133CBBD82733B69426B1B55904907F3DE3DBFB262210F",' +
               '"gameId": "1",' +
               '"assetId": "1",' +
               '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
-              '"startingPrice": "100",' +
-              '"lastBid": "200",' +
-              '"lastBidder": "EDBFCA5B9A253738634352C465B2F0EA1A2F280DBF5510BD83010798DD203996",' +
-              '"endTime": "1897084800",' +
-              '"closed": "0"}')
+              '"price": "200",' +
+              '"closed": "1",' +
+              '"buyer": "EDBFCA5B9A253738634352C465B2F0EA1A2F280DBF5510BD83010798DD203996"}')
 
-        print("2 bids were made")
+        print("A lot was bought")
 
         # Close a lot
         self.runContract("closelot", "test-wallet")
         
         print("Lot was closed")
-        
-        # Timeout a lot
-        self.runContract("timeout", "auction-wallet")
-        
-        print("Lost was timed out")
 
     @classmethod
     def tearDownClass(self):
@@ -139,6 +141,14 @@ class TestPASS(unittest.TestCase):
         time.sleep(2)
         self.pravda.send_signal(signal.SIGINT)
         self.pravda.wait()
+
+        # Some clean-up
+        print('Cleaning up the directory')
+        call(["rm", "-rf", "pravda-data"])
+        call(["rm", "-rf", "PASS.pravda"])
+        call(["rm", "-rf", "Auction.pravda"])
+        for test_call in self.test_calls:
+            call(["rm", "-rf", "pcalls/{}.pravda".format(test_call)])
 
 if __name__ == '__main__':
     unittest.main()
