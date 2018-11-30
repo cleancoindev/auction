@@ -79,6 +79,7 @@ class TestPASS(unittest.TestCase):
     # Test if assets can be emitted
     def test_emit(self):
         self.assertEqual(self.res["stack"][0], 'utf8.{'+
+            '"id": "1",'+
             '"owner": "E04919086E3FEE6F1D8F6247A2C0B38F874AB40A50AD2C62775FB09BAA05E342",'+
             '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",'+
             '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000002"'+
@@ -87,6 +88,7 @@ class TestPASS(unittest.TestCase):
     # Test if assets can be transfered
     def test_transfer(self):
         self.assertEqual(self.res["stack"][0], 'utf8.{'+
+            '"id": "4",'+
             '"owner": "0000000000000000000000000000000000000000000000000000000000000000",'+
             '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",'+
             '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000002"'+
@@ -100,16 +102,19 @@ class TestPASS(unittest.TestCase):
     def test_usersitems(self):
         self.assertEqual(self.res["stack"][0], 'utf8.['+
             '{' +
+                '"id": "5",'+
                 '"owner": "A1FE824F193BCEE32F33B9E01245BD41F05A157ECA73DAF65D70EBD27430836D",' +
                 '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
                 '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000001"' +
             '},' +
             '{' +
+                '"id": "6",'+
                 '"owner": "A1FE824F193BCEE32F33B9E01245BD41F05A157ECA73DAF65D70EBD27430836D",' +
                 '"externalId": "0000000000000000000000000000000000000000000000000000000000000002",' +
                 '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000002"' +
             '},' +
             '{' +
+                '"id": "7",'+
                 '"owner": "A1FE824F193BCEE32F33B9E01245BD41F05A157ECA73DAF65D70EBD27430836D",' +
                 '"externalId": "0000000000000000000000000000000000000000000000000000000000000003",' +
                 '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000003"' +

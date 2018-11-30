@@ -5,6 +5,7 @@ Expload Auction is a universal market platform for all games on Expload platform
 ## Program structure
 ### Lot class
 Represents a lot on the Auction. Attributes:
+- `UInt32 id` - blockchain id of the lot
 - `Bytes creator` - address lot creator
 - `UInt32 gameId` - id of the game asset being sold is from
 - `UInt32 assetId` - blockchain id of the asset sold (see [PASS docs](../PASS/README.md))

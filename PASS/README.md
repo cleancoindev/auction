@@ -21,6 +21,7 @@ There are several things you are to change before deploying PASS and using it wi
 
 ### Asset class
 Represents an actual non-fungible token. Attributes:
+- `UInt32 id` - blockchain id of the asset
 - `Bytes owner` - address of asset owner
 - `Bytes externalId` - game's internal asset id. For example, two completely identical in-game swords have a same external id.
 - `Bytes metaId` - asset's meta data id. Used to get asset's meta data using `getMetaData` method.

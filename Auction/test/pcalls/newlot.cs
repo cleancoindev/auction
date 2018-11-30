@@ -34,7 +34,7 @@ namespace auction {
             }
 
             // Check lot json dump
-            return ProgramHelper.Program<Auction>(AuctionAddress).getUserLotsDataData(Info.Sender());
+            return ProgramHelper.Program<Auction>(AuctionAddress).getUserLotsData(Info.Sender());
         }
     }
 }

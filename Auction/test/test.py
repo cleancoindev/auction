@@ -11,6 +11,7 @@ import compile
 
 class TestPASS(unittest.TestCase):
 
+    maxDiff = None
     # Pravda instance
     pravda = None
     # Result of setUp work
@@ -98,14 +99,16 @@ class TestPASS(unittest.TestCase):
         self.runContract("newlot", "test-wallet")
         self.assertEqual(self.res['stack'][0],
         'utf8.[' +
-              '{"creator": "8FC47DE7507F0881FB0133CBBD82733B69426B1B55904907F3DE3DBFB262210F",' +
+              '{"id": "1",' +
+              '"creator": "8FC47DE7507F0881FB0133CBBD82733B69426B1B55904907F3DE3DBFB262210F",' +
               '"gameId": "1",' +
               '"assetId": "1",' +
               '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
               '"price": "200",' +
               '"closed": "0",' +
               '"buyer": "0000000000000000000000000000000000000000000000000000000000000000"},' +
-              '{"creator": "8FC47DE7507F0881FB0133CBBD82733B69426B1B55904907F3DE3DBFB262210F",' +
+              '{"id": "2",' +
+              '"creator": "8FC47DE7507F0881FB0133CBBD82733B69426B1B55904907F3DE3DBFB262210F",' +
               '"gameId": "1",' +
               '"assetId": "2",' +
               '"externalId": "0000000000000000000000000000000000000000000000000000000000000002",' +
@@ -119,7 +122,8 @@ class TestPASS(unittest.TestCase):
         # Buy  a lot
         self.runContract("buy", "test-wallet2")
         self.assertEqual(self.res['stack'][0],
-        'utf8.{"creator": "8FC47DE7507F0881FB0133CBBD82733B69426B1B55904907F3DE3DBFB262210F",' +
+        'utf8.{"id": "1",' +
+              '"creator": "8FC47DE7507F0881FB0133CBBD82733B69426B1B55904907F3DE3DBFB262210F",' +
               '"gameId": "1",' +
               '"assetId": "1",' +
               '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +

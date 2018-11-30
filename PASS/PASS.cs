@@ -56,8 +56,9 @@ namespace auction {
         public static void Main(){ }
 
         // Parse arguments into Asset object
-        private Asset ParseAsset(Bytes owner, Bytes externalId, Bytes metaId){
+        private Asset ParseAsset(UInt32 id, Bytes owner, Bytes externalId, Bytes metaId){
             var asset = new Asset();
+            asset.id = id;
             asset.owner = owner;
             asset.externalId = externalId;
             asset.metaId = metaId;
@@ -68,9 +69,10 @@ namespace auction {
         private string DumpAsset(Asset asset){
             return
             "{" +
-                "\"owner\": \""      + BytesToHex(asset.owner)      + "\"," +
-                "\"externalId\": \"" + BytesToHex(asset.externalId) + "\"," +
-                "\"metaId\": \""     + getMetaData(asset.metaId)    + "\""  +
+                "\"id\": \""         + System.Convert.ToString(asset.id) + "\"," +
+                "\"owner\": \""      + BytesToHex(asset.owner)           + "\"," +
+                "\"externalId\": \"" + BytesToHex(asset.externalId)      + "\"," +
+                "\"metaId\": \""     + getMetaData(asset.metaId)         + "\""  +
             "}";
         }
 
@@ -279,10 +281,10 @@ namespace auction {
         public UInt32 EmitGTAsset(Bytes owner, Bytes externalId, Bytes metaId){
             // Only the gameserver (or owner) can emit assets
             assertIsGameOwner();
-            // Parsing the asset
-            Asset asset = ParseAsset(owner, externalId, metaId);
             // Getting item's blockchain id
             UInt32 id = ++lastGTId;
+            // Parsing the asset
+            Asset asset = ParseAsset(id, owner, externalId, metaId);
 
             // Putting the asset into storage
             GTAssets.put(id, asset);
@@ -342,10 +344,10 @@ namespace auction {
         public UInt32 EmitXCAsset(Bytes owner, Bytes externalId, Bytes metaId){
             // Only the gameserver (or owner) can emit assets
             assertIsGameOwner();
-            // Parsing the asset
-            Asset asset = ParseAsset(owner, externalId, metaId);
             // Getting item's blockchain id
             UInt32 id = ++lastXCId;
+            // Parsing the asset
+            Asset asset = ParseAsset(id, owner, externalId, metaId);
 
             // Putting the asset into storage
             XCAssets.put(id, asset);
@@ -457,6 +459,9 @@ namespace auction {
         /*
         Class defining a game asset
         */
+
+        // Asset's blockchain id
+        public UInt32 id { get; set; } = 0;
 
         // Adress of asset's owner
         public Bytes owner { get; set; } = Bytes.VOID_ADDRESS;

@@ -42,10 +42,11 @@ namespace auction {
 
         // Parse arguments into Lot object
         private Lot ParseLot(
-            Bytes creator, UInt32 gameId, UInt32 assetId,
-            Bytes externalId, UInt32 price
+            UInt32 id, Bytes creator, UInt32 gameId, 
+            UInt32 assetId, Bytes externalId, UInt32 price
         ){
             var lot = new Lot();
+            lot.id = id;
             lot.creator = creator;
             lot.gameId = gameId;
             lot.assetId = assetId;
@@ -58,13 +59,14 @@ namespace auction {
         private string DumpLot(Lot lot){
             return
             "{" +
-                "\"creator\": \""       + BytesToHex(lot.creator)                    + "\"," +
-                "\"gameId\": \""        + System.Convert.ToString(lot.gameId)        + "\"," + 
-                "\"assetId\": \""       + System.Convert.ToString(lot.assetId)       + "\"," +
-                "\"externalId\": \""    + BytesToHex(lot.externalId)                 + "\"," +
-                "\"price\": \""         + System.Convert.ToString(lot.price)         + "\"," +
-                "\"closed\": \""        + System.Convert.ToString(lot.closed)        + "\"," +
-                "\"buyer\": \""         + BytesToHex(lot.buyer)                      + "\"" +
+                "\"id\": \""            + System.Convert.ToString(lot.id)      + "\"," + 
+                "\"creator\": \""       + BytesToHex(lot.creator)              + "\"," +
+                "\"gameId\": \""        + System.Convert.ToString(lot.gameId)  + "\"," + 
+                "\"assetId\": \""       + System.Convert.ToString(lot.assetId) + "\"," +
+                "\"externalId\": \""    + BytesToHex(lot.externalId)           + "\"," +
+                "\"price\": \""         + System.Convert.ToString(lot.price)   + "\"," +
+                "\"closed\": \""        + System.Convert.ToString(lot.closed)  + "\"," +
+                "\"buyer\": \""         + BytesToHex(lot.buyer)                + "\"" +
             "}";
         }
 
@@ -120,7 +122,7 @@ namespace auction {
         }
 
         // Get all of users' lots jsonified
-        public string getUserLotsDataData(Bytes address){
+        public string getUserLotsData(Bytes address){
             string result = "[";
             UInt32 amount = userLotsCount.getDefault(address, 0);
             for(UInt32 num = 0; num < amount; num++){
@@ -169,7 +171,7 @@ namespace auction {
         }
 
         // Get all of asset lots jsonified
-        public string getAssetLotsDataData(UInt32 gameId, Bytes externalId){
+        public string getAssetLotsData(UInt32 gameId, Bytes externalId){
             string result = "[";
             UInt32 amount = assetLotsCount.getDefault(getAssetCountKey(gameId, externalId), 0);
             for(UInt32 num = 0; num < amount; num++){
@@ -244,8 +246,8 @@ namespace auction {
             ProgramHelper.Program<PASS>(gameAddress).TransferXCAsset(assetId, Info.ProgramAddress());
 
             // Create lot object and put it into main storage
-            Lot lot = ParseLot(Info.Sender(), gameId, assetId, externalId, price);
             UInt32 lotId = ++lastLotId;
+            Lot lot = ParseLot(lotId, Info.Sender(), gameId, assetId, externalId, price);
             Lots.put(lastLotId, lot);
 
             // Put the lot into user storage
@@ -388,6 +390,9 @@ namespace auction {
         /*
         Class defining auction lot
         */
+
+        // Id of the lot
+        public UInt32 id { get; set; } = 0;
 
         // Address of lot creator
         public Bytes creator { get; set; } = Bytes.VOID_ADDRESS;
