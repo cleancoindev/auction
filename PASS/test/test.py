@@ -16,11 +16,13 @@ class TestPASS(unittest.TestCase):
     # Result of setUp work
     res = None
 
+    test_calls = ['emit', 'transfer', 'itemlist', 'usersitems']
+
     # Set up Pravda once before running the TestCase
     @classmethod
     def setUpClass(self):
         # Compile main & test contracts
-        compile.compile_contracts(['emit', 'transfer', 'itemlist', 'usersitems'])
+        compile.compile_contracts(self.test_calls)
 
         # Delete current pravda blockchain data
         call(["rm", "-rf", "pravda-data"])
@@ -128,6 +130,11 @@ class TestPASS(unittest.TestCase):
         time.sleep(2)
         self.pravda.send_signal(signal.SIGINT)
         self.pravda.wait()
+        print('Cleaning up the directory')
+        call(["rm", "-rf", "pravda-data"])
+        call(["rm", "-rf", "PASS.pravda"])
+        for test_call in self.test_calls:
+            call(["rm", "-rf", "pcalls/{}.pravda".format(test_call)])
 
 if __name__ == '__main__':
     unittest.main()

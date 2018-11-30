@@ -27,13 +27,13 @@ namespace auction {
             // Only Auction Owner can do this
             assertIsAuctionOwner();
             // Add game address to the storage
-            gamesAddresses.put(++lastGameId, address);
+            gamesAddresses[++lastGameId] = address;
             return lastGameId;
         }
 
         // Get game address by its game id
         private Bytes getGameAddress(UInt32 id){
-            return gamesAddresses.getDefault(id, Bytes.VOID_ADDRESS);
+            return gamesAddresses.GetOrDefault(id, Bytes.VOID_ADDRESS);
         }
 
         /*
@@ -60,13 +60,13 @@ namespace auction {
             return
             "{" +
                 "\"id\": \""            + System.Convert.ToString(lot.id)      + "\"," + 
-                "\"creator\": \""       + BytesToHex(lot.creator)              + "\"," +
+                "\"creator\": \""       + StdLib.BytesToHex(lot.creator)       + "\"," +
                 "\"gameId\": \""        + System.Convert.ToString(lot.gameId)  + "\"," + 
                 "\"assetId\": \""       + System.Convert.ToString(lot.assetId) + "\"," +
-                "\"externalId\": \""    + BytesToHex(lot.externalId)           + "\"," +
+                "\"externalId\": \""    + StdLib.BytesToHex(lot.externalId)    + "\"," +
                 "\"price\": \""         + System.Convert.ToString(lot.price)   + "\"," +
                 "\"closed\": \""        + System.Convert.ToString(lot.closed)  + "\"," +
-                "\"buyer\": \""         + BytesToHex(lot.buyer)                + "\"" +
+                "\"buyer\": \""         + StdLib.BytesToHex(lot.buyer)         + "\"" +
             "}";
         }
 
@@ -83,7 +83,7 @@ namespace auction {
 
         // Get lot by its id
         private Lot getLot(UInt32 id){
-            return Lots.getDefault(id, new Lot());
+            return Lots.GetOrDefault(id, new Lot());
         }
 
         // Get jsonified lot data
@@ -105,11 +105,11 @@ namespace auction {
 
         private UInt32 _getUserLotId(Bytes address, UInt32 number){
             // We can't get more lots than user has
-            if(number >= userLotsCount.getDefault(address, 0)){
+            if(number >= userLotsCount.GetOrDefault(address, 0)){
                 Error.Throw("This user's lot doesn't exist!");
             }
             string key = getUserLotKey(address, number);
-            return userLots.get(key);
+            return userLots.GetOrDefault(key, 0);
         }
 
         public UInt32 getUserLotId(Bytes address, UInt32 number){
@@ -118,13 +118,13 @@ namespace auction {
 
         // Get the key for userLots mapping
         private string getUserLotKey(Bytes address, UInt32 number){
-            return (BytesToHex(address) + System.Convert.ToString(number));
+            return (StdLib.BytesToHex(address) + System.Convert.ToString(number));
         }
 
         // Get all of users' lots jsonified
         public string getUserLotsData(Bytes address){
             string result = "[";
-            UInt32 amount = userLotsCount.getDefault(address, 0);
+            UInt32 amount = userLotsCount.GetOrDefault(address, 0);
             for(UInt32 num = 0; num < amount; num++){
                 result += DumpLot(getLot(_getUserLotId(address, num)));
                 if(num < amount - 1){
@@ -149,11 +149,11 @@ namespace auction {
         // IMPORTANT: Asset id = External Asset id (see PASS.cs)
         private UInt32 _getAssetLotId(UInt32 gameId, Bytes externalId, UInt32 number){
             // We can't get more lots than asset has
-            if(number >= assetLotsCount.getDefault(getAssetCountKey(gameId, externalId), 0)){
+            if(number >= assetLotsCount.GetOrDefault(getAssetCountKey(gameId, externalId), 0)){
                 Error.Throw("This asset's lot doesn't exist!");
             }
             string key = getAssetLotKey(gameId, externalId, number);
-            return assetLots.get(key);
+            return assetLots.GetOrDefault(key, 0);
         }
 
         public UInt32 getAssetLotId(UInt32 gameId, Bytes externalId, UInt32 number){
@@ -162,18 +162,18 @@ namespace auction {
 
         // Get the key for assetLotsCount mapping
         private string getAssetCountKey(UInt32 gameId, Bytes externalId){
-            return (System.Convert.ToString(gameId) + BytesToHex(externalId));
+            return (System.Convert.ToString(gameId) + StdLib.BytesToHex(externalId));
         }
 
         // Get the key for assetLots mapping
         private string getAssetLotKey(UInt32 gameId, Bytes externalId, UInt32 number){
-            return (System.Convert.ToString(gameId) + BytesToHex(externalId) + System.Convert.ToString(number));
+            return (System.Convert.ToString(gameId) + StdLib.BytesToHex(externalId) + System.Convert.ToString(number));
         }
 
         // Get all of asset lots jsonified
         public string getAssetLotsData(UInt32 gameId, Bytes externalId){
             string result = "[";
-            UInt32 amount = assetLotsCount.getDefault(getAssetCountKey(gameId, externalId), 0);
+            UInt32 amount = assetLotsCount.GetOrDefault(getAssetCountKey(gameId, externalId), 0);
             for(UInt32 num = 0; num < amount; num++){
                 result += DumpLot(getLot(_getAssetLotId(gameId, externalId, num)));
                 if(num < amount - 1){
@@ -248,20 +248,20 @@ namespace auction {
             // Create lot object and put it into main storage
             UInt32 lotId = ++lastLotId;
             Lot lot = ParseLot(lotId, Info.Sender(), gameId, assetId, externalId, price);
-            Lots.put(lastLotId, lot);
+            Lots[lastLotId] = lot;
 
             // Put the lot into user storage
-            UInt32 userStorageLastId = userLotsCount.getDefault(Info.Sender(), 0);
+            UInt32 userStorageLastId = userLotsCount.GetOrDefault(Info.Sender(), 0);
             string userLotsKey = getUserLotKey(Info.Sender(), userStorageLastId);
-            userLots.put(userLotsKey, lotId);
-            userLotsCount.put(Info.Sender(), userStorageLastId + 1);
+            userLots[userLotsKey] = lotId;
+            userLotsCount[Info.Sender()] = userStorageLastId + 1;
 
             // Put the lot into particular asset storage
             string assetLotsCountKey = getAssetCountKey(gameId, externalId);
-            UInt32 assetCount = assetLotsCount.getDefault(assetLotsCountKey, 0);
+            UInt32 assetCount = assetLotsCount.GetOrDefault(assetLotsCountKey, 0);
             string assetLotsKey = getAssetLotKey(gameId, externalId, assetCount);
-            assetLots.put(assetLotsKey, lotId);
-            assetLotsCount.put(assetLotsCountKey, assetCount+1);
+            assetLots[assetLotsKey] = lotId;
+            assetLotsCount[assetLotsCountKey] = assetCount+1;
 
             // Emit an event
             Log.Event("lotCreated", DumpLot(lot));
@@ -292,7 +292,7 @@ namespace auction {
             // Alter the lot state and write it to the storage
             lot.closed = true;
             lot.buyer = Info.Sender();
-            Lots.put(lotId, lot);
+            Lots[lotId] = lot;
 
             // Emit an event
             Log.Event("lotBought", DumpLot(lot));
@@ -321,7 +321,7 @@ namespace auction {
 
             // Change the lot state and write it to the storage
             lot.closed = true;
-            Lots.put(lotId, lot);
+            Lots[lotId] = lot;
 
             // Return the asset to the owner
             Bytes gameAddress = getGameAddress(lot.gameId);
@@ -329,60 +329,6 @@ namespace auction {
 
             // Emit an event
             Log.Event("lotClosed", DumpLot(lot));
-        }
-
-        /*
-        Some string & bytes operations
-        */
-
-        private string HexPart(int b){
-            if (b == 0)
-                return "0";
-            else if (b == 1)
-                return "1";
-            else if (b == 2)
-                return "2";
-            else if (b == 3)
-                return "3";
-            else if (b == 4)
-                return "4";
-            else if (b == 5)
-                return "5";
-            else if (b == 6)
-                return "6";
-            else if (b == 7)
-                return "7";
-            else if (b == 8)
-                return "8";
-            else if (b == 9)
-                return "9";
-            else if (b == 10)
-                return "A";
-            else if (b == 11)
-                return "B";
-            else if (b == 12)
-                return "C";
-            else if (b == 13)
-                return "D";
-            else if (b == 14)
-                return "E";
-            else if (b == 15)
-                return "F";
-            return "";
-        }
-
-        private string ByteToHex(byte b)
-        {
-            return HexPart(b / 16) + HexPart(b % 16);
-        }
-
-        private string BytesToHex(Bytes bytes)
-        {
-            string res = "";
-            for (int i = 0; i < bytes.Length(); i++){
-                res += ByteToHex(bytes[i]);
-            }
-            return res;
         }
     }
 

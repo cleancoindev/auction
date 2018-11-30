@@ -69,10 +69,10 @@ namespace auction {
         private string DumpAsset(Asset asset){
             return
             "{" +
-                "\"id\": \""         + System.Convert.ToString(asset.id) + "\"," +
-                "\"owner\": \""      + BytesToHex(asset.owner)           + "\"," +
-                "\"externalId\": \"" + BytesToHex(asset.externalId)      + "\"," +
-                "\"metaId\": \""     + getMetaData(asset.metaId)         + "\""  +
+                "\"id\": \""         + System.Convert.ToString(asset.id)   + "\"," +
+                "\"owner\": \""      + StdLib.BytesToHex(asset.owner)      + "\"," +
+                "\"externalId\": \"" + StdLib.BytesToHex(asset.externalId) + "\"," +
+                "\"metaId\": \""     + getMetaData(asset.metaId)           + "\""  +
             "}";
         }
 
@@ -92,7 +92,7 @@ namespace auction {
             new Mapping<UInt32, Asset>();
 
         private Asset getGTAsset(UInt32 id){
-            return GTAssets.getDefault(id, new Asset());
+            return GTAssets.GetOrDefault(id, new Asset());
         }
 
         public string getGTAssetData(UInt32 id){
@@ -113,7 +113,7 @@ namespace auction {
             new Mapping<UInt32, Asset>();
 
         private Asset getXCAsset(UInt32 id){
-            return XCAssets.getDefault(id, new Asset());
+            return XCAssets.GetOrDefault(id, new Asset());
         }
 
         public string getXCAssetData(UInt32 id){
@@ -143,17 +143,17 @@ namespace auction {
 
         // Get user's asset counter
         public UInt32 getGTUsersAssetCount(Bytes address){
-            return GTUsersAssetCount.getDefault(address, 0);
+            return GTUsersAssetCount.GetOrDefault(address, 0);
         }
 
         // Get one of user's GT assets
         private UInt32 _getUsersGTAssetId(Bytes address, UInt32 number){
             // We can't get more assets than user owns
-            if(number >= GTUsersAssetCount.getDefault(address, 0)){
+            if(number >= GTUsersAssetCount.GetOrDefault(address, 0)){
                 Error.Throw("This asset doesn't exist!");
             }
             string key = getUserAssetKey(address, number);
-            return GTUsersAssetIds.get(key);
+            return GTUsersAssetIds.GetOrDefault(key, 0);
         }
 
         public UInt32 getUsersGTAssetId(Bytes address, UInt32 number){
@@ -163,7 +163,7 @@ namespace auction {
         // Get all of user's GT assets data JSONified
         public string getUsersAllGTAssetsData(Bytes address){
             string result = "[";
-            UInt32 amount = GTUsersAssetCount.getDefault(address, 0);
+            UInt32 amount = GTUsersAssetCount.GetOrDefault(address, 0);
             for(UInt32 num = 0; num < amount; num++){
                 result += DumpAsset(getGTAsset(_getUsersGTAssetId(address, num)));
                 if(num < amount - 1){
@@ -183,17 +183,17 @@ namespace auction {
 
         // Get user's asset counter
         public UInt32 getXCUsersAssetCount(Bytes address){
-            return XCUsersAssetCount.getDefault(address, 0);
+            return XCUsersAssetCount.GetOrDefault(address, 0);
         }
 
         // Get one of user's XC assets
         private UInt32 _getUsersXCAssetId(Bytes address, UInt32 number){
             // We can't get more assets than user owns
-            if(number >= XCUsersAssetCount.getDefault(address, 0)){
+            if(number >= XCUsersAssetCount.GetOrDefault(address, 0)){
                 Error.Throw("This asset doesn't exist!");
             }
             string key = getUserAssetKey(address, number);
-            return XCUsersAssetIds.get(key);
+            return XCUsersAssetIds.GetOrDefault(key, 0);
         }
 
         public UInt32 getUsersXCAssetId(Bytes address, UInt32 number){
@@ -203,7 +203,7 @@ namespace auction {
         // Get all of user's XC assets data JSONified
         public string getUsersAllXCAssetsData(Bytes address){
             string result = "[";
-            UInt32 amount = XCUsersAssetCount.getDefault(address, 0);
+            UInt32 amount = XCUsersAssetCount.GetOrDefault(address, 0);
             for(UInt32 num = 0; num < amount; num++){
                 result += DumpAsset(getXCAsset(_getUsersXCAssetId(address, num)));
                 if(num < amount - 1){
@@ -215,7 +215,7 @@ namespace auction {
 
         // Get key for users asset storage
         private string getUserAssetKey(Bytes address, UInt32 number){
-            return (BytesToHex(address) + System.Convert.ToString(number));
+            return (StdLib.BytesToHex(address) + System.Convert.ToString(number));
         }
 
         /*
@@ -260,7 +260,7 @@ namespace auction {
         // IMPORTANT: this method MUST be changed
         // to return valid metadata url
         private string getMetaData(Bytes metaId){
-            return "https://some_url/"+BytesToHex(metaId);
+            return "https://some_url/"+StdLib.BytesToHex(metaId);
         }
 
         // Expload's auction smart contract address
@@ -287,12 +287,12 @@ namespace auction {
             Asset asset = ParseAsset(id, owner, externalId, metaId);
 
             // Putting the asset into storage
-            GTAssets.put(id, asset);
+            GTAssets[id] = asset;
             // Putting asset into user's storage
-            UInt32 assetCount = GTUsersAssetCount.getDefault(owner, 0);
+            UInt32 assetCount = GTUsersAssetCount.GetOrDefault(owner, 0);
             string key = getUserAssetKey(owner, assetCount);
-            GTUsersAssetIds.put(key, id);
-            GTUsersAssetCount.put(owner, assetCount + 1);
+            GTUsersAssetIds[key] = id;
+            GTUsersAssetCount[owner] = assetCount + 1;
 
             // Log an event
             Log.Event("EmitGT", DumpAsset(asset));
@@ -313,27 +313,27 @@ namespace auction {
             }
 
             asset.owner = to;
-            GTAssets.put(id, asset);
+            GTAssets[id] = asset;
 
             // Making changes to users assets storage
 
             // Delete from old owner's storage
-            UInt32 oldOwnerassetCount = GTUsersAssetCount.getDefault(oldOwner, 0);
+            UInt32 oldOwnerassetCount = GTUsersAssetCount.GetOrDefault(oldOwner, 0);
             for(UInt32 i = 0; i < oldOwnerassetCount; i++){
-                if(GTUsersAssetIds.get(getUserAssetKey(oldOwner, i)) == id){
-                    UInt32 lastAsset = GTUsersAssetIds.get(getUserAssetKey(oldOwner, oldOwnerassetCount-1));
-                    GTUsersAssetIds.put(getUserAssetKey(oldOwner, i), lastAsset);
-                    GTUsersAssetIds.put(getUserAssetKey(oldOwner,oldOwnerassetCount-1), 0);
-                    GTUsersAssetCount.put(oldOwner, oldOwnerassetCount - 1);
+                if(GTUsersAssetIds.GetOrDefault(getUserAssetKey(oldOwner, i), 0) == id){
+                    UInt32 lastAsset = GTUsersAssetIds.GetOrDefault(getUserAssetKey(oldOwner, oldOwnerassetCount-1), 0);
+                    GTUsersAssetIds[getUserAssetKey(oldOwner, i)] = lastAsset;
+                    GTUsersAssetIds[getUserAssetKey(oldOwner,oldOwnerassetCount-1)] = 0;
+                    GTUsersAssetCount[oldOwner] = oldOwnerassetCount - 1;
                     break;
                 }
             }
 
             // Add to new onwer's storage
-            UInt32 assetCount = GTUsersAssetCount.getDefault(to, 0);
+            UInt32 assetCount = GTUsersAssetCount.GetOrDefault(to, 0);
             string key = getUserAssetKey(to, assetCount);
-            GTUsersAssetIds.put(key, id);
-            GTUsersAssetCount.put(to, assetCount + 1);
+            GTUsersAssetIds[key] = id;
+            GTUsersAssetCount[to] = assetCount + 1;
 
             // Log an event
             Log.Event("TransferGT", DumpAsset(asset));
@@ -350,12 +350,12 @@ namespace auction {
             Asset asset = ParseAsset(id, owner, externalId, metaId);
 
             // Putting the asset into storage
-            XCAssets.put(id, asset);
+            XCAssets[id] = asset;
             // Putting asset into user's storage
-            UInt32 assetCount = XCUsersAssetCount.getDefault(owner, 0);
+            UInt32 assetCount = XCUsersAssetCount.GetOrDefault(owner, 0);
             string key = getUserAssetKey(owner, assetCount);
-            XCUsersAssetIds.put(key, id);
-            XCUsersAssetCount.put(owner, assetCount + 1);
+            XCUsersAssetIds[key] = id;
+            XCUsersAssetCount[owner] = assetCount + 1;
 
             // Log an event
             Log.Event("EmitXC", DumpAsset(asset));
@@ -376,82 +376,30 @@ namespace auction {
             }
             
             asset.owner = to;
-            XCAssets.put(id, asset);
+            XCAssets[id] = asset;
 
             // Making changes to users assets storage
 
             // Delete from old owner's storage
-            UInt32 oldOwnerassetCount = XCUsersAssetCount.getDefault(oldOwner, 0);
+            UInt32 oldOwnerassetCount = XCUsersAssetCount.GetOrDefault(oldOwner, 0);
             for(UInt32 i = 0; i < oldOwnerassetCount; i++){
-                if(XCUsersAssetIds.get(getUserAssetKey(oldOwner, i)) == id){
-                    UInt32 lastAsset = XCUsersAssetIds.get(getUserAssetKey(oldOwner, oldOwnerassetCount-1));
-                    XCUsersAssetIds.put(getUserAssetKey(oldOwner, i), lastAsset);
-                    XCUsersAssetIds.put(getUserAssetKey(oldOwner,oldOwnerassetCount-1), 0);
-                    XCUsersAssetCount.put(oldOwner, oldOwnerassetCount - 1);
+                if(XCUsersAssetIds.GetOrDefault(getUserAssetKey(oldOwner, i), 0) == id){
+                    UInt32 lastAsset = XCUsersAssetIds.GetOrDefault(getUserAssetKey(oldOwner, oldOwnerassetCount-1), 0);
+                    XCUsersAssetIds[getUserAssetKey(oldOwner, i)] = lastAsset;
+                    XCUsersAssetIds[getUserAssetKey(oldOwner,oldOwnerassetCount-1)] = 0;
+                    XCUsersAssetCount[oldOwner] = oldOwnerassetCount - 1;
                     break;
                 }
             }
 
             // Add to new onwer's storage
-            UInt32 assetCount = XCUsersAssetCount.getDefault(to, 0);
+            UInt32 assetCount = XCUsersAssetCount.GetOrDefault(to, 0);
             string key = getUserAssetKey(to, assetCount);
-            XCUsersAssetIds.put(key, id);
-            XCUsersAssetCount.put(to, assetCount + 1);
+            XCUsersAssetIds[key] = id;
+            XCUsersAssetCount[to] = assetCount + 1;
 
             // Log an event
             Log.Event("TransferXC", DumpAsset(asset));
-        }
-
-        /*
-        Some string & bytes operations
-        */
-
-        private string HexPart(int b){
-            if (b == 0)
-                return "0";
-            else if (b == 1)
-                return "1";
-            else if (b == 2)
-                return "2";
-            else if (b == 3)
-                return "3";
-            else if (b == 4)
-                return "4";
-            else if (b == 5)
-                return "5";
-            else if (b == 6)
-                return "6";
-            else if (b == 7)
-                return "7";
-            else if (b == 8)
-                return "8";
-            else if (b == 9)
-                return "9";
-            else if (b == 10)
-                return "A";
-            else if (b == 11)
-                return "B";
-            else if (b == 12)
-                return "C";
-            else if (b == 13)
-                return "D";
-            else if (b == 14)
-                return "E";
-            else if (b == 15)
-                return "F";
-            return "";
-        }
-
-        private string ByteToHex(byte b){
-            return HexPart(b / 16) + HexPart(b % 16);
-        }
-
-        private string BytesToHex(Bytes bytes){
-            string res = "";
-            for (int i = 0; i < bytes.Length(); i++){
-                res += ByteToHex(bytes[i]);
-            }
-            return res;
         }
     }
 
