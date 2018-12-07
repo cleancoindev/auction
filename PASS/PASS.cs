@@ -55,16 +55,6 @@ namespace auction {
 
         public static void Main(){ }
 
-        // Parse arguments into Asset object
-        private Asset ParseAsset(UInt32 id, Bytes owner, Bytes externalId, Bytes metaId){
-            var asset = new Asset();
-            asset.id = id;
-            asset.owner = owner;
-            asset.externalId = externalId;
-            asset.metaId = metaId;
-            return asset;
-        }
-
         // Dump Asset into JSON
         private string DumpAsset(Asset asset){
             return
@@ -284,7 +274,7 @@ namespace auction {
             // Getting item's blockchain id
             UInt32 id = ++lastGTId;
             // Parsing the asset
-            Asset asset = ParseAsset(id, owner, externalId, metaId);
+            Asset asset = new Asset(id, owner, externalId, metaId);
 
             // Putting the asset into storage
             GTAssets[id] = asset;
@@ -347,7 +337,7 @@ namespace auction {
             // Getting item's blockchain id
             UInt32 id = ++lastXCId;
             // Parsing the asset
-            Asset asset = ParseAsset(id, owner, externalId, metaId);
+            Asset asset = new Asset(id, owner, externalId, metaId);
 
             // Putting the asset into storage
             XCAssets[id] = asset;
@@ -407,6 +397,15 @@ namespace auction {
         /*
         Class defining a game asset
         */
+        
+        public Asset(UInt32 id, Bytes owner, Bytes externalId, Bytes metaId){
+            this.id = id;
+            this.owner = owner;
+            this.externalId = externalId;
+            this.metaId = metaId;
+        }
+        
+        public Asset() { }
 
         // Asset's blockchain id
         public UInt32 id { get; set; } = 0;

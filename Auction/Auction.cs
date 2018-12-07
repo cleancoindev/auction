@@ -40,21 +40,6 @@ namespace auction {
         Parsing lot objects
         */
 
-        // Parse arguments into Lot object
-        private Lot ParseLot(
-            UInt32 id, Bytes creator, UInt32 gameId, 
-            UInt32 assetId, Bytes externalId, UInt32 price
-        ){
-            var lot = new Lot();
-            lot.id = id;
-            lot.creator = creator;
-            lot.gameId = gameId;
-            lot.assetId = assetId;
-            lot.externalId = externalId;
-            lot.price = price;
-            return lot;
-        }
-
         // Dump Lot into JSON
         private string DumpLot(Lot lot){
             return
@@ -247,7 +232,7 @@ namespace auction {
 
             // Create lot object and put it into main storage
             UInt32 lotId = ++lastLotId;
-            Lot lot = ParseLot(lotId, Info.Sender(), gameId, assetId, externalId, price);
+            Lot lot = new Lot(lotId, Info.Sender(), gameId, assetId, externalId, price);
             Lots[lastLotId] = lot;
 
             // Put the lot into user storage
@@ -336,6 +321,20 @@ namespace auction {
         /*
         Class defining auction lot
         */
+        
+        public Lot(
+            UInt32 id, Bytes creator, UInt32 gameId, 
+            UInt32 assetId, Bytes externalId, UInt32 price
+        ){
+            this.id = id;
+            this.creator = creator;
+            this.gameId = gameId;
+            this.assetId = assetId;
+            this.externalId = externalId;
+            this.price = price;
+        }
+        
+        public Lot() { }
 
         // Id of the lot
         public UInt32 id { get; set; } = 0;
