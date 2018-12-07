@@ -100,7 +100,7 @@ class TestPASS(unittest.TestCase):
         self.assertEqual(self.res['stack'][0],
         'utf8.[' +
               '{"id": "1",' +
-              '"creator": "8FC47DE7507F0881FB0133CBBD82733B69426B1B55904907F3DE3DBFB262210F",' +
+              '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
               '"gameId": "1",' +
               '"assetId": "1",' +
               '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
@@ -108,7 +108,7 @@ class TestPASS(unittest.TestCase):
               '"closed": "0",' +
               '"buyer": "0000000000000000000000000000000000000000000000000000000000000000"},' +
               '{"id": "2",' +
-              '"creator": "8FC47DE7507F0881FB0133CBBD82733B69426B1B55904907F3DE3DBFB262210F",' +
+              '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
               '"gameId": "1",' +
               '"assetId": "2",' +
               '"externalId": "0000000000000000000000000000000000000000000000000000000000000002",' +
@@ -123,13 +123,13 @@ class TestPASS(unittest.TestCase):
         self.runContract("buy", "test-wallet2")
         self.assertEqual(self.res['stack'][0],
         'utf8.{"id": "1",' +
-              '"creator": "8FC47DE7507F0881FB0133CBBD82733B69426B1B55904907F3DE3DBFB262210F",' +
+              '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
               '"gameId": "1",' +
               '"assetId": "1",' +
               '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
               '"price": "200",' +
               '"closed": "1",' +
-              '"buyer": "EDBFCA5B9A253738634352C465B2F0EA1A2F280DBF5510BD83010798DD203996"}')
+              '"buyer": "edbfca5b9a253738634352c465b2f0ea1a2f280dbf5510bd83010798dd203996"}')
 
         print("A lot was bought")
 

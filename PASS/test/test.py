@@ -33,7 +33,7 @@ class TestPASS(unittest.TestCase):
         print("Starting pravda node")
         self.pravda = Popen(["pravda", "node", "run"], stderr=DEVNULL, stdout=DEVNULL)
         # Wait for it to load
-        time.sleep(10)
+        time.sleep(15)
 
         # Check if Pravda lauched
         def check_pravda_status():
@@ -82,7 +82,7 @@ class TestPASS(unittest.TestCase):
     def test_emit(self):
         self.assertEqual(self.res["stack"][0], 'utf8.{'+
             '"id": "1",'+
-            '"owner": "E04919086E3FEE6F1D8F6247A2C0B38F874AB40A50AD2C62775FB09BAA05E342",'+
+            '"owner": "e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342",'+
             '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",'+
             '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000002"'+
         '}')
@@ -105,19 +105,19 @@ class TestPASS(unittest.TestCase):
         self.assertEqual(self.res["stack"][0], 'utf8.['+
             '{' +
                 '"id": "5",'+
-                '"owner": "A1FE824F193BCEE32F33B9E01245BD41F05A157ECA73DAF65D70EBD27430836D",' +
+                '"owner": "a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d",' +
                 '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
                 '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000001"' +
             '},' +
             '{' +
                 '"id": "6",'+
-                '"owner": "A1FE824F193BCEE32F33B9E01245BD41F05A157ECA73DAF65D70EBD27430836D",' +
+                '"owner": "a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d",' +
                 '"externalId": "0000000000000000000000000000000000000000000000000000000000000002",' +
                 '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000002"' +
             '},' +
             '{' +
                 '"id": "7",'+
-                '"owner": "A1FE824F193BCEE32F33B9E01245BD41F05A157ECA73DAF65D70EBD27430836D",' +
+                '"owner": "a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d",' +
                 '"externalId": "0000000000000000000000000000000000000000000000000000000000000003",' +
                 '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000003"' +
             '}' +

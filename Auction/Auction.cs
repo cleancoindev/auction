@@ -16,10 +16,10 @@ namespace auction {
         */
 
         // Last id given to a game
-        public UInt32 lastGameId = 0;
+        private UInt32 lastGameId = 0;
 
         // Mapping storing adresses of games 
-        public Mapping<UInt32, Bytes> gamesAddresses =
+        private Mapping<UInt32, Bytes> gamesAddresses =
             new Mapping<UInt32, Bytes>();
 
         // Add a new game address
@@ -60,10 +60,10 @@ namespace auction {
         */
 
         // Last id given to a lot
-        public UInt32 lastLotId = 0;
+        private UInt32 lastLotId = 0;
 
         // Mapping storing lot objects
-        public Mapping<UInt32, Lot> Lots =
+        private Mapping<UInt32, Lot> Lots =
             new Mapping<UInt32, Lot>();
 
         // Get lot by its id
@@ -81,11 +81,11 @@ namespace auction {
         */
 
         // Mapping storing lot ids of a particular user
-        public Mapping<string, UInt32> userLots =
+        private Mapping<string, UInt32> userLots =
             new Mapping<string, UInt32>();
 
         // Mapping storing the amount of user lots
-        public Mapping<Bytes, UInt32> userLotsCount =
+        private Mapping<Bytes, UInt32> userLotsCount =
             new Mapping<Bytes, uint>();
 
         private UInt32 _getUserLotId(Bytes address, UInt32 number){
@@ -124,11 +124,11 @@ namespace auction {
         */
 
         // Mapping storing lot ids selling a particular asset
-        public Mapping<string, UInt32> assetLots =
+        private Mapping<string, UInt32> assetLots =
             new Mapping<string, UInt32>();
 
         // Mapping storing the amount of particular asset lots
-        public Mapping<string, UInt32> assetLotsCount =
+        private Mapping<string, UInt32> assetLotsCount =
             new Mapping<string, UInt32>();
 
         // IMPORTANT: Asset id = External Asset id (see PASS.cs)

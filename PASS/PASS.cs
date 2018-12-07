@@ -67,10 +67,10 @@ namespace auction {
         }
 
         // Last id given to a GT asset (id=0 is invalid)
-        public UInt32 lastGTId = 0;
+        private UInt32 lastGTId = 0;
 
         // Last id given to an XC asset (id=0 is invalid)
-        public UInt32 lastXCId = 0;
+        private UInt32 lastXCId = 0;
 
         /*
         Main asset storage
@@ -78,7 +78,7 @@ namespace auction {
         
         // Mapping storing GT assets
         // This mapping's key is asset's blockchain id
-        public Mapping<UInt32, Asset> GTAssets =
+        private Mapping<UInt32, Asset> GTAssets =
             new Mapping<UInt32, Asset>();
 
         private Asset getGTAsset(UInt32 id){
@@ -99,7 +99,7 @@ namespace auction {
 
         // Mapping storing XC assets
         // This mapping's key is asset's blockchain id
-        public Mapping<UInt32, Asset> XCAssets =
+        private Mapping<UInt32, Asset> XCAssets =
             new Mapping<UInt32, Asset>();
 
         private Asset getXCAsset(UInt32 id){
@@ -124,11 +124,11 @@ namespace auction {
 
         // Mapping storing GT assets ids belonging to a user
         // Key is the concatenation of user address and asset number in his storage
-        public Mapping<string, UInt32> GTUsersAssetIds =
+        private Mapping<string, UInt32> GTUsersAssetIds =
             new Mapping<string, UInt32>();
 
         // Mapping storing GT user's asset counter
-        public Mapping<Bytes, UInt32> GTUsersAssetCount =
+        private Mapping<Bytes, UInt32> GTUsersAssetCount =
             new Mapping<Bytes, UInt32>();
 
         // Get user's asset counter
@@ -164,11 +164,11 @@ namespace auction {
         }
 
         // Mapping storing XC assets ids belonging to a user
-        public Mapping<string, UInt32> XCUsersAssetIds =
+        private Mapping<string, UInt32> XCUsersAssetIds =
             new Mapping<string, UInt32>();
 
         // Mapping storing XC user's asset counter
-        public Mapping<Bytes, UInt32> XCUsersAssetCount =
+        private Mapping<Bytes, UInt32> XCUsersAssetCount =
             new Mapping<Bytes, UInt32>();
 
         // Get user's asset counter
@@ -254,7 +254,7 @@ namespace auction {
         }
 
         // Expload's auction smart contract address
-        Bytes auctionAddress = new Bytes("0000000000000000000000000000000000000000000000000000000000000000");
+        private Bytes auctionAddress = new Bytes("0000000000000000000000000000000000000000000000000000000000000000");
 
         // Setting up auction address
         public void SetAuction(Bytes addr){
