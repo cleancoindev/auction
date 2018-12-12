@@ -15,12 +15,12 @@ namespace Expload.Standarts {
             // Emit the asset
             var externalId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
             var metaId = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
-            var assetId = ProgramHelper.Program<TradableAsset>(programOwner).EmitGTAsset(
+            var assetId = ProgramHelper.Program<TradableGTAsset>(programOwner).EmitGTAsset(
                 assetOwner, externalId, metaId
             );
 
             // Get asset data
-            var assetData = ProgramHelper.Program<TradableAsset>(programOwner).GetGTAssetData(assetId);
+            var assetData = ProgramHelper.Program<TradableGTAsset>(programOwner).GetGTAssetData(assetId);
 
             // Return JSON data
             return assetData;

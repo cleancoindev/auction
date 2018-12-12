@@ -7,7 +7,7 @@ import json
 import requests
 import time
 
-TA_path = "../source/bin/TradableAsset.pravda"
+TA_path = "../source/GT/bin/TradableGTAsset.pravda"
 pcall_file_path = "pcalls/{0}/bin/{0}.pravda"
 
 class TestTradableAsset(unittest.TestCase):
@@ -53,7 +53,7 @@ class TestTradableAsset(unittest.TestCase):
         # Deploy smart-contract to Pravda
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/test-wallet.json", "-l", "9000000",
                             "-i", TA_path, "--program-wallet", "wallets/program-wallet.json"])
-        print("TradableAsset.pravda deployed on fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b")
+        print("TradableGTAsset.pravda deployed on fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b")
 
     # Set up particular contract test
     def setUp(self):

@@ -14,20 +14,20 @@ namespace Expload.Standarts {
             Bytes newAssetOwner = new Bytes("0000000000000000000000000000000000000000000000000000000000000000");
 
             // Set auction address to this contract address
-            ProgramHelper.Program<TradableAsset>(programOwner).SetAuction(Info.ProgramAddress());
+            ProgramHelper.Program<TradableGTAsset>(programOwner).SetAuction(Info.ProgramAddress());
 
             // Emit the asset
             Bytes externalId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
             Bytes metaId = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
-            long assetId = ProgramHelper.Program<TradableAsset>(programOwner).EmitGTAsset(
+            long assetId = ProgramHelper.Program<TradableGTAsset>(programOwner).EmitGTAsset(
                 assetOwner, externalId, metaId
             );
 
             // Transfer asset to another address
-            ProgramHelper.Program<TradableAsset>(programOwner).TransferGTAsset(assetId, newAssetOwner);
+            ProgramHelper.Program<TradableGTAsset>(programOwner).TransferGTAsset(assetId, newAssetOwner);
 
             // Return JSON data
-            return ProgramHelper.Program<TradableAsset>(programOwner).GetGTAssetData(assetId);
+            return ProgramHelper.Program<TradableGTAsset>(programOwner).GetGTAssetData(assetId);
         }
     }
 }

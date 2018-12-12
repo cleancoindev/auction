@@ -4,7 +4,7 @@ namespace Expload.Standarts {
     using System;
 
     [Program]
-    public class TradableAsset : ITradableAsset
+    public class TradableXCAsset : ITradableXCAsset
     {
         /*
         This program defines a common standard
@@ -46,12 +46,8 @@ namespace Expload.Standarts {
 
         ---------------------------------
 
-        Also the storage and methods are split into two groups:
-        For interacting with GT (GameToken) assets,
-        For interacting with XC (XCoin) assets.
-
-        Assets bought for GT can't be sold on XC auction, and vice-versa,
-        only GT methods should be use for GT assets, similarly for XC assets.
+        This class represents a XC asset (can only be bought and sold for GameToken)
+        
         */
 
         public static void Main(){ }
@@ -67,57 +63,12 @@ namespace Expload.Standarts {
             "}";
         }
 
-        // Last id given to a GT asset (id=0 is invalid)
-        private long _lastGTId = 0;
-
         // Last id given to an XC asset (id=0 is invalid)
         private long _lastXCId = 0;
 
         /*
         Main asset storage
         */
-        
-        // Mapping storing GT assets
-        // This mapping's key is asset's blockchain id
-        private Mapping<long, Asset> _GTAssets =
-            new Mapping<long, Asset>();
-
-        private Asset GetGTAsset(long id){
-            return _GTAssets.GetOrDefault(id, new Asset());
-        }
-
-        /// <summary>
-        /// Get JSONified GT asset data
-        /// </summary>
-        /// <param name="id"> Asset id </param>
-        /// <returns>
-        /// JSON object
-        /// </returns>
-        public string GetGTAssetData(long id){
-            return DumpAsset(GetGTAsset(id));
-        }
-
-        /// <summary>
-        /// Get GT asset owner
-        /// </summary>
-        /// <param name="id"> Asset id </param>
-        /// <returns>
-        /// Owner address
-        /// </returns>
-        public Bytes GetGTAssetOwner(long id){
-            return GetGTAsset(id).Owner;
-        }
-
-        /// <summary>
-        /// Get GT asset external id
-        /// </summary>
-        /// <param name="id"> Asset id </param>
-        /// <returns>
-        /// External id
-        /// </returns>
-        public Bytes GetGTAssetExternalId(long id){
-            return GetGTAsset(id).ExternalId;
-        }
 
         // Mapping storing XC assets
         // This mapping's key is asset's blockchain id
@@ -165,68 +116,6 @@ namespace Expload.Standarts {
         Users' asset storage
         */
 
-        // Mapping storing GT assets ids belonging to a user
-        // Key is the concatenation of user address and asset number in his storage
-        private Mapping<string, long> _GTUsersAssetIds =
-            new Mapping<string, long>();
-
-        // Mapping storing GT user's asset counter
-        private Mapping<Bytes, long> _GTUsersAssetCount =
-            new Mapping<Bytes, long>();
-
-        /// <summary>
-        /// Get amount of GT assets belonging to a user
-        /// </summary>
-        /// <param name="address"> User address </param>
-        /// <returns>
-        /// Asset amount
-        /// </returns>
-        public long GetGTUsersAssetCount(Bytes address){
-            return _GTUsersAssetCount.GetOrDefault(address, 0);
-        }
-
-        // Get one of user's GT assets
-        private long _getUsersGTAssetId(Bytes address, long number){
-            // We can't get more assets than user owns
-            if(number >= _GTUsersAssetCount.GetOrDefault(address, 0)){
-                Error.Throw("This asset doesn't exist!");
-            }
-            var key = GetUserAssetKey(address, number);
-            return _GTUsersAssetIds.GetOrDefault(key, 0);
-        }
-
-        /// <summary>
-        /// Get asset id of a particular GT asset belonging to a user
-        /// </summary>
-        /// <param name="address"> User address </param>
-        /// <param name="number"> Asset serial number </param>
-        /// <returns>
-        /// Asset id
-        /// </returns>
-        public long GetUsersGTAssetId(Bytes address, long number){
-            return _getUsersGTAssetId(address, number);
-        }
-
-        /// <summary>
-        /// Get JSONified lists of GT assets
-        /// belonging to a particular user
-        /// </summary>
-        /// <param name="address"> User address </param>
-        /// <returns>
-        /// JSON object
-        /// </returns>
-        public string GetUsersAllGTAssetsData(Bytes address){
-            var result = "[";
-            var amount = _GTUsersAssetCount.GetOrDefault(address, 0);
-            for(long num = 0; num < amount; num++){
-                result += DumpAsset(GetGTAsset(_getUsersGTAssetId(address, num)));
-                if(num < amount - 1){
-                    result += ",";
-                }
-            }
-            return result + "]";
-        }
-
         // Mapping storing XC assets ids belonging to a user
         private Mapping<string, long> _XCUsersAssetIds =
             new Mapping<string, long>();
@@ -242,7 +131,7 @@ namespace Expload.Standarts {
         /// <returns>
         /// Asset amount
         /// </returns>
-        public long GetXCUsersAssetCount(Bytes address){
+        public long GetUsersXCAssetCount(Bytes address){
             return _XCUsersAssetCount.GetOrDefault(address, 0);
         }
 
@@ -312,14 +201,6 @@ namespace Expload.Standarts {
             }
         }
 
-
-        // // Checks if caller is owner of the specified GT asset
-        private void AssertIsGTAssetOwner(long assetId){
-            if (GetGTAsset(assetId).Owner != Info.Sender()){
-                Error.Throw("Only owner of the asset can do that.");
-            }
-        }
-
         // // Checks if caller is owner of the specified XC asset
         private void AssertIsXCAssetOwner(long assetId){
             if (GetXCAsset(assetId).Owner != Info.Sender()){
@@ -353,84 +234,6 @@ namespace Expload.Standarts {
         /*
         Interaction with the storage
         */
-
-        // Interaction with GT assets storage
-
-        /// <summary>
-        /// Emit a GT asset
-        /// </summary>
-        /// <param name="owner"> Desired asset owner </param>
-        /// <param name="externalId"> Asset external id </param>
-        /// <param name="metaId"> Asset meta id </param>
-        /// <returns>
-        /// Emitted asset id
-        /// </returns>
-        public long EmitGTAsset(Bytes owner, Bytes externalId, Bytes metaId){
-            // Only the game server (or owner) can emit assets
-            AssertIsGameOwner();
-            // Getting item's blockchain id
-            var id = ++_lastGTId;
-            // Parsing the asset
-            var asset = new Asset(id, owner, externalId, metaId);
-
-            // Putting the asset into storage
-            _GTAssets[id] = asset;
-            // Putting asset into user's storage
-            var assetCount = _GTUsersAssetCount.GetOrDefault(owner, 0);
-            var key = GetUserAssetKey(owner, assetCount);
-            _GTUsersAssetIds[key] = id;
-            _GTUsersAssetCount[owner] = assetCount + 1;
-
-            // Log an event
-            Log.Event("EmitGT", DumpAsset(asset));
-
-            return id;
-        }
-
-        /// <summary>
-        /// Transfer GT asset to a new owner
-        /// </summary>
-        /// <param name="id"> Asset id </param>
-        /// <param name="to"> New owner address </param>
-        public void TransferGTAsset(long id, Bytes to){
-            // Only the auction can transfer assets
-            AssertIsAuction();
-            // Passing the ownership
-            var asset = GetGTAsset(id);
-            var oldOwner  = asset.Owner;
-
-            // Check if this asset actually exists
-            if(oldOwner == Bytes.VOID_ADDRESS){
-                Error.Throw("This asset doesn't exist.");
-            }
-
-            asset.Owner = to;
-            _GTAssets[id] = asset;
-
-            // Making changes to users assets storage
-
-            // Delete from old owner's storage
-            var oldOwnerAssetCount = _GTUsersAssetCount.GetOrDefault(oldOwner, 0);
-            for(long i = 0; i < oldOwnerAssetCount; i++){
-                if (_GTUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, i), 0) != id) continue;
-                var lastAsset = _GTUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, oldOwnerAssetCount-1), 0);
-                _GTUsersAssetIds[GetUserAssetKey(oldOwner, i)] = lastAsset;
-                _GTUsersAssetIds[GetUserAssetKey(oldOwner,oldOwnerAssetCount-1)] = 0;
-                _GTUsersAssetCount[oldOwner] = oldOwnerAssetCount - 1;
-                break;
-            }
-
-            // Add to new owner's storage
-            var assetCount = _GTUsersAssetCount.GetOrDefault(to, 0);
-            var key = GetUserAssetKey(to, assetCount);
-            _GTUsersAssetIds[key] = id;
-            _GTUsersAssetCount[to] = assetCount + 1;
-
-            // Log an event
-            Log.Event("TransferGT", DumpAsset(asset));
-        }
-
-        // Interaction with XC assets storage
 
         /// <summary>
         /// Emit a XC asset
