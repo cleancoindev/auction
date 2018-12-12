@@ -1,8 +1,11 @@
 # TradableAsset standard
 ## Overview
 TradableAsset is a token standard for storing and operating with assets on Pravda platform.    
-Asset is a non-fungible token. The implementation can suit almost any blockchain gaming experience, and minor changes are required for integrating TradableAsset.
+Asset is a non-fungible token. The implementation can suit almost any blockchain gaming experience, and minor changes are required for integrating TradableAsset.  
+The standard is provided by [ITradableAsset](ITradableAsset.cs) interface. Sample implementation is [also available](TradableAsset.cs).
 ## Program Structure
+There we're going to cover [sample TradableAsset implementation](TradableAsset.cs).
+Your implementation may have a different structure and functioning, though using approaches and patterns from the sample is highly recommended.
 ### Global variables and setup
 There are several things you are to change before deploying TradableAsset and using it with your game:
 - Set `auctionAddress` variable if you want your game to work with Expload Auction. It can be edited any time using `SetAuction` method, so leave it as it is if you're not sure about your plans on auction yet.

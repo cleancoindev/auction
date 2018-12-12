@@ -4,7 +4,8 @@ namespace Expload.Standarts {
     using System;
 
     [Program]
-    public class TradableAsset {
+    public class TradableAsset : ITradableAsset
+    {
         /*
         This program defines a common standard
         for storing game assets in Pravda blockchain
@@ -505,34 +506,4 @@ namespace Expload.Standarts {
             Log.Event("TransferXC", DumpAsset(asset));
         }
     }
-
-    public class Asset {
-        /*
-        Class defining a game asset
-        */
-        
-        public Asset(long id, Bytes owner, Bytes externalId, Bytes metaId){
-            this.Id = id;
-            this.Owner = owner;
-            this.ExternalId = externalId;
-            this.MetaId = metaId;
-        }
-        
-        public Asset() { }
-
-        // Asset's blockchain id
-        public long Id { get; set; } = 0;
-
-        // Address of asset's owner
-        public Bytes Owner { get; set; } = Bytes.VOID_ADDRESS;
-
-        // Game's external asset id
-        // E.g. two identical in-game swords
-        // Have same internal game id
-        public Bytes ExternalId { get; set; } = Bytes.VOID_ADDRESS;
-
-        // External meta-data identifier
-        public Bytes MetaId { get; set; } = Bytes.VOID_ADDRESS;
-    }
-
 }
