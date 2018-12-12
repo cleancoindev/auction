@@ -7,27 +7,30 @@ import json
 import requests
 import time
 
-import compile
+TA_path = "../source/bin/TradableAsset.pravda"
+pcall_file_path = "pcalls/{0}/bin/{0}.pravda"
 
-class TestPASS(unittest.TestCase):
+class TestTradableAsset(unittest.TestCase):
 
     # Pravda instance
     pravda = None
     # Result of setUp work
     res = None
 
-    test_calls = ['emit', 'transfer', 'itemlist', 'usersitems']
+    test_calls = ['Emit', 'Transfer', 'Itemlist', 'UsersItems']
 
     # Set up Pravda once before running the TestCase
     @classmethod
     def setUpClass(self):
         # Compile main & test contracts
-        compile.compile_contracts(self.test_calls)
+        output = check_output(["dotnet", "publish", "../source/TradableAsset.sln"])
+        print("Programs compiled")
 
         # Delete current pravda blockchain data
         call(["rm", "-rf", "pravda-data"])
         # Init new local pravda blockchain
         call(["pravda", "node", "init", "--local", "--coin-distribution", "test-coin-dist.json"])
+        print("New pravda node initialized")
 
         # Run Pravda node in a new subprocess
         print("Starting pravda node")
@@ -49,8 +52,8 @@ class TestPASS(unittest.TestCase):
 
         # Deploy smart-contract to Pravda
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/test-wallet.json", "-l", "9000000",
-                            "-i", "PASS.pravda", "--program-wallet", "wallets/program-wallet.json"])
-        print("PASS.pravda deployed on fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b")
+                            "-i", TA_path, "--program-wallet", "wallets/program-wallet.json"])
+        print("TradableAsset.pravda deployed on fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b")
 
     # Set up particular contract test
     def setUp(self):
@@ -62,7 +65,7 @@ class TestPASS(unittest.TestCase):
         # Deploy the tester program
         address = json.loads(check_output(
             ["pravda", "broadcast", "deploy", "-w", "wallets/test-wallet.json", "-l", "9000000",
-             "-i", "pcalls/{}.pravda".format(name), "--program-wallet",
+             "-i", pcall_file_path.format(name), "--program-wallet",
              "wallets/{}-test-wallet.json".format(name)]))['effects'][0]['address']
 
         print("{}.pravda deployed on {}".format(name, address))
@@ -79,7 +82,7 @@ class TestPASS(unittest.TestCase):
         call(["rm", "-rf", "wallets/{}-test-wallet.json".format(name)])
 
     # Test if assets can be emitted
-    def test_emit(self):
+    def test_Emit(self):
         self.assertEqual(self.res["stack"][0], 'utf8.{'+
             '"id": "1",'+
             '"owner": "e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342",'+
@@ -88,7 +91,7 @@ class TestPASS(unittest.TestCase):
         '}')
 
     # Test if assets can be transfered
-    def test_transfer(self):
+    def test_Transfer(self):
         self.assertEqual(self.res["stack"][0], 'utf8.{'+
             '"id": "4",'+
             '"owner": "0000000000000000000000000000000000000000000000000000000000000000",'+
@@ -97,11 +100,11 @@ class TestPASS(unittest.TestCase):
         '}')
 
     # Test if item list is working
-    def test_itemlist(self):
+    def test_Itemlist(self):
         self.assertEqual(len(self.res["stack"]), 0)
 
     # Test if getting all user items works
-    def test_usersitems(self):
+    def test_UsersItems(self):
         self.assertEqual(self.res["stack"][0], 'utf8.['+
             '{' +
                 '"id": "5",'+
@@ -132,9 +135,9 @@ class TestPASS(unittest.TestCase):
         self.pravda.wait()
         print('Cleaning up the directory')
         call(["rm", "-rf", "pravda-data"])
-        call(["rm", "-rf", "PASS.pravda"])
+        call(["rm", "-rf", TA_path])
         for test_call in self.test_calls:
-            call(["rm", "-rf", "pcalls/{}.pravda".format(test_call)])
+            call(["rm", "-rf", pcall_file_path.format(test_call)])
 
 if __name__ == '__main__':
     unittest.main()

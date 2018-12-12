@@ -7,9 +7,11 @@ import json
 import requests
 import time
 
-import compile
+TA_path = "../../TradableAsset/source/bin/TradableAsset.pravda"
+auction_path = "../source/bin/Auction.pravda"
+pcall_file_path = "pcalls/{0}/bin/{0}.pravda"
 
-class TestPASS(unittest.TestCase):
+class TestTradableAsset(unittest.TestCase):
 
     maxDiff = None
     # Pravda instance
@@ -17,13 +19,14 @@ class TestPASS(unittest.TestCase):
     # Result of setUp work
     res = None
     
-    test_calls = ['setuppass', 'setupauction', 'newlot', 'buy', 'closelot']
+    test_calls = ['SetUpTradableAsset', 'SetUpAuction', 'NewLot', 'Buy', 'CloseLot']
 
     # Set up Pravda once before running the TestCase
     @classmethod
     def setUpClass(self):
         # Compile main & test contracts
-        compile.compile_contracts(self.test_calls)
+        output = check_output(["dotnet", "publish", "../source/Auction.sln"])
+        print("Programs compiled")
 
         
         call(["rm", "-rf", "pravda-data"])
@@ -47,14 +50,16 @@ class TestPASS(unittest.TestCase):
         print("Pravda status: {}".format(str(check_pravda_status())))
 
         time.sleep(3)
+        
+        print("Deploying programs")
 
         # Deploy smart-contracts to Pravda
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
-                            "-i", "PASS.pravda", "--program-wallet", "wallets/pass-wallet.json"])
-        print("PASS.pravda deployed on fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b")
+                            "-i", TA_path, "--program-wallet", "wallets/TradableAsset-wallet.json"])
+        print("TradableAsset.pravda deployed on fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b")
 
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
-                            "-i", "Auction.pravda", "--program-wallet", "wallets/auction-wallet.json"])
+                            "-i", auction_path, "--program-wallet", "wallets/auction-wallet.json"])
         print("Auction.pravda deployed on e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342")
 
     # Set up particular contract test
@@ -65,7 +70,7 @@ class TestPASS(unittest.TestCase):
         # Deploy the tester program
         address = json.loads(check_output(
             ["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
-             "-i", "pcalls/{}.pravda".format(name), "--program-wallet",
+             "-i", pcall_file_path.format(name), "--program-wallet",
              "wallets/{}-test-wallet.json".format(name)]))['effects'][0]['address']
 
         if not silent:
@@ -87,16 +92,16 @@ class TestPASS(unittest.TestCase):
 
     # Test the auction cycle
     def test_auction_cycle(self):
-        # Set up PASS
-        self.runContract("setuppass", "pass-wallet")
-        print("PASS was set up")
+        # Set up TradableAsset
+        self.runContract("SetUpTradableAsset", "TradableAsset-wallet")
+        print("TradableAsset was set up")
 
         # Set up auction
-        self.runContract("setupauction", "auction-wallet")
+        self.runContract("SetUpAuction", "auction-wallet")
         print("Auction was set up")
 
         # Create a new lot
-        self.runContract("newlot", "test-wallet")
+        self.runContract("NewLot", "test-wallet")
         self.assertEqual(self.res['stack'][0],
         'utf8.[' +
               '{"id": "1",' +
@@ -120,21 +125,21 @@ class TestPASS(unittest.TestCase):
         print("2 lots were created")
 
         # Buy  a lot
-        self.runContract("buy", "test-wallet2")
-        self.assertEqual(self.res['stack'][0],
-        'utf8.{"id": "1",' +
-              '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
-              '"gameId": "1",' +
-              '"assetId": "1",' +
-              '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
-              '"price": "200",' +
-              '"closed": "1",' +
-              '"buyer": "edbfca5b9a253738634352c465b2f0ea1a2f280dbf5510bd83010798dd203996"}')
-
+        self.runContract("Buy", "test-wallet2", jsonifyOutput=False)
+        # self.assertEqual(self.res['stack'][0],
+        # 'utf8.{"id": "1",' +
+        #       '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
+        #       '"gameId": "1",' +
+        #       '"assetId": "1",' +
+        #       '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
+        #       '"price": "200",' +
+        #       '"closed": "1",' +
+        #       '"buyer": "edbfca5b9a253738634352c465b2f0ea1a2f280dbf5510bd83010798dd203996"}')
+        print(self.res)
         print("A lot was bought")
 
         # Close a lot
-        self.runContract("closelot", "test-wallet")
+        self.runContract("CloseLot", "test-wallet")
         
         print("Lot was closed")
 
@@ -149,10 +154,10 @@ class TestPASS(unittest.TestCase):
         # Some clean-up
         print('Cleaning up the directory')
         call(["rm", "-rf", "pravda-data"])
-        call(["rm", "-rf", "PASS.pravda"])
-        call(["rm", "-rf", "Auction.pravda"])
+        call(["rm", "-rf", TA_path])
+        call(["rm", "-rf", auction_path])
         for test_call in self.test_calls:
-            call(["rm", "-rf", "pcalls/{}.pravda".format(test_call)])
+            call(["rm", "-rf", pcall_file_path.format(test_call)])
 
 if __name__ == '__main__':
     unittest.main()
