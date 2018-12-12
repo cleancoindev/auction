@@ -18,7 +18,7 @@ namespace Expload.Standarts {
             // Emit 3 assets
             Bytes externalId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
             Bytes metaId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
-            UInt32 assetId = ProgramHelper.Program<TradableAsset>(programOwner).EmitGTAsset(
+            long assetId = ProgramHelper.Program<TradableAsset>(programOwner).EmitGTAsset(
                 assetOwner, externalId, metaId
             );
 

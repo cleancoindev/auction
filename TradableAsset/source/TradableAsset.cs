@@ -67,10 +67,10 @@ namespace Expload.Standarts {
         }
 
         // Last id given to a GT asset (id=0 is invalid)
-        private uint _lastGTId = 0;
+        private long _lastGTId = 0;
 
         // Last id given to an XC asset (id=0 is invalid)
-        private uint _lastXCId = 0;
+        private long _lastXCId = 0;
 
         /*
         Main asset storage
@@ -78,43 +78,85 @@ namespace Expload.Standarts {
         
         // Mapping storing GT assets
         // This mapping's key is asset's blockchain id
-        private Mapping<uint, Asset> _GTAssets =
-            new Mapping<uint, Asset>();
+        private Mapping<long, Asset> _GTAssets =
+            new Mapping<long, Asset>();
 
-        private Asset GetGTAsset(uint id){
+        private Asset GetGTAsset(long id){
             return _GTAssets.GetOrDefault(id, new Asset());
         }
 
-        public string GetGTAssetData(uint id){
+        /// <summary>
+        /// Get JSONified GT asset data
+        /// </summary>
+        /// <param name="id"> Asset id </param>
+        /// <returns>
+        /// JSON object
+        /// </returns>
+        public string GetGTAssetData(long id){
             return DumpAsset(GetGTAsset(id));
         }
 
-        public Bytes GetGTAssetOwner(uint id){
+        /// <summary>
+        /// Get GT asset owner
+        /// </summary>
+        /// <param name="id"> Asset id </param>
+        /// <returns>
+        /// Owner address
+        /// </returns>
+        public Bytes GetGTAssetOwner(long id){
             return GetGTAsset(id).Owner;
         }
 
-        public Bytes GetGTAssetExternalId(uint id){
+        /// <summary>
+        /// Get GT asset external id
+        /// </summary>
+        /// <param name="id"> Asset id </param>
+        /// <returns>
+        /// External id
+        /// </returns>
+        public Bytes GetGTAssetExternalId(long id){
             return GetGTAsset(id).ExternalId;
         }
 
         // Mapping storing XC assets
         // This mapping's key is asset's blockchain id
-        private Mapping<uint, Asset> _XCAssets =
-            new Mapping<uint, Asset>();
+        private Mapping<long, Asset> _XCAssets =
+            new Mapping<long, Asset>();
 
-        private Asset GetXCAsset(uint id){
+        private Asset GetXCAsset(long id){
             return _XCAssets.GetOrDefault(id, new Asset());
         }
 
-        public string GetXCAssetData(uint id){
+        /// <summary>
+        /// Get JSONified XC asset data
+        /// </summary>
+        /// <param name="id"> Asset id </param>
+        /// <returns>
+        /// JSON object
+        /// </returns>
+        public string GetXCAssetData(long id){
             return DumpAsset(GetXCAsset(id));
         }
 
-        public Bytes GetXCAssetOwner(uint id){
+        /// <summary>
+        /// Get XC asset owner
+        /// </summary>
+        /// <param name="id"> Asset id </param>
+        /// <returns>
+        /// Owner address
+        /// </returns>
+        public Bytes GetXCAssetOwner(long id){
             return GetXCAsset(id).Owner;
         }
 
-        public Bytes GetXCAssetExternalId(uint id){
+        /// <summary>
+        /// Get XC asset external id
+        /// </summary>
+        /// <param name="id"> Asset id </param>
+        /// <returns>
+        /// External id
+        /// </returns>
+        public Bytes GetXCAssetExternalId(long id){
             return GetXCAsset(id).ExternalId;
         }
 
@@ -124,20 +166,26 @@ namespace Expload.Standarts {
 
         // Mapping storing GT assets ids belonging to a user
         // Key is the concatenation of user address and asset number in his storage
-        private Mapping<string, uint> _GTUsersAssetIds =
-            new Mapping<string, uint>();
+        private Mapping<string, long> _GTUsersAssetIds =
+            new Mapping<string, long>();
 
         // Mapping storing GT user's asset counter
-        private Mapping<Bytes, uint> _GTUsersAssetCount =
-            new Mapping<Bytes, uint>();
+        private Mapping<Bytes, long> _GTUsersAssetCount =
+            new Mapping<Bytes, long>();
 
-        // Get user's asset counter
-        public uint GetGTUsersAssetCount(Bytes address){
+        /// <summary>
+        /// Get amount of GT assets belonging to a user
+        /// </summary>
+        /// <param name="address"> User address </param>
+        /// <returns>
+        /// Asset amount
+        /// </returns>
+        public long GetGTUsersAssetCount(Bytes address){
             return _GTUsersAssetCount.GetOrDefault(address, 0);
         }
 
         // Get one of user's GT assets
-        private uint _getUsersGTAssetId(Bytes address, uint number){
+        private long _getUsersGTAssetId(Bytes address, long number){
             // We can't get more assets than user owns
             if(number >= _GTUsersAssetCount.GetOrDefault(address, 0)){
                 Error.Throw("This asset doesn't exist!");
@@ -146,15 +194,30 @@ namespace Expload.Standarts {
             return _GTUsersAssetIds.GetOrDefault(key, 0);
         }
 
-        public uint GetUsersGTAssetId(Bytes address, uint number){
+        /// <summary>
+        /// Get asset id of a particular GT asset belonging to a user
+        /// </summary>
+        /// <param name="address"> User address </param>
+        /// <param name="number"> Asset serial number </param>
+        /// <returns>
+        /// Asset id
+        /// </returns>
+        public long GetUsersGTAssetId(Bytes address, long number){
             return _getUsersGTAssetId(address, number);
         }
 
-        // Get all of user's GT assets data JSONified
+        /// <summary>
+        /// Get JSONified lists of GT assets
+        /// belonging to a particular user
+        /// </summary>
+        /// <param name="address"> User address </param>
+        /// <returns>
+        /// JSON object
+        /// </returns>
         public string GetUsersAllGTAssetsData(Bytes address){
             var result = "[";
             var amount = _GTUsersAssetCount.GetOrDefault(address, 0);
-            for(uint num = 0; num < amount; num++){
+            for(long num = 0; num < amount; num++){
                 result += DumpAsset(GetGTAsset(_getUsersGTAssetId(address, num)));
                 if(num < amount - 1){
                     result += ",";
@@ -164,20 +227,26 @@ namespace Expload.Standarts {
         }
 
         // Mapping storing XC assets ids belonging to a user
-        private Mapping<string, uint> _XCUsersAssetIds =
-            new Mapping<string, uint>();
+        private Mapping<string, long> _XCUsersAssetIds =
+            new Mapping<string, long>();
 
         // Mapping storing XC user's asset counter
-        private Mapping<Bytes, uint> _XCUsersAssetCount =
-            new Mapping<Bytes, uint>();
+        private Mapping<Bytes, long> _XCUsersAssetCount =
+            new Mapping<Bytes, long>();
 
-        // Get user's asset counter
-        public uint GetXCUsersAssetCount(Bytes address){
+        /// <summary>
+        /// Get amount of XC assets belonging to a user
+        /// </summary>
+        /// <param name="address"> User address </param>
+        /// <returns>
+        /// Asset amount
+        /// </returns>
+        public long GetXCUsersAssetCount(Bytes address){
             return _XCUsersAssetCount.GetOrDefault(address, 0);
         }
 
         // Get one of user's XC assets
-        private uint _getUsersXCAssetId(Bytes address, uint number){
+        private long _getUsersXCAssetId(Bytes address, long number){
             // We can't get more assets than user owns
             if(number >= _XCUsersAssetCount.GetOrDefault(address, 0)){
                 Error.Throw("This asset doesn't exist!");
@@ -186,15 +255,30 @@ namespace Expload.Standarts {
             return _XCUsersAssetIds.GetOrDefault(key, 0);
         }
 
-        public uint GetUsersXCAssetId(Bytes address, uint number){
+        /// <summary>
+        /// Get asset id of a particular XC asset belonging to a user
+        /// </summary>
+        /// <param name="address"> User address </param>
+        /// <param name="number"> Asset serial number </param>
+        /// <returns>
+        /// Asset id
+        /// </returns>
+        public long GetUsersXCAssetId(Bytes address, long number){
             return _getUsersXCAssetId(address, number);
         }
 
-        // Get all of user's XC assets data JSONified
+        /// <summary>
+        /// Get JSONified lists of XC assets
+        /// belonging to a particular user
+        /// </summary>
+        /// <param name="address"> User address </param>
+        /// <returns>
+        /// JSON object
+        /// </returns>
         public string GetUsersAllXCAssetsData(Bytes address){
             var result = "[";
             var amount = _XCUsersAssetCount.GetOrDefault(address, 0);
-            for(uint num = 0; num < amount; num++){
+            for(long num = 0; num < amount; num++){
                 result += DumpAsset(GetXCAsset(_getUsersXCAssetId(address, num)));
                 if(num < amount - 1){
                     result += ",";
@@ -204,7 +288,7 @@ namespace Expload.Standarts {
         }
 
         // Get key for users asset storage
-        private string GetUserAssetKey(Bytes address, uint number){
+        private string GetUserAssetKey(Bytes address, long number){
             return (StdLib.BytesToHex(address) + System.Convert.ToString(number));
         }
 
@@ -229,14 +313,14 @@ namespace Expload.Standarts {
 
 
         // // Checks if caller is owner of the specified GT asset
-        private void AssertIsGTAssetOwner(uint assetId){
+        private void AssertIsGTAssetOwner(long assetId){
             if (GetGTAsset(assetId).Owner != Info.Sender()){
                 Error.Throw("Only owner of the asset can do that.");
             }
         }
 
         // // Checks if caller is owner of the specified XC asset
-        private void AssertIsXCAssetOwner(uint assetId){
+        private void AssertIsXCAssetOwner(long assetId){
             if (GetXCAsset(assetId).Owner != Info.Sender()){
                 Error.Throw("Only owner of the asset can do that.");
             }
@@ -256,7 +340,10 @@ namespace Expload.Standarts {
         // Expload's auction program address
         private Bytes _auctionAddress = new Bytes("0000000000000000000000000000000000000000000000000000000000000000");
 
-        // Setting up auction address
+        /// <summary>
+        /// Set up Expload Auction address
+        /// </summary>
+        /// <param name="address"> Auction address </param>
         public void SetAuction(Bytes address){
             AssertIsGameOwner();
             _auctionAddress = address;
@@ -268,7 +355,16 @@ namespace Expload.Standarts {
 
         // Interaction with GT assets storage
 
-        public UInt32 EmitGTAsset(Bytes owner, Bytes externalId, Bytes metaId){
+        /// <summary>
+        /// Emit a GT asset
+        /// </summary>
+        /// <param name="owner"> Desired asset owner </param>
+        /// <param name="externalId"> Asset external id </param>
+        /// <param name="metaId"> Asset meta id </param>
+        /// <returns>
+        /// Emitted asset id
+        /// </returns>
+        public long EmitGTAsset(Bytes owner, Bytes externalId, Bytes metaId){
             // Only the game server (or owner) can emit assets
             AssertIsGameOwner();
             // Getting item's blockchain id
@@ -290,7 +386,12 @@ namespace Expload.Standarts {
             return id;
         }
 
-        public void TransferGTAsset(uint id, Bytes to){
+        /// <summary>
+        /// Transfer GT asset to a new owner
+        /// </summary>
+        /// <param name="id"> Asset id </param>
+        /// <param name="to"> New owner address </param>
+        public void TransferGTAsset(long id, Bytes to){
             // Only the auction can transfer assets
             AssertIsAuction();
             // Passing the ownership
@@ -309,7 +410,7 @@ namespace Expload.Standarts {
 
             // Delete from old owner's storage
             var oldOwnerAssetCount = _GTUsersAssetCount.GetOrDefault(oldOwner, 0);
-            for(uint i = 0; i < oldOwnerAssetCount; i++){
+            for(long i = 0; i < oldOwnerAssetCount; i++){
                 if (_GTUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, i), 0) != id) continue;
                 var lastAsset = _GTUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, oldOwnerAssetCount-1), 0);
                 _GTUsersAssetIds[GetUserAssetKey(oldOwner, i)] = lastAsset;
@@ -330,7 +431,16 @@ namespace Expload.Standarts {
 
         // Interaction with XC assets storage
 
-        public uint EmitXCAsset(Bytes owner, Bytes externalId, Bytes metaId){
+        /// <summary>
+        /// Emit a XC asset
+        /// </summary>
+        /// <param name="owner"> Desired asset owner </param>
+        /// <param name="externalId"> Asset external id </param>
+        /// <param name="metaId"> Asset meta id </param>
+        /// <returns>
+        /// Emitted asset id
+        /// </returns>
+        public long EmitXCAsset(Bytes owner, Bytes externalId, Bytes metaId){
             // Only the game server (or owner) can emit assets
             AssertIsGameOwner();
             // Getting item's blockchain id
@@ -352,7 +462,12 @@ namespace Expload.Standarts {
             return id;
         }
 
-        public void TransferXCAsset(uint id, Bytes to){
+        /// <summary>
+        /// Transfer XC asset to a new owner
+        /// </summary>
+        /// <param name="id"> Asset id </param>
+        /// <param name="to"> New owner address </param>
+        public void TransferXCAsset(long id, Bytes to){
             // Only the auction can transfer assets
             AssertIsAuction();
             // Passing the ownership
@@ -371,7 +486,7 @@ namespace Expload.Standarts {
 
             // Delete from old owner's storage
             var oldOwnerAssetCount = _XCUsersAssetCount.GetOrDefault(oldOwner, 0);
-            for(uint i = 0; i < oldOwnerAssetCount; i++){
+            for(long i = 0; i < oldOwnerAssetCount; i++){
                 if (_XCUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, i), 0) != id) continue;
                 var lastAsset = _XCUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, oldOwnerAssetCount-1), 0);
                 _XCUsersAssetIds[GetUserAssetKey(oldOwner, i)] = lastAsset;
@@ -396,7 +511,7 @@ namespace Expload.Standarts {
         Class defining a game asset
         */
         
-        public Asset(uint id, Bytes owner, Bytes externalId, Bytes metaId){
+        public Asset(long id, Bytes owner, Bytes externalId, Bytes metaId){
             this.Id = id;
             this.Owner = owner;
             this.ExternalId = externalId;
@@ -406,7 +521,7 @@ namespace Expload.Standarts {
         public Asset() { }
 
         // Asset's blockchain id
-        public uint Id { get; set; } = 0;
+        public long Id { get; set; } = 0;
 
         // Address of asset's owner
         public Bytes Owner { get; set; } = Bytes.VOID_ADDRESS;

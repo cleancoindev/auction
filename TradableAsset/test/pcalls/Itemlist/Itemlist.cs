@@ -15,31 +15,31 @@ namespace Expload.Standarts {
             // Emit the asset
             Bytes externalId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
             Bytes metaId = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
-            UInt32 assetId1 = ProgramHelper.Program<TradableAsset>(programOwner).EmitGTAsset(
+            long assetId1 = ProgramHelper.Program<TradableAsset>(programOwner).EmitGTAsset(
                 assetOwner, externalId, metaId
             );
 
             // Emit one more asset
-            UInt32 assetId2 = ProgramHelper.Program<TradableAsset>(programOwner).EmitGTAsset(
+            long assetId2 = ProgramHelper.Program<TradableAsset>(programOwner).EmitGTAsset(
                 assetOwner, externalId, metaId
             );
 
             // Get asset counter
-            UInt32 assetCounter = ProgramHelper.Program<TradableAsset>(programOwner).GetGTUsersAssetCount(assetOwner);
+            long assetCounter = ProgramHelper.Program<TradableAsset>(programOwner).GetGTUsersAssetCount(assetOwner);
 
             if(assetCounter != 2) {
                 Error.Throw("Wrong amount of assets emitted!");
             }
 
             // Get id of first emitted asset
-            UInt32 actualAssetId1 = ProgramHelper.Program<TradableAsset>(programOwner).GetUsersGTAssetId(assetOwner, 0);
+            long actualAssetId1 = ProgramHelper.Program<TradableAsset>(programOwner).GetUsersGTAssetId(assetOwner, 0);
 
             if(actualAssetId1 != assetId1) {
                 Error.Throw("Wrong asset written to user asset list!");
             }
 
             // Get id of second emitted asset
-            UInt32 actualAssetId2 = ProgramHelper.Program<TradableAsset>(programOwner).GetUsersGTAssetId(assetOwner, 1);
+            long actualAssetId2 = ProgramHelper.Program<TradableAsset>(programOwner).GetUsersGTAssetId(assetOwner, 1);
 
             if(actualAssetId2 != assetId2) {
                 Error.Throw("Wrong asset written to user asset list!");
@@ -59,7 +59,7 @@ namespace Expload.Standarts {
             }
 
             // Check if last asset was moved to the first slot
-            UInt32 movedAssetId = ProgramHelper.Program<TradableAsset>(programOwner).GetUsersGTAssetId(assetOwner, 0);
+            long movedAssetId = ProgramHelper.Program<TradableAsset>(programOwner).GetUsersGTAssetId(assetOwner, 0);
             if(movedAssetId != assetId2) {
                 Error.Throw("Transfer went wrong! (wrong asset on slot 1)");
             }

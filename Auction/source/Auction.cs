@@ -17,14 +17,20 @@ namespace Expload {
         */
 
         // Last id given to a game
-        private uint _lastGameId = 0;
+        private long _lastGameId = 0;
 
         // Mapping storing addresses of games 
-        private Mapping<uint, Bytes> _gamesAddresses =
-            new Mapping<uint, Bytes>();
+        private Mapping<long, Bytes> _gamesAddresses =
+            new Mapping<long, Bytes>();
 
-        // Add a new game address
-        public uint AddGame(Bytes address){
+        /// <summary>
+        /// Add a new game to auction
+        /// </summary>
+        /// <param name="address"> Address of game's TradableAsset program </param>
+        /// <returns>
+        /// New game id
+        /// </returns>
+        public long AddGame(Bytes address){
             // Only Auction Owner can do this
             AssertIsAuctionOwner();
             // Add game address to the storage
@@ -33,7 +39,7 @@ namespace Expload {
         }
 
         // Get game address by its game id
-        private Bytes GetGameAddress(uint id){
+        private Bytes GetGameAddress(long id){
             return _gamesAddresses.GetOrDefault(id, Bytes.VOID_ADDRESS);
         }
 
@@ -61,19 +67,25 @@ namespace Expload {
         */
 
         // Last id given to a lot
-        private uint _lastLotId = 0;
+        private long _lastLotId = 0;
 
         // Mapping storing lot objects
-        private Mapping<uint, Lot> _lots =
-            new Mapping<uint, Lot>();
+        private Mapping<long, Lot> _lots =
+            new Mapping<long, Lot>();
 
         // Get lot by its id
-        private Lot GetLot(uint id){
+        private Lot GetLot(long id){
             return _lots.GetOrDefault(id, new Lot());
         }
 
-        // Get JSONified lot data
-        public string GetLotData(uint id){
+        /// <summary>
+        /// Get JSONified lot data
+        /// </summary>
+        /// <param name="id"> Lot id </param>
+        /// <returns>
+        /// JSON object
+        /// </returns>
+        public string GetLotData(long id){
             return DumpLot(GetLot(id));
         }
 
@@ -82,14 +94,14 @@ namespace Expload {
         */
 
         // Mapping storing lot ids of a particular user
-        private Mapping<string, uint> _userLots =
-            new Mapping<string, uint>();
+        private Mapping<string, long> _userLots =
+            new Mapping<string, long>();
 
         // Mapping storing the amount of user lots
-        private Mapping<Bytes, uint> _userLotsCount =
-            new Mapping<Bytes, uint>();
+        private Mapping<Bytes, long> _userLotsCount =
+            new Mapping<Bytes, long>();
 
-        private uint _getUserLotId(Bytes address, uint number){
+        private long _getUserLotId(Bytes address, long number){
             // We can't get more lots than user has
             if(number >= _userLotsCount.GetOrDefault(address, 0)){
                 Error.Throw("This user's lot doesn't exist!");
@@ -98,20 +110,36 @@ namespace Expload {
             return _userLots.GetOrDefault(key, 0);
         }
 
-        public uint GetUserLotId(Bytes address, uint number){
+        /// <summary>
+        /// Get lot id of
+        /// lot belonging to a particular user
+        /// </summary>
+        /// <param name="address"> User address </param>
+        /// <param name="number"> Serial number in storage </param>
+        /// <returns>
+        /// Lot id
+        /// </returns>
+        public long GetUserLotId(Bytes address, long number){
             return _getUserLotId(address, number);
         }
 
         // Get the key for userLots mapping
-        private string GetUserLotKey(Bytes address, uint number){
+        private string GetUserLotKey(Bytes address, long number){
             return (StdLib.BytesToHex(address) + System.Convert.ToString(number));
         }
 
-        // Get all of users' lots JSONified
+        /// <summary>
+        /// Get JSONified lists of lots
+        /// belonging to a particular user
+        /// </summary>
+        /// <param name="address"> User address </param>
+        /// <returns>
+        /// JSON object
+        /// </returns>
         public string GetUserLotsData(Bytes address){
             var result = "[";
             var amount = _userLotsCount.GetOrDefault(address, 0);
-            for(uint num = 0; num < amount; num++){
+            for(long num = 0; num < amount; num++){
                 result += DumpLot(GetLot(_getUserLotId(address, num)));
                 if(num < amount - 1){
                     result += ",";
@@ -125,15 +153,15 @@ namespace Expload {
         */
 
         // Mapping storing lot ids selling a particular asset
-        private Mapping<string, uint> _assetLots =
-            new Mapping<string, uint>();
+        private Mapping<string, long> _assetLots =
+            new Mapping<string, long>();
 
         // Mapping storing the amount of particular asset lots
-        private Mapping<string, uint> _assetLotsCount =
-            new Mapping<string, uint>();
+        private Mapping<string, long> _assetLotsCount =
+            new Mapping<string, long>();
 
         // IMPORTANT: Asset id = External Asset id (see TradableAsset.cs)
-        private uint _getAssetLotId(uint gameId, Bytes externalId, uint number){
+        private long _getAssetLotId(long gameId, Bytes externalId, long number){
             // We can't get more lots than asset has
             if(number >= _assetLotsCount.GetOrDefault(GetAssetCountKey(gameId, externalId), 0)){
                 Error.Throw("This asset's lot doesn't exist!");
@@ -142,25 +170,43 @@ namespace Expload {
             return _assetLots.GetOrDefault(key, 0);
         }
 
-        public uint GetAssetLotId(uint gameId, Bytes externalId, uint number){
+        /// <summary>
+        /// Get lot id of
+        /// a particular asset lot
+        /// </summary>
+        /// <param name="gameId"> Id of the game the asset is from </param>
+        /// <param name="externalId"> External id of the asset sold (see TradableAsset.cs) </param>
+        /// <param name="number"> Serial number in storage </param>
+        /// <returns>
+        /// Lot id
+        /// </returns>
+        public long GetAssetLotId(long gameId, Bytes externalId, long number){
             return _getAssetLotId(gameId, externalId, number);
         }
 
         // Get the key for assetLotsCount mapping
-        private string GetAssetCountKey(uint gameId, Bytes externalId){
+        private string GetAssetCountKey(long gameId, Bytes externalId){
             return (System.Convert.ToString(gameId) + StdLib.BytesToHex(externalId));
         }
 
         // Get the key for assetLots mapping
-        private string GetAssetLotKey(uint gameId, Bytes externalId, uint number){
+        private string GetAssetLotKey(long gameId, Bytes externalId, long number){
             return (System.Convert.ToString(gameId) + StdLib.BytesToHex(externalId) + System.Convert.ToString(number));
         }
 
-        // Get all of asset lots JSONified
-        public string GetAssetLotsData(uint gameId, Bytes externalId){
+        /// <summary>
+        /// Get JSONified lists of lots of
+        /// a particular asset
+        /// </summary>
+        /// <param name="gameId"> Id of the game the asset is from </param>
+        /// <param name="externalId"> External id of the asset sold (see TradableAsset.cs) </param>
+        /// <returns>
+        /// JSON object
+        /// </returns>
+        public string GetAssetLotsData(long gameId, Bytes externalId){
             var result = "[";
             var amount = _assetLotsCount.GetOrDefault(GetAssetCountKey(gameId, externalId), 0);
-            for(uint num = 0; num < amount; num++){
+            for(long num = 0; num < amount; num++){
                 result += DumpLot(GetLot(_getAssetLotId(gameId, externalId, num)));
                 if(num < amount - 1){
                     result += ",";
@@ -182,7 +228,7 @@ namespace Expload {
         }
 
         // Checks if caller owns a particular asset
-        private void AssertIsItemOwner(uint gameId, uint assetId){
+        private void AssertIsItemOwner(long gameId, long assetId){
             var gameAddress = GetGameAddress(gameId);
             var assetOwner = ProgramHelper.Program<TradableAsset>(gameAddress).GetXCAssetOwner(assetId);
             if(Info.Sender() != assetOwner){
@@ -191,7 +237,7 @@ namespace Expload {
         }
 
         // Checks if caller is a creator of particular lot
-        private void AssertIsLotCreator(uint lotId){
+        private void AssertIsLotCreator(long lotId){
             if(Info.Sender() != GetLot(lotId).Owner){
                 Error.Throw("Only lot creator can do this.");
             }
@@ -211,8 +257,8 @@ namespace Expload {
         /// <returns>
         /// Created lot id
         /// </returns>
-        public uint CreateLot(
-            uint gameId, uint assetId, uint price
+        public long CreateLot(
+            long gameId, long assetId, long price
         ){
             // Check if user has the item he wants to sell
             AssertIsItemOwner(gameId, assetId);
@@ -259,7 +305,7 @@ namespace Expload {
         /// Buy desired lot
         /// </summary>
         /// <param name="lotId"> Id of the lot </param>
-        public void BuyLot(uint lotId){
+        public void BuyLot(long lotId){
             // Get the lot object
             Lot lot = GetLot(lotId);
 
@@ -293,7 +339,7 @@ namespace Expload {
         /// in Expload Auction UI (except for lot creator's lot history).
         /// The lot is permanently closed and archived, it can't be reopened.
         /// </remarks>
-        public void CloseLot(uint lotId){
+        public void CloseLot(long lotId){
             // Check if sender has permission to do this
             AssertIsLotCreator(lotId);
 
@@ -324,8 +370,8 @@ namespace Expload {
         */
         
         public Lot(
-            uint id, Bytes owner, uint gameId, 
-            uint assetId, Bytes externalId, uint price
+            long id, Bytes owner, long gameId, 
+            long assetId, Bytes externalId, long price
         ){
             this.Id = id;
             this.Owner = owner;
@@ -341,16 +387,16 @@ namespace Expload {
         public bool Closed { get; set; } = false;
 
         // Id of the lot
-        public uint Id { get; set; } = 0;
+        public long Id { get; set; } = 0;
 
         // Id of the game the asset is from
-        public uint GameId { get; set; } = 0;
+        public long GameId { get; set; } = 0;
 
         // Blockchain id of the asset sold (see TradableAsset.cs)
-        public uint AssetId { get; set; } = 0;
+        public long AssetId { get; set; } = 0;
 
         // Starting price of the asset
-        public uint Price { get; set; } = 0;
+        public long Price { get; set; } = 0;
         
         // Address of lot creator
         public Bytes Owner { get; set; } = Bytes.VOID_ADDRESS;

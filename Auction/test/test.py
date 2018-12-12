@@ -125,17 +125,16 @@ class TestTradableAsset(unittest.TestCase):
         print("2 lots were created")
 
         # Buy  a lot
-        self.runContract("Buy", "test-wallet2", jsonifyOutput=False)
-        # self.assertEqual(self.res['stack'][0],
-        # 'utf8.{"id": "1",' +
-        #       '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
-        #       '"gameId": "1",' +
-        #       '"assetId": "1",' +
-        #       '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
-        #       '"price": "200",' +
-        #       '"closed": "1",' +
-        #       '"buyer": "edbfca5b9a253738634352c465b2f0ea1a2f280dbf5510bd83010798dd203996"}')
-        print(self.res)
+        self.runContract("Buy", "test-wallet2")
+        self.assertEqual(self.res['stack'][0],
+        'utf8.{"id": "1",' +
+              '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
+              '"gameId": "1",' +
+              '"assetId": "1",' +
+              '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
+              '"price": "200",' +
+              '"closed": "1",' +
+              '"buyer": "edbfca5b9a253738634352c465b2f0ea1a2f280dbf5510bd83010798dd203996"}')
         print("A lot was bought")
 
         # Close a lot

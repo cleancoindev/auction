@@ -22,8 +22,6 @@ namespace Expload {
             if(auctionBalance + 200 != Info.Balance(auctionAddress)){
                 Error.Throw("Coins were not transfered correctly");
             }
-            
-            Error.Throw("breakpoint");
 
             // Check if the bid status was updated
             return ProgramHelper.Program<Auction>(auctionAddress).GetLotData(1);
