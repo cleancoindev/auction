@@ -7,9 +7,11 @@
     <AssemblyName>$(PackageId)</AssemblyName>
     <WattsLimit>500000</WattsLimit>
     <PravdaApi>http://publicnode.expload.com/api/public</PravdaApi>
+    <NoWarn>NU1605</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Expload.Pravda" Version="0.0.17" />
+    <PackageReference Include="Expload.GameToken" Version="0.*" />
     <ProjectReference Include="../../../../TradableAsset/source/TradableAsset.csproj" />
     <ProjectReference Include="../../../source/Auction.csproj" />
   </ItemGroup>

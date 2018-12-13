@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageName>CloseLot</PackageName>
+    <PackageName>SetUpGT</PackageName>
     <PackageId>Expload.$(PackageName)</PackageId>
     <PackageVersion>1.0.0</PackageVersion>
     <TargetFramework>netstandard2.0</TargetFramework>

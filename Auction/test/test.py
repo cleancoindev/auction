@@ -7,7 +7,9 @@ import json
 import requests
 import time
 
-TA_path = "../../TradableAsset/source/bin/TradableAsset.pravda"
+TA_path = "../../TradableAsset/source/XC/bin/TradableXCAsset.pravda"
+TA_GT_path = "../../TradableAsset/source/GT/bin/TradableGTAsset.pravda"
+GT_path = "../source/bin/GameToken.pravda"
 auction_path = "../source/bin/Auction.pravda"
 pcall_file_path = "pcalls/{0}/bin/{0}.pravda"
 
@@ -19,7 +21,8 @@ class TestTradableAsset(unittest.TestCase):
     # Result of setUp work
     res = None
     
-    test_calls = ['SetUpTradableAsset', 'SetUpAuction', 'NewLot', 'Buy', 'CloseLot']
+    test_calls = ['SetUpTradableAsset', 'SetUpTradableGTAsset', 
+                  'SetUpAuction', 'SetUpGT', 'NewLot', 'Buy', 'CloseLot']
 
     # Set up Pravda once before running the TestCase
     @classmethod
@@ -37,30 +40,26 @@ class TestTradableAsset(unittest.TestCase):
         print("Starting pravda node")
         self.pravda = Popen(["pravda", "node", "run"], stderr=DEVNULL, stdout=DEVNULL)
         # Wait for it to load
-        time.sleep(10)
-
-        # Check if Pravda lauched
-        def check_pravda_status():
-            try:
-                r = requests.get("http://localhost:8080/ui")
-                return r.status_code
-            except:
-                time.sleep(3)
-                return check_pravda_status()
-        print("Pravda status: {}".format(str(check_pravda_status())))
-
-        time.sleep(3)
+        time.sleep(20)
         
         print("Deploying programs")
 
-        # Deploy smart-contracts to Pravda
+        # Deploy main smart-contracts to Pravda
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
                             "-i", TA_path, "--program-wallet", "wallets/TradableAsset-wallet.json"])
-        print("TradableAsset.pravda deployed on fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b")
+        print("TradableXCAsset.pravda deployed on fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b")
+
+        res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
+                            "-i", TA_GT_path, "--program-wallet", "wallets/TradableGTAsset-wallet.json"])
+        print("TradableGTAsset.pravda deployed on 17e22f66979eca19a8b060a8bb759bfb3dbbce785a039e9e1ed01a54cc92161c")
 
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
                             "-i", auction_path, "--program-wallet", "wallets/auction-wallet.json"])
         print("Auction.pravda deployed on e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342")
+
+        res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
+                            "-i", GT_path, "--program-wallet", "wallets/GT-wallet.json"])
+        print("GameToken.pravda deployed on 64a818e62d78f7b2642b0535db69c9b7e7aff0f12562110bdeeea082dc217f29")
 
     # Set up particular contract test
     def runContract(self, name, wallet, jsonifyOutput=True, silent=True):
@@ -94,11 +93,21 @@ class TestTradableAsset(unittest.TestCase):
     def test_auction_cycle(self):
         # Set up TradableAsset
         self.runContract("SetUpTradableAsset", "TradableAsset-wallet")
-        print("TradableAsset was set up")
+        print("TradableXCAsset was set up")
+        time.sleep(2)
+        self.runContract("SetUpTradableGTAsset", "TradableGTAsset-wallet")
+        print("TradableGTAsset was set up")
+        time.sleep(2)
 
         # Set up auction
         self.runContract("SetUpAuction", "auction-wallet")
         print("Auction was set up")
+
+        time.sleep(2)
+        
+        # Set up GameToken
+        self.runContract("SetUpGT", "GT-wallet")
+        print("GameToken was set up")
 
         # Create a new lot
         self.runContract("NewLot", "test-wallet")
@@ -107,6 +116,7 @@ class TestTradableAsset(unittest.TestCase):
               '{"id": "1",' +
               '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
               '"gameId": "1",' +
+              '"isGT": "0",' +
               '"assetId": "1",' +
               '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
               '"price": "200",' +
@@ -115,14 +125,25 @@ class TestTradableAsset(unittest.TestCase):
               '{"id": "2",' +
               '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
               '"gameId": "1",' +
+              '"isGT": "0",' +
               '"assetId": "2",' +
               '"externalId": "0000000000000000000000000000000000000000000000000000000000000002",' +
               '"price": "200",' +
               '"closed": "0",' +
+              '"buyer": "0000000000000000000000000000000000000000000000000000000000000000"},' +
+              '{"id": "3",' +
+              '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
+              '"gameId": "1",' +
+              '"isGT": "1",' +
+              '"assetId": "1",' +
+              '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
+              '"price": "200",' +
+              '"closed": "0",' +
               '"buyer": "0000000000000000000000000000000000000000000000000000000000000000"}' +
         ']')
+        print("3 lots were created")
 
-        print("2 lots were created")
+        time.sleep(2)
 
         # Buy  a lot
         self.runContract("Buy", "test-wallet2")
@@ -130,17 +151,21 @@ class TestTradableAsset(unittest.TestCase):
         'utf8.{"id": "1",' +
               '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
               '"gameId": "1",' +
+              '"isGT": "0",' +
               '"assetId": "1",' +
               '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
               '"price": "200",' +
               '"closed": "1",' +
               '"buyer": "edbfca5b9a253738634352c465b2f0ea1a2f280dbf5510bd83010798dd203996"}')
-        print("A lot was bought")
+        print("2 lots were bought")
+
+        time.sleep(2)
 
         # Close a lot
         self.runContract("CloseLot", "test-wallet")
-        
         print("Lot was closed")
+
+        time.sleep(2)
 
     @classmethod
     def tearDownClass(self):

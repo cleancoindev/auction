@@ -11,14 +11,19 @@ namespace Expload {
         public string test_NewLot() {
             // Init addresses and get program by address
             var tradableAssetAddress = new Bytes("fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b");
+            var tradableGTAssetAdress = new Bytes("17e22f66979eca19a8b060a8bb759bfb3dbbce785a039e9e1ed01a54cc92161c");
             var auctionAddress   = new Bytes("e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342");
 
-            // Make 2 lots
-            var lotId = ProgramHelper.Program<Auction>(auctionAddress).CreateLot(1, 1, 200);
-            var lotId2 = ProgramHelper.Program<Auction>(auctionAddress).CreateLot(1, 2, 200);
+            // Make 3 lots
+            var lotId = ProgramHelper.Program<Auction>(auctionAddress).CreateLot(1, false, 1, 200);
+            var lotId2 = ProgramHelper.Program<Auction>(auctionAddress).CreateLot(1, false, 2, 200);
+            var lotId3 = ProgramHelper.Program<Auction>(auctionAddress).CreateLot(1, true, 1, 200);
 
             // Check if asset was transfered to auction wallet
-            if(auctionAddress != ProgramHelper.Program<TradableAsset>(tradableAssetAddress).GetXCAssetOwner(1)){
+            if(auctionAddress != ProgramHelper.Program<TradableXCAsset>(tradableAssetAddress).GetXCAssetOwner(1)){
+                Error.Throw("Asset was not transfered to auction wallet.");
+            }
+            if(auctionAddress != ProgramHelper.Program<TradableGTAsset>(tradableGTAssetAdress).GetGTAssetOwner(1)){
                 Error.Throw("Asset was not transfered to auction wallet.");
             }
 

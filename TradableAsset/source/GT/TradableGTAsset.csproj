@@ -8,6 +8,7 @@
     <WattsLimit>500000</WattsLimit>
     <PravdaApi>http://publicnode.expload.com/api/public</PravdaApi>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <NoWarn>NU1605</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Expload.Pravda" Version="0.0.17" />
