@@ -1,6 +1,6 @@
 using Expload.Pravda;
 
-namespace Expload.Standarts
+namespace Expload.Standards
 {
     public interface ITradableXCAsset : ITradableAsset
     {
@@ -11,7 +11,7 @@ namespace Expload.Standarts
         /// <returns>
         /// JSON object
         /// </returns>
-        string GetXCAssetData(long id);
+        Asset GetXCAssetData(long id);
 
         /// <summary>
         /// Get XC asset owner
@@ -58,7 +58,7 @@ namespace Expload.Standarts
         /// <returns>
         /// JSON object
         /// </returns>
-        string GetUsersAllXCAssetsData(Bytes address);
+        Asset[] GetUsersAllXCAssetsData(Bytes address);
 
         /// <summary>
         /// Emit a XC asset

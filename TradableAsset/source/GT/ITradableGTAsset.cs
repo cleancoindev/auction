@@ -1,6 +1,6 @@
 using Expload.Pravda;
 
-namespace Expload.Standarts
+namespace Expload.Standards
 {
     public interface ITradableGTAsset : ITradableAsset
     {
@@ -11,7 +11,7 @@ namespace Expload.Standarts
         /// <returns>
         /// JSON object
         /// </returns>
-        string GetGTAssetData(long id);
+        Asset GetGTAssetData(long id);
 
         /// <summary>
         /// Get GT asset owner
@@ -58,7 +58,7 @@ namespace Expload.Standarts
         /// <returns>
         /// JSON object
         /// </returns>
-        string GetUsersAllGTAssetsData(Bytes address);
+        Asset[] GetUsersAllGTAssetsData(Bytes address);
 
         /// <summary>
         /// Emit a GT asset

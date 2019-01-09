@@ -1,4 +1,4 @@
-namespace Expload.Standarts {
+namespace Expload.Standards {
 
     using Pravda;
     using System;
@@ -7,7 +7,7 @@ namespace Expload.Standarts {
     public class UsersItems {
         public static void Main() {}
 
-        public string test_UsersItems(){
+        public Asset[] test_UsersItems(){
             // Init addresses and get program by address
             Bytes programOwner = new Bytes("fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b");
             Bytes assetOwner = new Bytes("a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d");

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <PackageName>TradableAsset</PackageName>
-        <PackageId>Expload.Standarts.$(PackageName)</PackageId>
+        <PackageId>Expload.Standards.$(PackageName)</PackageId>
         <PackageVersion>1.0.0</PackageVersion>
         <TargetFramework>netstandard2.0</TargetFramework>
         <AssemblyName>$(PackageId)</AssemblyName>
@@ -12,6 +12,6 @@
         <Compile Remove="GT/*"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Expload.Pravda" Version="0.0.17" />
+        <PackageReference Include="Expload.Pravda" Version="0.21.0" />
     </ItemGroup>
 </Project>

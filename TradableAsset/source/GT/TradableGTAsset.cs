@@ -1,5 +1,6 @@
-namespace Expload.Standarts {
+namespace Expload {
 
+    using Standards;
     using Pravda;
     using System;
 
@@ -52,17 +53,6 @@ namespace Expload.Standarts {
 
         public static void Main(){ }
 
-        // Dump Asset into JSON
-        private string DumpAsset(Asset asset){
-            return
-            "{" +
-                "\"id\": \""         + System.Convert.ToString(asset.Id)   + "\"," +
-                "\"owner\": \""      + StdLib.BytesToHex(asset.Owner)      + "\"," +
-                "\"externalId\": \"" + StdLib.BytesToHex(asset.ExternalId) + "\"," +
-                "\"metaId\": \""     + GetMetaData(asset.MetaId)           + "\""  +
-            "}";
-        }
-
         // Last id given to a GT asset (id=0 is invalid)
         private long _lastGTId = 0;
 
@@ -86,8 +76,8 @@ namespace Expload.Standarts {
         /// <returns>
         /// JSON object
         /// </returns>
-        public string GetGTAssetData(long id){
-            return DumpAsset(GetGTAsset(id));
+        public Asset GetGTAssetData(long id){
+            return GetGTAsset(id);
         }
 
         /// <summary>
@@ -166,16 +156,13 @@ namespace Expload.Standarts {
         /// <returns>
         /// JSON object
         /// </returns>
-        public string GetUsersAllGTAssetsData(Bytes address){
-            var result = "[";
-            var amount = _GTUsersAssetCount.GetOrDefault(address, 0);
-            for(long num = 0; num < amount; num++){
-                result += DumpAsset(GetGTAsset(_getUsersGTAssetId(address, num)));
-                if(num < amount - 1){
-                    result += ",";
-                }
+        public Asset[] GetUsersAllGTAssetsData(Bytes address){
+            int amount = (int)_GTUsersAssetCount.GetOrDefault(address, 0);
+            var result = new Asset[amount];
+            for(int num = 0; num < amount; num++){
+                result[num] = GetGTAsset(_getUsersGTAssetId(address, num));
             }
-            return result + "]";
+            return result;
         }
 
         // Get key for users asset storage
@@ -263,7 +250,7 @@ namespace Expload.Standarts {
             _GTUsersAssetCount[owner] = assetCount + 1;
 
             // Log an event
-            Log.Event("EmitGT", DumpAsset(asset));
+            Log.Event("EmitGT", asset);
 
             return id;
         }
@@ -308,7 +295,7 @@ namespace Expload.Standarts {
             _GTUsersAssetCount[to] = assetCount + 1;
 
             // Log an event
-            Log.Event("TransferGT", DumpAsset(asset));
+            Log.Event("TransferGT", asset);
         }
     }
 }

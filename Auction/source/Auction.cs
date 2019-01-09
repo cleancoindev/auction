@@ -1,7 +1,7 @@
 namespace Expload {
 
     using Pravda;
-    using Standarts;
+    using Standards;
     using System;
 
     [Program]
@@ -91,26 +91,6 @@ namespace Expload {
         }
 
         /*
-        Parsing lot objects
-        */
-
-        // Dump Lot into JSON
-        private string DumpLot(Lot lot){
-            return
-            "{" +
-                "\"id\": \""            + System.Convert.ToString(lot.Id)      + "\"," + 
-                "\"creator\": \""       + StdLib.BytesToHex(lot.Owner)         + "\"," +
-                "\"gameId\": \""        + System.Convert.ToString(lot.GameId)  + "\"," + 
-                "\"isGT\": \""          + System.Convert.ToString(lot.IsGT)    + "\"," +
-                "\"assetId\": \""       + System.Convert.ToString(lot.AssetId) + "\"," +
-                "\"externalId\": \""    + StdLib.BytesToHex(lot.ExternalId)    + "\"," +
-                "\"price\": \""         + System.Convert.ToString(lot.Price)   + "\"," +
-                "\"closed\": \""        + System.Convert.ToString(lot.Closed)  + "\"," +
-                "\"buyer\": \""         + StdLib.BytesToHex(lot.Buyer)         + "\"" +
-            "}";
-        }
-
-        /*
         Lot objects storage
         */
 
@@ -133,8 +113,8 @@ namespace Expload {
         /// <returns>
         /// JSON object
         /// </returns>
-        public string GetLotData(long id){
-            return DumpLot(GetLot(id));
+        public Lot GetLotData(long id){
+            return GetLot(id);
         }
 
         /*
@@ -184,16 +164,13 @@ namespace Expload {
         /// <returns>
         /// JSON object
         /// </returns>
-        public string GetUserLotsData(Bytes address){
-            var result = "[";
-            var amount = _userLotsCount.GetOrDefault(address, 0);
-            for(long num = 0; num < amount; num++){
-                result += DumpLot(GetLot(_getUserLotId(address, num)));
-                if(num < amount - 1){
-                    result += ",";
-                }
+        public Lot[] GetUserLotsData(Bytes address){
+            int amount = (int)_userLotsCount.GetOrDefault(address, 0);
+            var result = new Lot[amount];
+            for(int num = 0; num < amount; num++){
+                result[num] = GetLot(_getUserLotId(address, num));
             }
-            return result + "]";
+            return result;
         }
 
         /*
@@ -251,16 +228,13 @@ namespace Expload {
         /// <returns>
         /// JSON object
         /// </returns>
-        public string GetAssetLotsData(long gameId, Bytes externalId){
-            var result = "[";
-            var amount = _assetLotsCount.GetOrDefault(GetAssetCountKey(gameId, externalId), 0);
-            for(long num = 0; num < amount; num++){
-                result += DumpLot(GetLot(_getAssetLotId(gameId, externalId, num)));
-                if(num < amount - 1){
-                    result += ",";
-                }
+        public Lot[] GetAssetLotsData(long gameId, Bytes externalId){
+            int amount = (int)_assetLotsCount.GetOrDefault(GetAssetCountKey(gameId, externalId), 0);
+            var result = new Lot[amount];
+            for(int num = 0; num < amount; num++){
+                result[num] = GetLot(_getAssetLotId(gameId, externalId, num));
             }
-            return result + "]";
+            return result;
         }
 
         /*
@@ -358,7 +332,7 @@ namespace Expload {
             _assetLotsCount[assetLotsCountKey] = assetCount+1;
 
             // Emit an event
-            Log.Event("lotCreated", DumpLot(lot));
+            Log.Event("lotCreated", lot);
 
             return lotId;
         }
@@ -396,7 +370,7 @@ namespace Expload {
             _lots[lotId] = lot;
 
             // Emit an event
-            Log.Event("lotBought", DumpLot(lot));
+            Log.Event("lotBought", lot);
         }
 
         /// <summary>
@@ -436,7 +410,7 @@ namespace Expload {
             }
 
             // Emit an event
-            Log.Event("lotClosed", DumpLot(lot));
+            Log.Event("lotClosed", lot);
         }
     }
 

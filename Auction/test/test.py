@@ -4,9 +4,8 @@ import unittest
 from subprocess import call, Popen, DEVNULL, check_output
 import signal
 import json
-import requests
 import time
-
+from datetime import datetime
 TA_path = "../../TradableAsset/source/XC/bin/TradableXCAsset.pravda"
 TA_GT_path = "../../TradableAsset/source/GT/bin/TradableGTAsset.pravda"
 GT_path = "../source/bin/GameToken.pravda"
@@ -38,9 +37,9 @@ class TestTradableAsset(unittest.TestCase):
 
         # Run Pravda node in a new subprocess
         print("Starting pravda node")
-        self.pravda = Popen(["pravda", "node", "run"], stderr=DEVNULL, stdout=DEVNULL)
+        self.pravda = Popen(["pravda", "node", "run"], stdout=DEVNULL)
         # Wait for it to load
-        time.sleep(20)
+        time.sleep(10)
         
         print("Deploying programs")
 
@@ -67,10 +66,16 @@ class TestTradableAsset(unittest.TestCase):
         call(["pravda", "gen", "address", "-o", "wallets/{}-test-wallet.json".format(name)])
 
         # Deploy the tester program
-        address = json.loads(check_output(
+        res = check_output(
             ["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
              "-i", pcall_file_path.format(name), "--program-wallet",
-             "wallets/{}-test-wallet.json".format(name)]))['effects'][0]['address']
+             "wallets/{}-test-wallet.json".format(name)])
+
+        try:
+            address = json.loads(res)['effects'][0]['address']
+        except Exception:
+            print(res)
+            raise Exception
 
         if not silent:
             print("{}.pravda deployed on {}".format(name, address))
@@ -82,7 +87,11 @@ class TestTradableAsset(unittest.TestCase):
             'pravda broadcast run -w wallets/{}.json -l 9000000 '.format(wallet) +
             '--program-wallet wallets/{}-test-wallet.json'.format(name), shell=True)
         if jsonifyOutput:
-            self.res = json.loads(res.decode('utf-8-sig'))["executionResult"]["success"]
+            try:
+                self.res = json.loads(res.decode('utf-8-sig'))["executionResult"]["success"]
+            except Exception:
+                print(res)
+                raise Exception
         else:
             self.res = res
 
@@ -94,78 +103,91 @@ class TestTradableAsset(unittest.TestCase):
         # Set up TradableAsset
         self.runContract("SetUpTradableAsset", "TradableAsset-wallet")
         print("TradableXCAsset was set up")
-        time.sleep(2)
+
         self.runContract("SetUpTradableGTAsset", "TradableGTAsset-wallet")
         print("TradableGTAsset was set up")
-        time.sleep(2)
+
 
         # Set up auction
         self.runContract("SetUpAuction", "auction-wallet")
         print("Auction was set up")
-
-        time.sleep(2)
         
         # Set up GameToken
         self.runContract("SetUpGT", "GT-wallet")
         print("GameToken was set up")
 
-        # Create a new lot
+        # Create 3 new lots
         self.runContract("NewLot", "test-wallet")
-        self.assertEqual(self.res['stack'][0],
-        'utf8.[' +
-              '{"id": "1",' +
-              '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
-              '"gameId": "1",' +
-              '"isGT": "0",' +
-              '"assetId": "1",' +
-              '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
-              '"price": "200",' +
-              '"closed": "0",' +
-              '"buyer": "0000000000000000000000000000000000000000000000000000000000000000"},' +
-              '{"id": "2",' +
-              '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
-              '"gameId": "1",' +
-              '"isGT": "0",' +
-              '"assetId": "2",' +
-              '"externalId": "0000000000000000000000000000000000000000000000000000000000000002",' +
-              '"price": "200",' +
-              '"closed": "0",' +
-              '"buyer": "0000000000000000000000000000000000000000000000000000000000000000"},' +
-              '{"id": "3",' +
-              '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
-              '"gameId": "1",' +
-              '"isGT": "1",' +
-              '"assetId": "1",' +
-              '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
-              '"price": "200",' +
-              '"closed": "0",' +
-              '"buyer": "0000000000000000000000000000000000000000000000000000000000000000"}' +
-        ']')
-        print("3 lots were created")
+        num = int(self.res['stack'][0].split(".")[1])
+        lots = list(map(int, self.res['heap'][num][1:]))
 
-        time.sleep(2)
+        # Assert first lot
+        expected_result = \
+            "{" + \
+                "'utf8.<Price>k__BackingField': 'int64.200', " + \
+                "'utf8.<Buyer>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000000', " + \
+                "'utf8.<Id>k__BackingField': 'int64.1', " + \
+                "'utf8.<IsGT>k__BackingField': 'int32.0', " + \
+                "'utf8.<GameId>k__BackingField': 'int64.1', " + \
+                "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
+                "'utf8.<Closed>k__BackingField': 'int32.0', " + \
+                "'utf8.<AssetId>k__BackingField': 'int64.1', " + \
+                "'utf8.<Owner>k__BackingField': 'bytes.8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f'" + \
+            "}"
+        self.assertEqual(expected_result, str(self.res['heap'][lots[0]]))
+
+        # Assert second lot
+        expected_result = \
+            "{" + \
+                "'utf8.<Price>k__BackingField': 'int64.200', " + \
+                "'utf8.<Buyer>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000000', " + \
+                "'utf8.<Id>k__BackingField': 'int64.2', " + \
+                "'utf8.<IsGT>k__BackingField': 'int32.0', " + \
+                "'utf8.<GameId>k__BackingField': 'int64.1', " + \
+                "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
+                "'utf8.<Closed>k__BackingField': 'int32.0', " + \
+                "'utf8.<AssetId>k__BackingField': 'int64.2', " + \
+                "'utf8.<Owner>k__BackingField': 'bytes.8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f'" + \
+            "}"
+        self.assertEqual(expected_result, str(self.res['heap'][lots[1]]))
+
+        # Assert third lot
+        expected_result = \
+            "{" + \
+                "'utf8.<Price>k__BackingField': 'int64.200', " + \
+                "'utf8.<Buyer>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000000', " + \
+                "'utf8.<Id>k__BackingField': 'int64.3', " + \
+                "'utf8.<IsGT>k__BackingField': 'int32.1', " + \
+                "'utf8.<GameId>k__BackingField': 'int64.1', " + \
+                "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
+                "'utf8.<Closed>k__BackingField': 'int32.0', " + \
+                "'utf8.<AssetId>k__BackingField': 'int64.1', " + \
+                "'utf8.<Owner>k__BackingField': 'bytes.8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f'" + \
+            "}"
+        self.assertEqual(expected_result, str(self.res['heap'][lots[2]]))
+
+        print("3 lots were created")
 
         # Buy  a lot
         self.runContract("Buy", "test-wallet2")
-        self.assertEqual(self.res['stack'][0],
-        'utf8.{"id": "1",' +
-              '"creator": "8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f",' +
-              '"gameId": "1",' +
-              '"isGT": "0",' +
-              '"assetId": "1",' +
-              '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
-              '"price": "200",' +
-              '"closed": "1",' +
-              '"buyer": "edbfca5b9a253738634352c465b2f0ea1a2f280dbf5510bd83010798dd203996"}')
-        print("2 lots were bought")
-
-        time.sleep(2)
+        num = int(self.res['stack'][0].split(".")[1])
+        expected_result = \
+            "{" + \
+                "'utf8.<Buyer>k__BackingField': 'bytes.edbfca5b9a253738634352c465b2f0ea1a2f280dbf5510bd83010798dd203996', " + \
+                "'utf8.<Price>k__BackingField': 'int64.200', " + \
+                "'utf8.<IsGT>k__BackingField': 'int32.0', " + \
+                "'utf8.<Id>k__BackingField': 'int64.1', " + \
+                "'utf8.<GameId>k__BackingField': 'int64.1', " + \
+                "'utf8.<Closed>k__BackingField': 'int32.1', " + \
+                "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
+                "'utf8.<AssetId>k__BackingField': 'int64.1', " + \
+                "'utf8.<Owner>k__BackingField': 'bytes.8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f'" + \
+            "}"
+        self.assertEqual(expected_result, str(self.res['heap'][num]))
 
         # Close a lot
         self.runContract("CloseLot", "test-wallet")
         print("Lot was closed")
-
-        time.sleep(2)
 
     @classmethod
     def tearDownClass(self):

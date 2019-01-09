@@ -1,6 +1,6 @@
 using Expload.Pravda;
 
-namespace Expload.Standarts
+namespace Expload.Standards
 {
     public interface ITradableAsset
     {

@@ -4,13 +4,14 @@ import unittest
 from subprocess import call, Popen, DEVNULL, check_output
 import signal
 import json
-import requests
 import time
 
 TA_path = "../source/GT/bin/TradableGTAsset.pravda"
 pcall_file_path = "pcalls/{0}/bin/{0}.pravda"
 
 class TestTradableAsset(unittest.TestCase):
+
+    maxDiff = None
 
     # Pravda instance
     pravda = None
@@ -36,19 +37,9 @@ class TestTradableAsset(unittest.TestCase):
         print("Starting pravda node")
         self.pravda = Popen(["pravda", "node", "run"], stderr=DEVNULL, stdout=DEVNULL)
         # Wait for it to load
-        time.sleep(15)
+        time.sleep(20)
 
-        # Check if Pravda lauched
-        def check_pravda_status():
-            try:
-                r = requests.get("http://localhost:8080/ui")
-                return r.status_code
-            except:
-                time.sleep(3)
-                return check_pravda_status()
-        print("Pravda status: {}".format(str(check_pravda_status())))
-
-        time.sleep(3)
+        print("Deploying programs")
 
         # Deploy smart-contract to Pravda
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/test-wallet.json", "-l", "9000000",
@@ -63,10 +54,16 @@ class TestTradableAsset(unittest.TestCase):
         call(["pravda", "gen", "address", "-o", "wallets/{}-test-wallet.json".format(name)])
 
         # Deploy the tester program
-        address = json.loads(check_output(
+        address = None
+        res = check_output(
             ["pravda", "broadcast", "deploy", "-w", "wallets/test-wallet.json", "-l", "9000000",
              "-i", pcall_file_path.format(name), "--program-wallet",
-             "wallets/{}-test-wallet.json".format(name)]))['effects'][0]['address']
+             "wallets/{}-test-wallet.json".format(name)])
+        try:
+            address = json.loads(res)['effects'][0]['address']
+        except Exception:
+            print(res)
+            raise Exception
 
         print("{}.pravda deployed on {}".format(name, address))
 
@@ -76,28 +73,32 @@ class TestTradableAsset(unittest.TestCase):
             '| pravda compile asm |'+
             'pravda broadcast run -w wallets/program-wallet.json -l 9000000 '+
             '--program-wallet wallets/{}-test-wallet.json'.format(name), shell=True)
-        self.res = json.loads(res.decode('utf-8-sig'))["executionResult"]["success"]
+        try:
+            self.res = json.loads(res.decode('utf-8-sig'))["executionResult"]["success"]
+        except Exception:
+            print(res)
+            raise Exception
 
         # Clean up the program wallet
         call(["rm", "-rf", "wallets/{}-test-wallet.json".format(name)])
 
     # Test if assets can be emitted
     def test_Emit(self):
-        self.assertEqual(self.res["stack"][0], 'utf8.{'+
-            '"id": "1",'+
-            '"owner": "e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342",'+
-            '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",'+
-            '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000002"'+
-        '}')
+        expected_result = \
+            "{'utf8.<Id>k__BackingField': 'int64.1', " + \
+             "'utf8.<MetaId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
+             "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', "+ \
+             "'utf8.<Owner>k__BackingField': 'bytes.e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342'}"
+        self.assertEqual(str(self.res["heap"][0]), expected_result)
 
     # Test if assets can be transfered
     def test_Transfer(self):
-        self.assertEqual(self.res["stack"][0], 'utf8.{'+
-            '"id": "4",'+
-            '"owner": "0000000000000000000000000000000000000000000000000000000000000000",'+
-            '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",'+
-            '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000002"'+
-        '}')
+        expected_result = \
+            "{'utf8.<Id>k__BackingField': 'int64.4', " + \
+             "'utf8.<MetaId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
+             "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', "+ \
+             "'utf8.<Owner>k__BackingField': 'bytes.e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342'}"
+        self.assertEqual(str(self.res["heap"][0]), expected_result)
 
     # Test if item list is working
     def test_Itemlist(self):
@@ -105,27 +106,21 @@ class TestTradableAsset(unittest.TestCase):
 
     # Test if getting all user items works
     def test_UsersItems(self):
-        self.assertEqual(self.res["stack"][0], 'utf8.['+
-            '{' +
-                '"id": "5",'+
-                '"owner": "a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d",' +
-                '"externalId": "0000000000000000000000000000000000000000000000000000000000000001",' +
-                '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000001"' +
-            '},' +
-            '{' +
-                '"id": "6",'+
-                '"owner": "a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d",' +
-                '"externalId": "0000000000000000000000000000000000000000000000000000000000000002",' +
-                '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000002"' +
-            '},' +
-            '{' +
-                '"id": "7",'+
-                '"owner": "a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d",' +
-                '"externalId": "0000000000000000000000000000000000000000000000000000000000000003",' +
-                '"metaId": "https://some_url/0000000000000000000000000000000000000000000000000000000000000003"' +
-            '}' +
-        ']')
-
+        expected_result = \
+            "[" + \
+                "{'utf8.<Id>k__BackingField': 'int64.5', " + \
+                "'utf8.<MetaId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
+                "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
+                "'utf8.<Owner>k__BackingField': 'bytes.a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d'}, " + \
+                "{'utf8.<Id>k__BackingField': 'int64.6', " + \
+                "'utf8.<MetaId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
+                "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
+                "'utf8.<Owner>k__BackingField': 'bytes.a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d'}, " + \
+                "{'utf8.<Id>k__BackingField': 'int64.7', " + \
+                "'utf8.<MetaId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000003', " + \
+                "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000003', " + \
+                "'utf8.<Owner>k__BackingField': 'bytes.a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d'}, "
+        self.assertTrue(str(self.res["heap"]).startswith(expected_result))
     @classmethod
     def tearDownClass(self):
         # Terminate Pravda after testing

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageName>TradableGTAsset</PackageName>
-    <PackageId>Expload.Standarts.$(PackageName)</PackageId>
+    <PackageId>Expload.$(PackageName)</PackageId>
     <PackageVersion>1.0.0</PackageVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>$(PackageId)</AssemblyName>
@@ -11,7 +11,7 @@
     <NoWarn>NU1605</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Expload.Pravda" Version="0.0.17" />
+    <PackageReference Include="Expload.Pravda" Version="0.21.0" />
     <ProjectReference Include="../TradableAsset.csproj" />
   </ItemGroup>
   <Target Name="_ResolvePublishNuGetPackagePdbs" AfterTargets="RunResolvePublishAssemblies">

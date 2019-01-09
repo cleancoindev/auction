@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <PackageName>Emit</PackageName>
-        <PackageId>Expload.Standarts.$(PackageName)</PackageId>
+        <PackageId>Expload.Standards.$(PackageName)</PackageId>
         <PackageVersion>1.0.0</PackageVersion>
         <TargetFramework>netstandard2.0</TargetFramework>
         <AssemblyName>$(PackageId)</AssemblyName>
@@ -9,7 +9,7 @@
         <PravdaApi>http://publicnode.expload.com/api/public</PravdaApi>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Expload.Pravda" Version="0.0.17" />
+        <PackageReference Include="Expload.Pravda" Version="0.21.0" />
         <ProjectReference Include="../../../source/GT/TradableGTAsset.csproj" />
     </ItemGroup>
     <Target Name="_ResolvePublishNuGetPackagePdbs" AfterTargets="RunResolvePublishAssemblies">

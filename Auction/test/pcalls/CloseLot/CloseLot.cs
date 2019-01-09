@@ -1,7 +1,7 @@
 namespace Expload {
 
     using Pravda;
-    using Standarts;
+    using Standards;
     using System;
 
     [Program]

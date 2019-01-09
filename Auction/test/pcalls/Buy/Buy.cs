@@ -1,14 +1,14 @@
 namespace Expload {
 
     using Pravda;
-    using Standarts;
+    using Standards;
     using System;
 
     [Program]
     public class Buy {
         public static void Main() { }
 
-        public string test_Buy() {
+        public Lot test_Buy() {
             // Init addresses and get program by address
             var auctionAddress   = new Bytes("e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342");
             var GTAddress = new Bytes("64a818e62d78f7b2642b0535db69c9b7e7aff0f12562110bdeeea082dc217f29");

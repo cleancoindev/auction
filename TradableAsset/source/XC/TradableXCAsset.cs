@@ -1,5 +1,6 @@
-namespace Expload.Standarts {
+namespace Expload {
 
+    using Standards;
     using Pravda;
     using System;
 
@@ -52,17 +53,6 @@ namespace Expload.Standarts {
 
         public static void Main(){ }
 
-        // Dump Asset into JSON
-        private string DumpAsset(Asset asset){
-            return
-            "{" +
-                "\"id\": \""         + System.Convert.ToString(asset.Id)   + "\"," +
-                "\"owner\": \""      + StdLib.BytesToHex(asset.Owner)      + "\"," +
-                "\"externalId\": \"" + StdLib.BytesToHex(asset.ExternalId) + "\"," +
-                "\"metaId\": \""     + GetMetaData(asset.MetaId)           + "\""  +
-            "}";
-        }
-
         // Last id given to an XC asset (id=0 is invalid)
         private long _lastXCId = 0;
 
@@ -86,8 +76,8 @@ namespace Expload.Standarts {
         /// <returns>
         /// JSON object
         /// </returns>
-        public string GetXCAssetData(long id){
-            return DumpAsset(GetXCAsset(id));
+        public Asset GetXCAssetData(long id){
+            return GetXCAsset(id);
         }
 
         /// <summary>
@@ -117,6 +107,7 @@ namespace Expload.Standarts {
         */
 
         // Mapping storing XC assets ids belonging to a user
+        // Key is the concatenation of user address and asset number in his storage
         private Mapping<string, long> _XCUsersAssetIds =
             new Mapping<string, long>();
 
@@ -165,16 +156,13 @@ namespace Expload.Standarts {
         /// <returns>
         /// JSON object
         /// </returns>
-        public string GetUsersAllXCAssetsData(Bytes address){
-            var result = "[";
-            var amount = _XCUsersAssetCount.GetOrDefault(address, 0);
-            for(long num = 0; num < amount; num++){
-                result += DumpAsset(GetXCAsset(_getUsersXCAssetId(address, num)));
-                if(num < amount - 1){
-                    result += ",";
-                }
+        public Asset[] GetUsersAllXCAssetsData(Bytes address){
+            int amount = (int)_XCUsersAssetCount.GetOrDefault(address, 0);
+            var result = new Asset[amount];
+            for(int num = 0; num < amount; num++){
+                result[num] = GetXCAsset(_getUsersXCAssetId(address, num));
             }
-            return result + "]";
+            return result;
         }
 
         // Get key for users asset storage
@@ -261,7 +249,7 @@ namespace Expload.Standarts {
             _XCUsersAssetCount[owner] = assetCount + 1;
 
             // Log an event
-            Log.Event("EmitXC", DumpAsset(asset));
+            Log.Event("EmitXC", asset);
 
             return id;
         }
@@ -306,7 +294,7 @@ namespace Expload.Standarts {
             _XCUsersAssetCount[to] = assetCount + 1;
 
             // Log an event
-            Log.Event("TransferXC", DumpAsset(asset));
+            Log.Event("TransferXC", asset);
         }
     }
 }

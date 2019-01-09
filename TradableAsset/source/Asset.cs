@@ -1,4 +1,4 @@
-namespace Expload.Standarts
+namespace Expload.Standards
 {
     using Pravda;
     
