@@ -1,0 +1,11 @@
+clone:
+  clone:
+    image: plugins/git
+    tags: true 
+pipeline:
+  tradableasset-tests:
+    image: unimaginaryunit/tradableasset-main:latest
+    pull: true
+    commands:
+       - cd /app/test
+       - python test.py

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+import os
 import unittest
 from subprocess import call, Popen, DEVNULL, check_output
 import signal
@@ -8,6 +8,13 @@ import time
 
 TA_path = "../source/GT/bin/TradableGTAsset.pravda"
 pcall_file_path = "pcalls/{0}/bin/{0}.pravda"
+
+def is_docker():
+    path = '/app/test'
+    return (
+        os.path.exists('/.dockerenv') or
+        os.path.isfile(path) and any('docker' in line for line in open(path))
+    )
 
 class TestTradableAsset(unittest.TestCase):
 
@@ -24,8 +31,9 @@ class TestTradableAsset(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         # Compile main & test contracts
-        output = check_output(["dotnet", "publish", "../source/TradableAsset.sln"])
-        print("Programs compiled")
+        if not is_docker():
+            output = check_output(["dotnet", "publish", "../source/TradableAsset.sln"])
+            print("Programs compiled")
 
         # Delete current pravda blockchain data
         call(["rm", "-rf", "pravda-data"])

@@ -5,8 +5,8 @@ FROM unimaginaryunit/tradableasset-base:latest
 WORKDIR /app
 RUN mkdir source
 RUN mkdir test
-COPY ./source /app/source
-COPY ./test /app/test
+COPY ./TradableAsset/source /app/source
+COPY ./TradableAsset/test /app/test
 
 # Restore & publish
 WORKDIR /app/source
