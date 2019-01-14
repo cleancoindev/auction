@@ -248,12 +248,17 @@ namespace Expload {
             var key = GetUserAssetKey(owner, assetCount);
             _GTUsersAssetIds[key] = id;
             _GTUsersAssetCount[owner] = assetCount + 1;
+            _SerialNumbers[id] = assetCount;
 
             // Log an event
             Log.Event("EmitGT", asset);
 
             return id;
         }
+
+        // Serial numbers of assets in users' asset storages
+        private Mapping<long, long> _SerialNumbers =
+            new Mapping<long, long>();
 
         /// <summary>
         /// Transfer GT asset to a new owner
@@ -279,14 +284,11 @@ namespace Expload {
 
             // Delete from old owner's storage
             var oldOwnerAssetCount = _GTUsersAssetCount.GetOrDefault(oldOwner, 0);
-            for(long i = 0; i < oldOwnerAssetCount; i++){
-                if (_GTUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, i), 0) != id) continue;
-                var lastAsset = _GTUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, oldOwnerAssetCount-1), 0);
-                _GTUsersAssetIds[GetUserAssetKey(oldOwner, i)] = lastAsset;
-                _GTUsersAssetIds[GetUserAssetKey(oldOwner,oldOwnerAssetCount-1)] = 0;
-                _GTUsersAssetCount[oldOwner] = oldOwnerAssetCount - 1;
-                break;
-            }
+            var oldOwnerSerialNumber = _SerialNumbers.GetOrDefault(id, 0);
+            var lastAsset = _GTUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, oldOwnerAssetCount-1), 0);
+            _GTUsersAssetIds[GetUserAssetKey(oldOwner, oldOwnerSerialNumber)] = lastAsset;
+            _GTUsersAssetIds[GetUserAssetKey(oldOwner,oldOwnerAssetCount-1)] = 0;
+            _GTUsersAssetCount[oldOwner] = oldOwnerAssetCount - 1;
 
             // Add to new owner's storage
             var assetCount = _GTUsersAssetCount.GetOrDefault(to, 0);

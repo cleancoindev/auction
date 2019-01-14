@@ -247,12 +247,17 @@ namespace Expload {
             var key = GetUserAssetKey(owner, assetCount);
             _XCUsersAssetIds[key] = id;
             _XCUsersAssetCount[owner] = assetCount + 1;
+            _SerialNumbers[id] = assetCount;
 
             // Log an event
             Log.Event("EmitXC", asset);
 
             return id;
         }
+
+        // Serial numbers of assets in users' asset storages
+        private Mapping<long, long> _SerialNumbers =
+            new Mapping<long, long>();
 
         /// <summary>
         /// Transfer XC asset to a new owner
@@ -278,14 +283,11 @@ namespace Expload {
 
             // Delete from old owner's storage
             var oldOwnerAssetCount = _XCUsersAssetCount.GetOrDefault(oldOwner, 0);
-            for(long i = 0; i < oldOwnerAssetCount; i++){
-                if (_XCUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, i), 0) != id) continue;
-                var lastAsset = _XCUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, oldOwnerAssetCount-1), 0);
-                _XCUsersAssetIds[GetUserAssetKey(oldOwner, i)] = lastAsset;
-                _XCUsersAssetIds[GetUserAssetKey(oldOwner,oldOwnerAssetCount-1)] = 0;
-                _XCUsersAssetCount[oldOwner] = oldOwnerAssetCount - 1;
-                break;
-            }
+            var oldOwnerSerialNumber = _SerialNumbers.GetOrDefault(id, 0);
+            var lastAsset = _XCUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, oldOwnerAssetCount-1), 0);
+            _XCUsersAssetIds[GetUserAssetKey(oldOwner, oldOwnerSerialNumber)] = lastAsset;
+            _XCUsersAssetIds[GetUserAssetKey(oldOwner,oldOwnerAssetCount-1)] = 0;
+            _XCUsersAssetCount[oldOwner] = oldOwnerAssetCount - 1;
 
             // Add to new owner's storage
             var assetCount = _XCUsersAssetCount.GetOrDefault(to, 0);
