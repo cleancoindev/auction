@@ -55,7 +55,7 @@ namespace Expload {
         }
 
         // Get game address by its game id
-        private Bytes GetGameAddress(long id, bool isGT){
+        private Bytes _GetGameAddress(long id, bool isGT){
             if (isGT)
             {
                 return _gamesGTAddresses.GetOrDefault(id, Bytes.VOID_ADDRESS);
@@ -64,6 +64,10 @@ namespace Expload {
             {
                 return _gamesXCAddresses.GetOrDefault(id, Bytes.VOID_ADDRESS);
             }
+        }
+
+        public Bytes GetGameAddress(long id, bool isGT){
+            return _GetGameAddress(id, isGT);
         }
         
         // GameToken program address
@@ -251,7 +255,7 @@ namespace Expload {
 
         // Checks if caller owns a particular asset
         private void AssertIsItemOwner(long gameId, long assetId, bool isGT){
-            var gameAddress = GetGameAddress(gameId, isGT);
+            var gameAddress = _GetGameAddress(gameId, isGT);
             
             var assetOwner = isGT ? 
                 ProgramHelper.Program<TradableGTAsset>(gameAddress).GetGTAssetOwner(assetId) : 
@@ -296,7 +300,7 @@ namespace Expload {
             }
 
             // Get game address
-            var gameAddress = GetGameAddress(gameId, isGT);
+            var gameAddress = _GetGameAddress(gameId, isGT);
 
             // Get item external id
             var externalId = isGT ? 
@@ -351,7 +355,7 @@ namespace Expload {
             }
 
             // Take the money from buyer and ransfer the asset to him
-            var gameAddress = GetGameAddress(lot.GameId, lot.IsGT);
+            var gameAddress = _GetGameAddress(lot.GameId, lot.IsGT);
             if (lot.IsGT)
             {
                 Int32 price = (Int32)lot.Price;
@@ -399,7 +403,7 @@ namespace Expload {
             _lots[lotId] = lot;
 
             // Return the asset to the owner
-            var gameAddress = GetGameAddress(lot.GameId, lot.IsGT);
+            var gameAddress = _GetGameAddress(lot.GameId, lot.IsGT);
             if (lot.IsGT)
             {
                 ProgramHelper.Program<TradableGTAsset>(gameAddress).TransferGTAsset(lot.AssetId, lot.Owner);
