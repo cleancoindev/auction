@@ -1,11 +1,20 @@
 clone:
   clone:
     image: plugins/git
-    tags: true 
+    tags: true
+workspace:
+  base: /workdir
+  path: code
 pipeline:
-  tradableasset-tests:
-    image: unimaginaryunit/tradableasset-main:latest
+  test-tradableasset:
+    image: unimaginaryunit/tradableasset-build
     pull: true
     commands:
-       - cd /app/test
-       - python test.py
+      - cd /workdir/code/TradableAsset/test
+      - python -u test.py
+  test-auction:
+    image: unimaginaryunit/tradableasset-build
+    pull: true
+    commands:
+      - cd /workdir/code/Auction/test
+      - python -u test.py

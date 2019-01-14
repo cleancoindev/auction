@@ -27,13 +27,13 @@ class TestTradableAsset(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         # Compile main & test contracts
-        output = check_output(["dotnet", "publish", "../source/Auction.sln"])
+        output = check_output(["dotnet", "publish", "../source/Auction.sln"], timeout=40)
         print("Programs compiled")
 
         
-        call(["rm", "-rf", "pravda-data"])
+        call(["rm", "-rf", "pravda-data"], timeout=40)
         # Init new local pravda blockchain
-        call(["pravda", "node", "init", "--local", "--coin-distribution", "test-coin-dist.json"])
+        call(["pravda", "node", "init", "--local", "--coin-distribution", "test-coin-dist.json"], timeout=40)
 
         # Run Pravda node in a new subprocess
         print("Starting pravda node")
@@ -45,31 +45,31 @@ class TestTradableAsset(unittest.TestCase):
 
         # Deploy main smart-contracts to Pravda
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
-                            "-i", TA_path, "--program-wallet", "wallets/TradableAsset-wallet.json"])
+                            "-i", TA_path, "--program-wallet", "wallets/TradableAsset-wallet.json"], timeout=40)
         print("TradableXCAsset.pravda deployed on fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b")
 
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
-                            "-i", TA_GT_path, "--program-wallet", "wallets/TradableGTAsset-wallet.json"])
+                            "-i", TA_GT_path, "--program-wallet", "wallets/TradableGTAsset-wallet.json"], timeout=40)
         print("TradableGTAsset.pravda deployed on 17e22f66979eca19a8b060a8bb759bfb3dbbce785a039e9e1ed01a54cc92161c")
 
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
-                            "-i", auction_path, "--program-wallet", "wallets/auction-wallet.json"])
+                            "-i", auction_path, "--program-wallet", "wallets/auction-wallet.json"], timeout=40)
         print("Auction.pravda deployed on e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342")
 
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
-                            "-i", GT_path, "--program-wallet", "wallets/GT-wallet.json"])
+                            "-i", GT_path, "--program-wallet", "wallets/GT-wallet.json"], timeout=40)
         print("GameToken.pravda deployed on 64a818e62d78f7b2642b0535db69c9b7e7aff0f12562110bdeeea082dc217f29")
 
     # Set up particular contract test
     def runContract(self, name, wallet, jsonifyOutput=True, silent=True):
         # Generate program wallet for the test
-        call(["pravda", "gen", "address", "-o", "wallets/{}-test-wallet.json".format(name)])
+        call(["pravda", "gen", "address", "-o", "wallets/{}-test-wallet.json".format(name)], timeout=40)
 
         # Deploy the tester program
         res = check_output(
             ["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
              "-i", pcall_file_path.format(name), "--program-wallet",
-             "wallets/{}-test-wallet.json".format(name)])
+             "wallets/{}-test-wallet.json".format(name)], timeout=40)
 
         try:
             address = json.loads(res)['effects'][0]['address']
@@ -85,7 +85,7 @@ class TestTradableAsset(unittest.TestCase):
             'echo "push \\"test_{}\\" push x{} push 1 pcall"'.format(name, address) +
             '| pravda compile asm |'+
             'pravda broadcast run -w wallets/{}.json -l 9000000 '.format(wallet) +
-            '--program-wallet wallets/{}-test-wallet.json'.format(name), shell=True)
+            '--program-wallet wallets/{}-test-wallet.json'.format(name), shell=True, timeout=40)
         if jsonifyOutput:
             try:
                 self.res = json.loads(res.decode('utf-8-sig'))["executionResult"]["success"]
@@ -194,7 +194,7 @@ class TestTradableAsset(unittest.TestCase):
         # Terminate Pravda after testing
         print('Terminating pravda')
         time.sleep(2)
-        self.pravda.send_signal(signal.SIGINT)
+        self.pravda.send_signal(signal.SIGKILL)
         self.pravda.wait()
 
         # Some clean-up
@@ -207,3 +207,4 @@ class TestTradableAsset(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+    sys.stdout.flush()
