@@ -70,11 +70,11 @@ namespace Expload {
         }
 
         /// <summary>
-        /// Get JSONified GT asset data
+        /// Get GT asset data
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
-        /// JSON object
+        /// Asset object
         /// </returns>
         public Asset GetGTAssetData(long id){
             return GetGTAsset(id);
@@ -149,12 +149,12 @@ namespace Expload {
         }
 
         /// <summary>
-        /// Get JSONified lists of GT assets
+        /// Get list of GT assets
         /// belonging to a particular user
         /// </summary>
         /// <param name="address"> User address </param>
         /// <returns>
-        /// JSON object
+        /// List of asset objects
         /// </returns>
         public Asset[] GetUsersAllGTAssetsData(Bytes address){
             int amount = (int)_GTUsersAssetCount.GetOrDefault(address, 0);

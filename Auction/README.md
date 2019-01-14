@@ -17,11 +17,11 @@ Represents a lot on the Auction. Attributes:
 ### Lot storage
 The storage is split into three parts:
 - Main lot data storage. Each lot has its unique lot id, which is given when a lot is created. `LotId = 0` is invalid.
-    - You can get any lot data by its lot id by calling `GetLotData` method, which returns JSON.
+    - You can get any lot data by its lot id by calling `GetLotData` method, which returns lot object.
 - User lot storage, which allows you to get lots created by a particular user. 
-    - You can get a JSONified list of user's lots by calling `GetUserLotsData` method.
+    - You can get a list of user's lots by calling `GetUserLotsData` method.
 - Asset lot storage, which allows you to get lots selling an asset with particular game id.
-    - You can get a JSONified list of lots selling a particular in-game item by calling `GetAssetLotsData` method.
+    - You can get a list of lots selling a particular in-game item by calling `GetAssetLotsData` method.
 
 ### Interacting with the storage
 There are 3 ways to interact with the storage:

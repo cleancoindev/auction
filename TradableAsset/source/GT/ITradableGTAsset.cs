@@ -5,11 +5,11 @@ namespace Expload.Standards
     public interface ITradableGTAsset : ITradableAsset
     {
         /// <summary>
-        /// Get JSONified GT asset data
+        /// Get GT asset data
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
-        /// JSON object
+        /// Asset object
         /// </returns>
         Asset GetGTAssetData(long id);
 
@@ -51,12 +51,12 @@ namespace Expload.Standards
         long GetUsersGTAssetId(Bytes address, long number);
 
         /// <summary>
-        /// Get JSONified lists of GT assets
+        /// Get list of GT assets
         /// belonging to a particular user
         /// </summary>
         /// <param name="address"> User address </param>
         /// <returns>
-        /// JSON object
+        /// List of asset objects
         /// </returns>
         Asset[] GetUsersAllGTAssetsData(Bytes address);
 

@@ -34,7 +34,7 @@ namespace Expload.Standards {
                 assetOwner, externalId, metaId
             );
 
-            // Return JSON data
+            // Return list of asset objects
             return ProgramHelper.Program<TradableGTAsset>(programOwner).GetUsersAllGTAssetsData(assetOwner);
         }
     }

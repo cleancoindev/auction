@@ -5,11 +5,11 @@ namespace Expload.Standards
     public interface ITradableXCAsset : ITradableAsset
     {
         /// <summary>
-        /// Get JSONified XC asset data
+        /// Get XC asset data
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
-        /// JSON object
+        /// Asset object
         /// </returns>
         Asset GetXCAssetData(long id);
 
@@ -51,12 +51,12 @@ namespace Expload.Standards
         long GetUsersXCAssetId(Bytes address, long number);
 
         /// <summary>
-        /// Get JSONified lists of XC assets
+        /// Get list of XC assets
         /// belonging to a particular user
         /// </summary>
         /// <param name="address"> User address </param>
         /// <returns>
-        /// JSON object
+        /// List of asset objects
         /// </returns>
         Asset[] GetUsersAllXCAssetsData(Bytes address);
 

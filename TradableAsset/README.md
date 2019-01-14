@@ -58,7 +58,7 @@ swords have different blockchain IDs. `BlockchainID = 0` is invalid.
 - User asset storage, which allows you to get the assets belonging to a particular user. 
     - You can get the amount of assets owned by a user by calling `GetUsersAssetCount`. 
     - You can get blockchain ID of a particular asset belonging to a user by calling `GetUsersAssetId`. 
-    - You can get a JSON with all of user's assets by calling `GetUsersAllAssetsData`.
+    - You can get a list of all user's assets by calling `GetUsersAllAssetsData`.
 
 ### Interacting with the storage
 - `EmitAsset` - emit an asset. Can only be called by TradableAsset contract owner. 

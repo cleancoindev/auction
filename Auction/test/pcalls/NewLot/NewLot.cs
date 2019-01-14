@@ -39,7 +39,7 @@ namespace Expload {
                 Error.Throw("Asset was not put to asset storage");
             }
 
-            // Check lot json dump
+            // Check lot object
             return ProgramHelper.Program<Auction>(auctionAddress).GetUserLotsData(Info.Sender());
         }
     }

@@ -26,7 +26,7 @@ namespace Expload.Standards {
             // Transfer asset to another address
             ProgramHelper.Program<TradableGTAsset>(programOwner).TransferGTAsset(assetId, newAssetOwner);
 
-            // Return JSON data
+            // Return asset object
             return ProgramHelper.Program<TradableGTAsset>(programOwner).GetGTAssetData(assetId);
         }
     }

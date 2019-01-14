@@ -22,7 +22,7 @@ namespace Expload.Standards {
             // Get asset data
             var assetData = ProgramHelper.Program<TradableGTAsset>(programOwner).GetGTAssetData(assetId);
 
-            // Return JSON data
+            // Return asset object
             return assetData;
         }
     }

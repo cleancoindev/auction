@@ -107,11 +107,11 @@ namespace Expload {
         }
 
         /// <summary>
-        /// Get JSONified lot data
+        /// Get lot data
         /// </summary>
         /// <param name="id"> Lot id </param>
         /// <returns>
-        /// JSON object
+        /// Lot object
         /// </returns>
         public Lot GetLotData(long id){
             return GetLot(id);
@@ -157,12 +157,12 @@ namespace Expload {
         }
 
         /// <summary>
-        /// Get JSONified lists of lots
+        /// Get list of lots
         /// belonging to a particular user
         /// </summary>
         /// <param name="address"> User address </param>
         /// <returns>
-        /// JSON object
+        /// List of lot objects
         /// </returns>
         public Lot[] GetUserLotsData(Bytes address){
             int amount = (int)_userLotsCount.GetOrDefault(address, 0);
@@ -220,13 +220,13 @@ namespace Expload {
         }
 
         /// <summary>
-        /// Get JSONified lists of lots of
+        /// Get list of lots of
         /// a particular asset
         /// </summary>
         /// <param name="gameId"> Id of the game the asset is from </param>
         /// <param name="externalId"> External id of the asset sold (see TradableAsset.cs) </param>
         /// <returns>
-        /// JSON object
+        /// List of lot objects
         /// </returns>
         public Lot[] GetAssetLotsData(long gameId, Bytes externalId){
             int amount = (int)_assetLotsCount.GetOrDefault(GetAssetCountKey(gameId, externalId), 0);

@@ -70,11 +70,11 @@ namespace Expload {
         }
 
         /// <summary>
-        /// Get JSONified XC asset data
+        /// Get XC asset data
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
-        /// JSON object
+        /// Asset object
         /// </returns>
         public Asset GetXCAssetData(long id){
             return GetXCAsset(id);
@@ -149,12 +149,12 @@ namespace Expload {
         }
 
         /// <summary>
-        /// Get JSONified lists of XC assets
+        /// Get list of XC assets
         /// belonging to a particular user
         /// </summary>
         /// <param name="address"> User address </param>
         /// <returns>
-        /// JSON object
+        /// List of asset objects
         /// </returns>
         public Asset[] GetUsersAllXCAssetsData(Bytes address){
             int amount = (int)_XCUsersAssetCount.GetOrDefault(address, 0);
