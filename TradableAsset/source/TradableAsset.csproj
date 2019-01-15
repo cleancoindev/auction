@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <PackageName>TradableAsset</PackageName>
+        <PackageId>Expload.Standards.$(PackageName)</PackageId>
+        <PackageVersion>$(VersionSuffix)</PackageVersion>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <AssemblyName>$(PackageId)</AssemblyName>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <IsPackable>true</IsPackable>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Remove="XC/*"/>
+        <Compile Remove="GT/*"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Expload.Pravda" Version="0.21.0" />
+    </ItemGroup>
+</Project>
