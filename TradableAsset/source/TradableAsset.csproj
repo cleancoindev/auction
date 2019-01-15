@@ -2,10 +2,11 @@
     <PropertyGroup>
         <PackageName>TradableAsset</PackageName>
         <PackageId>Expload.Standards.$(PackageName)</PackageId>
-        <PackageVersion>1.0.0</PackageVersion>
+        <PackageVersion>$(VersionSuffix)</PackageVersion>
         <TargetFramework>netstandard2.0</TargetFramework>
         <AssemblyName>$(PackageId)</AssemblyName>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
     <ItemGroup>
         <Compile Remove="XC/*"/>

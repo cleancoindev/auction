@@ -18,3 +18,15 @@ pipeline:
     commands:
       - cd /workdir/code/Auction/test
       - python -u test.py
+  publish-tradableasset-nuget:
+    group: dotnet
+    image: chicker/nuget:0.8
+    environment:
+      - PRAVDA_VERSION=${DRONE_TAG##v}
+    commands:
+      - cd /workdir/code/TradableAsset/source
+      - dotnet pack --version-suffix $PRAVDA_VERSION TradableAsset.csproj
+      - dotnet nuget push bin/Debug/Expload.Standards.TradableAsset.$PRAVDA_VERSION.nupkg -k $NUGET_KEY -s https://api.nuget.org/v3/index.json
+    secrets: [ nuget_key ]
+    when:
+      event: tag
