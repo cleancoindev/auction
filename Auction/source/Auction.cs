@@ -189,13 +189,12 @@ namespace Expload {
         private Mapping<string, long> _assetLotsCount =
             new Mapping<string, long>();
 
-        // IMPORTANT: Asset id = External Asset id (see TradableAsset.cs)
-        private long _getAssetLotId(long gameId, Bytes externalId, long number){
+        private long _getAssetLotId(long gameId, Bytes classId, long number){
             // We can't get more lots than asset has
-            if(number >= _assetLotsCount.GetOrDefault(GetAssetCountKey(gameId, externalId), 0)){
+            if(number >= _assetLotsCount.GetOrDefault(GetAssetCountKey(gameId, classId), 0)){
                 Error.Throw("This asset's lot doesn't exist!");
             }
-            var key = GetAssetLotKey(gameId, externalId, number);
+            var key = GetAssetLotKey(gameId, classId, number);
             return _assetLots.GetOrDefault(key, 0);
         }
 
@@ -204,23 +203,23 @@ namespace Expload {
         /// a particular asset lot
         /// </summary>
         /// <param name="gameId"> Id of the game the asset is from </param>
-        /// <param name="externalId"> External id of the asset sold (see TradableAsset.cs) </param>
+        /// <param name="classId"> Class id of the asset sold (see TradableAsset.cs) </param>
         /// <param name="number"> Serial number in storage </param>
         /// <returns>
         /// Lot id
         /// </returns>
-        public long GetAssetLotId(long gameId, Bytes externalId, long number){
-            return _getAssetLotId(gameId, externalId, number);
+        public long GetAssetLotId(long gameId, Bytes classId, long number){
+            return _getAssetLotId(gameId, classId, number);
         }
 
         // Get the key for assetLotsCount mapping
-        private string GetAssetCountKey(long gameId, Bytes externalId){
-            return (System.Convert.ToString(gameId) + StdLib.BytesToHex(externalId));
+        private string GetAssetCountKey(long gameId, Bytes classId){
+            return (System.Convert.ToString(gameId) + StdLib.BytesToHex(classId));
         }
 
         // Get the key for assetLots mapping
-        private string GetAssetLotKey(long gameId, Bytes externalId, long number){
-            return (System.Convert.ToString(gameId) + StdLib.BytesToHex(externalId) + System.Convert.ToString(number));
+        private string GetAssetLotKey(long gameId, Bytes classId, long number){
+            return (System.Convert.ToString(gameId) + StdLib.BytesToHex(classId) + System.Convert.ToString(number));
         }
 
         /// <summary>
@@ -228,15 +227,15 @@ namespace Expload {
         /// a particular asset
         /// </summary>
         /// <param name="gameId"> Id of the game the asset is from </param>
-        /// <param name="externalId"> External id of the asset sold (see TradableAsset.cs) </param>
+        /// <param name="classId"> Class id of the asset sold (see TradableAsset.cs) </param>
         /// <returns>
         /// List of lot objects
         /// </returns>
-        public Lot[] GetAssetLotsData(long gameId, Bytes externalId){
-            int amount = (int)_assetLotsCount.GetOrDefault(GetAssetCountKey(gameId, externalId), 0);
+        public Lot[] GetAssetLotsData(long gameId, Bytes classId){
+            int amount = (int)_assetLotsCount.GetOrDefault(GetAssetCountKey(gameId, classId), 0);
             var result = new Lot[amount];
             for(int num = 0; num < amount; num++){
-                result[num] = GetLot(_getAssetLotId(gameId, externalId, num));
+                result[num] = GetLot(_getAssetLotId(gameId, classId, num));
             }
             return result;
         }
@@ -302,10 +301,10 @@ namespace Expload {
             // Get game address
             var gameAddress = _GetGameAddress(gameId, isGT);
 
-            // Get item external id
-            var externalId = isGT ? 
-                ProgramHelper.Program<TradableGTAsset>(gameAddress).GetGTAssetExternalId(assetId) : 
-                ProgramHelper.Program<TradableXCAsset>(gameAddress).GetXCAssetExternalId(assetId); 
+            // Get item class id
+            var classId = isGT ? 
+                ProgramHelper.Program<TradableGTAsset>(gameAddress).GetGTAssetClassId(assetId) : 
+                ProgramHelper.Program<TradableXCAsset>(gameAddress).GetXCAssetClassId(assetId); 
 
             // Transfer the asset to auction's wallet (so user can't use it)
             if (isGT)
@@ -319,7 +318,7 @@ namespace Expload {
 
             // Create lot object and put it into main storage
             var lotId = ++_lastLotId;
-            var lot = new Lot(lotId, Info.Sender(), gameId, isGT, assetId, externalId, price);
+            var lot = new Lot(lotId, Info.Sender(), gameId, isGT, assetId, classId, price);
             _lots[_lastLotId] = lot;
 
             // Put the lot into user storage
@@ -329,9 +328,9 @@ namespace Expload {
             _userLotsCount[Info.Sender()] = userStorageLastId + 1;
 
             // Put the lot into particular asset storage
-            var assetLotsCountKey = GetAssetCountKey(gameId, externalId);
+            var assetLotsCountKey = GetAssetCountKey(gameId, classId);
             var assetCount = _assetLotsCount.GetOrDefault(assetLotsCountKey, 0);
-            var assetLotsKey = GetAssetLotKey(gameId, externalId, assetCount);
+            var assetLotsKey = GetAssetLotKey(gameId, classId, assetCount);
             _assetLots[assetLotsKey] = lotId;
             _assetLotsCount[assetLotsCountKey] = assetCount+1;
 
@@ -425,14 +424,14 @@ namespace Expload {
         
         public Lot(
             long id, Bytes owner, long gameId, bool isGT,
-            long assetId, Bytes externalId, long price
+            long assetId, Bytes classId, long price
         ){
             Id = id;
             Owner = owner;
             GameId = gameId;
             IsGT = isGT;
             AssetId = assetId;
-            ExternalId = externalId;
+            AssetClassId = classId;
             Price = price;
         }
         
@@ -453,8 +452,8 @@ namespace Expload {
         // Blockchain id of the asset sold (see TradableAsset.cs)
         public long AssetId { get; set; } = 0;
                 
-        // External game id of the asset sold (see TradableAsset.cs)
-        public Bytes ExternalId { get; set; } = Bytes.VOID_ADDRESS;
+        // Asset class id of the asset sold (see TradableAsset.cs)
+        public Bytes AssetClassId { get; set; } = Bytes.VOID_ADDRESS;
         
         // Starting price of the asset
         public long Price { get; set; } = 0;

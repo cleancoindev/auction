@@ -28,13 +28,25 @@ namespace Expload {
 
         ---------------------------------
 
-        External game id - the id which shows what particular
-        in-game item is behind the asset stored in the contract
+        Item class id - the id which shows what particular
+        in-game item class is behind the asset stored in the contract
+
+        E.g. two identical in-game swords but with different upgrades
+        or belonging to different players have same class id
 
         ---------------------------------
 
-        Meta id - id of object meta-data (name, description, ...),
-        getMeta(metaId) should return a link to JSON file:
+        Item instance id - the id which shows what particular
+        in-game item instance is behind the asset stored in the contract
+
+        E.g. two identical in-game swords but with different upgrades
+        or belonging to different players have diferent instance id
+
+        ---------------------------------
+        
+        GetItemClassMeta and GetItemInstanceMeta methods should be modified, so
+        given ItemClassId or ItemInstanceId they should return a link
+        to JSON with following format:
 
         {
             "name": <itemName>,
@@ -92,14 +104,14 @@ namespace Expload {
         }
 
         /// <summary>
-        /// Get XC asset external id
+        /// Get XC asset class id
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
-        /// External id
+        /// Class id
         /// </returns>
-        public Bytes GetXCAssetExternalId(long id){
-            return GetXCAsset(id).ExternalId;
+        public Bytes GetXCAssetClassId(long id){
+            return GetXCAsset(id).ItemClassId;
         }
 
         /*
@@ -200,11 +212,18 @@ namespace Expload {
         TradableAsset data
         */
 
-        // Get asset meta data using his metaId
+        // Get asset class meta data using his classId
         // IMPORTANT: this method MUST be changed
         // to return valid metadata url
-        private string GetMetaData(Bytes metaId){
-            return "https://some_url/"+StdLib.BytesToHex(metaId);
+        public string GetClassIdMeta(Bytes classId){
+            return "https://some_url/"+StdLib.BytesToHex(classId);
+        }
+
+        // Get asset instance meta data using his instanceId
+        // IMPORTANT: this method MUST be changed
+        // to return valid metadata url
+        public string GetInstanceIdMeta(Bytes instanceId){
+            return "https://some_url/"+StdLib.BytesToHex(instanceId);
         }
 
         // Expload's auction program address
@@ -227,18 +246,18 @@ namespace Expload {
         /// Emit a XC asset
         /// </summary>
         /// <param name="owner"> Desired asset owner </param>
-        /// <param name="externalId"> Asset external id </param>
-        /// <param name="metaId"> Asset meta id </param>
+        /// <param name="classId"> Asset class id </param>
+        /// <param name="instanceId"> Asset instance id </param>
         /// <returns>
         /// Emitted asset id
         /// </returns>
-        public long EmitXCAsset(Bytes owner, Bytes externalId, Bytes metaId){
+        public long EmitXCAsset(Bytes owner, Bytes classId, Bytes instanceId){
             // Only the game server (or owner) can emit assets
             AssertIsGameOwner();
             // Getting item's blockchain id
             var id = ++_lastXCId;
             // Parsing the asset
-            var asset = new Asset(id, owner, externalId, metaId);
+            var asset = new Asset(id, owner, classId, instanceId);
 
             // Putting the asset into storage
             _XCAssets[id] = asset;

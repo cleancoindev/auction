@@ -15,10 +15,10 @@ namespace Expload {
             var userAddress = new Bytes("8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f");
 
             // Emit the asset
-            var externalId1 = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
-            var metaId1 = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
+            var classId1 = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
+            var instanceId1 = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
             var assetId1 = ProgramHelper.Program<TradableGTAsset>(tradableGTAssetAddress).EmitGTAsset(
-                userAddress, externalId1, metaId1
+                userAddress, classId1, instanceId1
             );
 
             // Check if asset was emitted
@@ -27,10 +27,10 @@ namespace Expload {
             }
 
             // Emit the second asset
-            var externalId2 = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
-            var metaId2 = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
+            var classId2 = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
+            var instanceId2 = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
             var assetId2 = ProgramHelper.Program<TradableGTAsset>(tradableGTAssetAddress).EmitGTAsset(
-                userAddress, externalId2, metaId2
+                userAddress, classId2, instanceId2
             );
 
             // Check if asset was emitted

@@ -88,20 +88,24 @@ class TestTradableAsset(unittest.TestCase):
     # Test if assets can be emitted
     def test_Emit(self):
         expected_result = \
-            "{'utf8.<Id>k__BackingField': 'int64.1', " + \
-             "'utf8.<MetaId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
-             "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', "+ \
-             "'utf8.<Owner>k__BackingField': 'bytes.e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342'}"
+            "{'utf8.<ItemInstanceId>k__BackingField': " + \
+                "'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
+            "'utf8.<Id>k__BackingField': 'int64.1', " + \
+            "'utf8.<ItemClassId>k__BackingField': " + \
+                "'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
+            "'utf8.<Owner>k__BackingField': 'bytes.e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342'}"
         self.assertEqual(str(self.res["heap"][0]), expected_result)
         print("Emit tested")
 
     # Test if assets can be transfered
     def test_Transfer(self):
         expected_result = \
-            "{'utf8.<Id>k__BackingField': 'int64.4', " + \
-             "'utf8.<MetaId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
-             "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', "+ \
-             "'utf8.<Owner>k__BackingField': 'bytes.e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342'}"
+            "{'utf8.<ItemInstanceId>k__BackingField': " + \
+                "'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
+            "'utf8.<Id>k__BackingField': 'int64.4', " + \
+            "'utf8.<ItemClassId>k__BackingField': " + \
+                "'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
+            "'utf8.<Owner>k__BackingField': 'bytes.e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342'}"
         self.assertEqual(str(self.res["heap"][0]), expected_result)
         print("Transfer tested")
 
@@ -112,21 +116,38 @@ class TestTradableAsset(unittest.TestCase):
 
     # Test if getting all user items works
     def test_UsersItems(self):
+        assets = list(map(int, self.res["heap"][int(self.res["stack"][0].split(".")[1])][1:]))
+
         expected_result = \
-            "[" + \
-                "{'utf8.<Id>k__BackingField': 'int64.5', " + \
-                "'utf8.<MetaId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
-                "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
-                "'utf8.<Owner>k__BackingField': 'bytes.a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d'}, " + \
-                "{'utf8.<Id>k__BackingField': 'int64.6', " + \
-                "'utf8.<MetaId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
-                "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
-                "'utf8.<Owner>k__BackingField': 'bytes.a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d'}, " + \
-                "{'utf8.<Id>k__BackingField': 'int64.7', " + \
-                "'utf8.<MetaId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000003', " + \
-                "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000003', " + \
-                "'utf8.<Owner>k__BackingField': 'bytes.a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d'}, "
-        self.assertTrue(str(self.res["heap"]).startswith(expected_result))
+            "{'utf8.<ItemInstanceId>k__BackingField': " + \
+                "'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
+            "'utf8.<Id>k__BackingField': 'int64.5', " + \
+            "'utf8.<ItemClassId>k__BackingField': " + \
+                "'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
+            "'utf8.<Owner>k__BackingField': 'bytes.a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d'}"
+
+        self.assertEqual(str(self.res["heap"][assets[0]]), expected_result)
+
+        expected_result = \
+            "{'utf8.<ItemInstanceId>k__BackingField': " + \
+                "'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
+            "'utf8.<Id>k__BackingField': 'int64.6', " + \
+            "'utf8.<ItemClassId>k__BackingField': " + \
+                "'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
+            "'utf8.<Owner>k__BackingField': 'bytes.a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d'}"
+
+        self.assertEqual(str(self.res["heap"][assets[1]]), expected_result)
+
+        expected_result = \
+            "{'utf8.<ItemInstanceId>k__BackingField': " + \
+                "'bytes.0000000000000000000000000000000000000000000000000000000000000003', " + \
+            "'utf8.<Id>k__BackingField': 'int64.7', " + \
+            "'utf8.<ItemClassId>k__BackingField': " + \
+                "'bytes.0000000000000000000000000000000000000000000000000000000000000003', " + \
+            "'utf8.<Owner>k__BackingField': 'bytes.a1fe824f193bcee32f33b9e01245bd41f05a157eca73daf65d70ebd27430836d'}"
+
+        self.assertEqual(str(self.res["heap"][assets[2]]), expected_result)
+
         print("UsersItems tested")
 
     @classmethod

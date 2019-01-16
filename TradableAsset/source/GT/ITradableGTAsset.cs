@@ -23,13 +23,13 @@ namespace Expload.Standards
         Bytes GetGTAssetOwner(long id);
 
         /// <summary>
-        /// Get GT asset external id
+        /// Get GT asset class id
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
-        /// External id
+        /// Class id
         /// </returns>
-        Bytes GetGTAssetExternalId(long id);
+        Bytes GetGTAssetClassId(long id);
 
         /// <summary>
         /// Get amount of GT assets belonging to a user
@@ -64,12 +64,12 @@ namespace Expload.Standards
         /// Emit a GT asset
         /// </summary>
         /// <param name="owner"> Desired asset owner </param>
-        /// <param name="externalId"> Asset external id </param>
-        /// <param name="metaId"> Asset meta id </param>
+        /// <param name="classId"> Asset class id </param>
+        /// <param name="instanceId"> Asset instance id </param>
         /// <returns>
         /// Emitted asset id
         /// </returns>
-        long EmitGTAsset(Bytes owner, Bytes externalId, Bytes metaId);
+        long EmitGTAsset(Bytes owner, Bytes classId, Bytes instanceId);
 
         /// <summary>
         /// Transfer GT asset to a new owner

@@ -23,13 +23,13 @@ namespace Expload.Standards
         Bytes GetXCAssetOwner(long id);
 
         /// <summary>
-        /// Get XC asset external id
+        /// Get XC asset class id
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
-        /// External id
+        /// Class id
         /// </returns>
-        Bytes GetXCAssetExternalId(long id);
+        Bytes GetXCAssetClassId(long id);
 
         /// <summary>
         /// Get amount of XC assets belonging to a user
@@ -64,12 +64,12 @@ namespace Expload.Standards
         /// Emit a XC asset
         /// </summary>
         /// <param name="owner"> Desired asset owner </param>
-        /// <param name="externalId"> Asset external id </param>
-        /// <param name="metaId"> Asset meta id </param>
+        /// <param name="classId"> Asset class id </param>
+        /// <param name="instanceId"> Asset instance id </param>
         /// <returns>
         /// Emitted asset id
         /// </returns>
-        long EmitXCAsset(Bytes owner, Bytes externalId, Bytes metaId);
+        long EmitXCAsset(Bytes owner, Bytes classId, Bytes instanceId);
 
         /// <summary>
         /// Transfer XC asset to a new owner

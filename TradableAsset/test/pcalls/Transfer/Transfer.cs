@@ -17,10 +17,10 @@ namespace Expload.Standards {
             ProgramHelper.Program<TradableGTAsset>(programOwner).SetAuction(Info.ProgramAddress());
 
             // Emit the asset
-            Bytes externalId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
-            Bytes metaId = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
+            Bytes classId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
+            Bytes instanceId = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
             long assetId = ProgramHelper.Program<TradableGTAsset>(programOwner).EmitGTAsset(
-                assetOwner, externalId, metaId
+                assetOwner, classId, instanceId
             );
 
             // Transfer asset to another address

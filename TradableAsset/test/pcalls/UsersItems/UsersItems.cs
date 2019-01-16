@@ -16,22 +16,22 @@ namespace Expload.Standards {
             ProgramHelper.Program<TradableGTAsset>(programOwner).SetAuction(Info.ProgramAddress());
 
             // Emit 3 assets
-            Bytes externalId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
-            Bytes metaId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
+            Bytes classId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
+            Bytes instanceId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
             long assetId = ProgramHelper.Program<TradableGTAsset>(programOwner).EmitGTAsset(
-                assetOwner, externalId, metaId
+                assetOwner, classId, instanceId
             );
 
-            externalId = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
-            metaId = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
+            classId = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
+            instanceId = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
             assetId = ProgramHelper.Program<TradableGTAsset>(programOwner).EmitGTAsset(
-                assetOwner, externalId, metaId
+                assetOwner, classId, instanceId
             );
 
-            externalId = new Bytes("0000000000000000000000000000000000000000000000000000000000000003");
-            metaId = new Bytes("0000000000000000000000000000000000000000000000000000000000000003");
+            classId = new Bytes("0000000000000000000000000000000000000000000000000000000000000003");
+            instanceId = new Bytes("0000000000000000000000000000000000000000000000000000000000000003");
             assetId = ProgramHelper.Program<TradableGTAsset>(programOwner).EmitGTAsset(
-                assetOwner, externalId, metaId
+                assetOwner, classId, instanceId
             );
 
             // Return list of asset objects
