@@ -13,15 +13,15 @@ namespace Expload.Standards {
             Bytes assetOwner   = new Bytes("8743e40cd8a5e162272fc8a5c56595b3aa9abb9708f26abc88f1d61cbb5576dc");
 
             // Emit the asset
-            Bytes externalId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
-            Bytes metaId = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
+            Bytes classId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
+            Bytes instanceId = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
             long assetId1 = ProgramHelper.Program<TradableGTAsset>(programOwner).EmitGTAsset(
-                assetOwner, externalId, metaId
+                assetOwner, classId, instanceId
             );
 
             // Emit one more asset
             long assetId2 = ProgramHelper.Program<TradableGTAsset>(programOwner).EmitGTAsset(
-                assetOwner, externalId, metaId
+                assetOwner, classId, instanceId
             );
 
             // Get asset counter

@@ -123,47 +123,41 @@ class TestTradableAsset(unittest.TestCase):
 
         # Assert first lot
         expected_result = \
-            "{" + \
-                "'utf8.<Price>k__BackingField': 'int64.200', " + \
-                "'utf8.<Buyer>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000000', " + \
-                "'utf8.<Id>k__BackingField': 'int64.1', " + \
-                "'utf8.<IsGT>k__BackingField': 'int32.0', " + \
-                "'utf8.<GameId>k__BackingField': 'int64.1', " + \
-                "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
-                "'utf8.<Closed>k__BackingField': 'int32.0', " + \
-                "'utf8.<AssetId>k__BackingField': 'int64.1', " + \
-                "'utf8.<Owner>k__BackingField': 'bytes.8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f'" + \
-            "}"
+            "{'utf8.<Price>k__BackingField': 'int64.200', " + \
+            "'utf8.<Buyer>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000000', " + \
+            "'utf8.<Id>k__BackingField': 'int64.1', " + \
+            "'utf8.<IsGT>k__BackingField': 'int32.0', " + \
+            "'utf8.<GameId>k__BackingField': 'int64.1', " + \
+            "'utf8.<Closed>k__BackingField': 'int32.0', " + \
+            "'utf8.<AssetClassId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
+            "'utf8.<AssetId>k__BackingField': 'int64.1', " + \
+            "'utf8.<Owner>k__BackingField': 'bytes.8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f'}"
         self.assertEqual(expected_result, str(self.res['heap'][lots[0]]))
 
         # Assert second lot
         expected_result = \
-            "{" + \
-                "'utf8.<Price>k__BackingField': 'int64.200', " + \
-                "'utf8.<Buyer>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000000', " + \
-                "'utf8.<Id>k__BackingField': 'int64.2', " + \
-                "'utf8.<IsGT>k__BackingField': 'int32.0', " + \
-                "'utf8.<GameId>k__BackingField': 'int64.1', " + \
-                "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
-                "'utf8.<Closed>k__BackingField': 'int32.0', " + \
-                "'utf8.<AssetId>k__BackingField': 'int64.2', " + \
-                "'utf8.<Owner>k__BackingField': 'bytes.8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f'" + \
-            "}"
+            "{'utf8.<Price>k__BackingField': 'int64.200', " + \
+            "'utf8.<Buyer>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000000', " + \
+            "'utf8.<Id>k__BackingField': 'int64.2', " + \
+            "'utf8.<IsGT>k__BackingField': 'int32.0', " + \
+            "'utf8.<GameId>k__BackingField': 'int64.1', " + \
+            "'utf8.<Closed>k__BackingField': 'int32.0', " + \
+            "'utf8.<AssetClassId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000002', " + \
+            "'utf8.<AssetId>k__BackingField': 'int64.2', " + \
+            "'utf8.<Owner>k__BackingField': 'bytes.8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f'}"
         self.assertEqual(expected_result, str(self.res['heap'][lots[1]]))
 
         # Assert third lot
         expected_result = \
-            "{" + \
-                "'utf8.<Price>k__BackingField': 'int64.200', " + \
-                "'utf8.<Buyer>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000000', " + \
-                "'utf8.<Id>k__BackingField': 'int64.3', " + \
-                "'utf8.<IsGT>k__BackingField': 'int32.1', " + \
-                "'utf8.<GameId>k__BackingField': 'int64.1', " + \
-                "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
-                "'utf8.<Closed>k__BackingField': 'int32.0', " + \
-                "'utf8.<AssetId>k__BackingField': 'int64.1', " + \
-                "'utf8.<Owner>k__BackingField': 'bytes.8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f'" + \
-            "}"
+            "{'utf8.<Price>k__BackingField': 'int64.200', " + \
+            "'utf8.<Buyer>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000000', " + \
+            "'utf8.<Id>k__BackingField': 'int64.3', " + \
+            "'utf8.<IsGT>k__BackingField': 'int32.1', " + \
+            "'utf8.<GameId>k__BackingField': 'int64.1', " + \
+            "'utf8.<Closed>k__BackingField': 'int32.0', " + \
+            "'utf8.<AssetClassId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
+            "'utf8.<AssetId>k__BackingField': 'int64.1', " + \
+            "'utf8.<Owner>k__BackingField': 'bytes.8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f'}"
         self.assertEqual(expected_result, str(self.res['heap'][lots[2]]))
 
         print("3 lots were created")
@@ -172,17 +166,15 @@ class TestTradableAsset(unittest.TestCase):
         self.runContract("Buy", "test-wallet2")
         num = int(self.res['stack'][0].split(".")[1])
         expected_result = \
-            "{" + \
-                "'utf8.<Buyer>k__BackingField': 'bytes.edbfca5b9a253738634352c465b2f0ea1a2f280dbf5510bd83010798dd203996', " + \
-                "'utf8.<Price>k__BackingField': 'int64.200', " + \
-                "'utf8.<IsGT>k__BackingField': 'int32.0', " + \
-                "'utf8.<Id>k__BackingField': 'int64.1', " + \
-                "'utf8.<GameId>k__BackingField': 'int64.1', " + \
-                "'utf8.<Closed>k__BackingField': 'int32.1', " + \
-                "'utf8.<ExternalId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
-                "'utf8.<AssetId>k__BackingField': 'int64.1', " + \
-                "'utf8.<Owner>k__BackingField': 'bytes.8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f'" + \
-            "}"
+            "{'utf8.<Buyer>k__BackingField': 'bytes.edbfca5b9a253738634352c465b2f0ea1a2f280dbf5510bd83010798dd203996', " + \
+            "'utf8.<Price>k__BackingField': 'int64.200', " + \
+            "'utf8.<IsGT>k__BackingField': 'int32.0', " + \
+            "'utf8.<Id>k__BackingField': 'int64.1', " + \
+            "'utf8.<GameId>k__BackingField': 'int64.1', " + \
+            "'utf8.<Closed>k__BackingField': 'int32.1', " + \
+            "'utf8.<AssetClassId>k__BackingField': 'bytes.0000000000000000000000000000000000000000000000000000000000000001', " + \
+            "'utf8.<AssetId>k__BackingField': 'int64.1', " + \
+            "'utf8.<Owner>k__BackingField': 'bytes.8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f'}"
         self.assertEqual(expected_result, str(self.res['heap'][num]))
 
         # Close a lot
