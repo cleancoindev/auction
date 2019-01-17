@@ -372,6 +372,12 @@ namespace Expload {
             lot.Buyer = Info.Sender();
             _lots[lotId] = lot;
 
+            // Put the lot into buyer storage (for history log)
+            var userStorageLastId = _userLotsCount.GetOrDefault(Info.Sender(), 0);
+            var userLotsKey = GetUserLotKey(Info.Sender(), userStorageLastId);
+            _userLots[userLotsKey] = lotId;
+            _userLotsCount[Info.Sender()] = userStorageLastId + 1;
+
             // Emit an event
             Log.Event("lotBought", lot);
         }
