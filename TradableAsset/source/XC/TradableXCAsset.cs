@@ -263,8 +263,7 @@ namespace Expload {
             _XCAssets[id] = asset;
             // Putting asset into user's storage
             var assetCount = _XCUsersAssetCount.GetOrDefault(owner, 0);
-            var key = GetUserAssetKey(owner, assetCount);
-            _XCUsersAssetIds[key] = id;
+            _XCUsersAssetIds[GetUserAssetKey(owner, assetCount)] = id;
             _XCUsersAssetCount[owner] = assetCount + 1;
             _SerialNumbers[id] = assetCount;
 
@@ -309,10 +308,12 @@ namespace Expload {
             _XCUsersAssetCount[oldOwner] = oldOwnerAssetCount - 1;
 
             // Add to new owner's storage
-            var assetCount = _XCUsersAssetCount.GetOrDefault(to, 0);
-            var key = GetUserAssetKey(to, assetCount);
-            _XCUsersAssetIds[key] = id;
-            _XCUsersAssetCount[to] = assetCount + 1;
+            var newSerialNumber = _XCUsersAssetCount.GetOrDefault(to, 0);
+            _XCUsersAssetIds[GetUserAssetKey(to, newSerialNumber)] = id;
+            _XCUsersAssetCount[to] = newSerialNumber + 1;
+
+            // Update asset serial number
+            _SerialNumbers[id] = newSerialNumber;
 
             // Log an event
             Log.Event("TransferXC", asset);

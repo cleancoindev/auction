@@ -264,8 +264,7 @@ namespace Expload {
             _GTAssets[id] = asset;
             // Putting asset into user's storage
             var assetCount = _GTUsersAssetCount.GetOrDefault(owner, 0);
-            var key = GetUserAssetKey(owner, assetCount);
-            _GTUsersAssetIds[key] = id;
+            _GTUsersAssetIds[GetUserAssetKey(owner, assetCount)] = id;
             _GTUsersAssetCount[owner] = assetCount + 1;
             _SerialNumbers[id] = assetCount;
 
@@ -310,10 +309,12 @@ namespace Expload {
             _GTUsersAssetCount[oldOwner] = oldOwnerAssetCount - 1;
 
             // Add to new owner's storage
-            var assetCount = _GTUsersAssetCount.GetOrDefault(to, 0);
-            var key = GetUserAssetKey(to, assetCount);
-            _GTUsersAssetIds[key] = id;
-            _GTUsersAssetCount[to] = assetCount + 1;
+            var newSerialNumber = _GTUsersAssetCount.GetOrDefault(to, 0);
+            _GTUsersAssetIds[GetUserAssetKey(to, newSerialNumber)] = id;
+            _GTUsersAssetCount[to] = newSerialNumber + 1;
+
+            // Update asset serial number
+            _SerialNumbers[id] = newSerialNumber;
 
             // Log an event
             Log.Event("TransferGT", asset);

@@ -176,6 +176,7 @@ class TestTradableAsset(unittest.TestCase):
             "'utf8.<AssetId>k__BackingField': 'int64.1', " + \
             "'utf8.<Owner>k__BackingField': 'bytes.8fc47de7507f0881fb0133cbbd82733b69426b1b55904907f3de3dbfb262210f'}"
         self.assertEqual(expected_result, str(self.res['heap'][num]))
+        print("2 lots were bought")
 
         # Close a lot
         self.runContract("CloseLot", "test-wallet")
