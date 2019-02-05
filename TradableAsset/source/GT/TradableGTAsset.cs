@@ -313,7 +313,8 @@ namespace Expload {
             _GTUsersAssetIds[GetUserAssetKey(to, newSerialNumber)] = id;
             _GTUsersAssetCount[to] = newSerialNumber + 1;
 
-            // Update asset serial number
+            // Update assets serial numbers
+            _SerialNumbers[lastAsset] = oldOwnerSerialNumber;
             _SerialNumbers[id] = newSerialNumber;
 
             // Log an event

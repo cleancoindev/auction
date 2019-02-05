@@ -10,7 +10,7 @@
     <NoWarn>NU1605</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Expload.Pravda" Version="0.21.0" />
+    <PackageReference Include="Expload.Pravda" Version="0.21.5" />
     <PackageReference Include="Expload.GameToken" Version="0.14.1" />
     <ProjectReference Include="../../../../TradableAsset/source/TradableAsset.csproj" />
     <ProjectReference Include="../../../source/Auction.csproj" />
