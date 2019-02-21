@@ -27,7 +27,7 @@ class TestTradableAsset(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         # Compile main & test contracts
-        output = check_output(["dotnet", "publish", "../source/Auction.sln"], timeout=40)
+        output = check_output(["dotnet", "publish", "../source/Auction.sln"], timeout=70)
         print("Programs compiled")
 
         

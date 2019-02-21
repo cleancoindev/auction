@@ -335,7 +335,7 @@ namespace Expload {
             _assetLotsCount[assetLotsCountKey] = assetCount+1;
 
             // Emit an event
-            Log.Event("lotCreated", lot);
+            Log.Event("lotCreated", lot.Id);
 
             return lotId;
         }
@@ -379,7 +379,7 @@ namespace Expload {
             _userLotsCount[Info.Sender()] = userStorageLastId + 1;
 
             // Emit an event
-            Log.Event("lotBought", lot);
+            Log.Event("lotBought", lot.Id);
         }
 
         /// <summary>
@@ -419,7 +419,7 @@ namespace Expload {
             }
 
             // Emit an event
-            Log.Event("lotClosed", lot);
+            Log.Event("lotClosed", lot.Id);
         }
     }
 
