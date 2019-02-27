@@ -359,11 +359,13 @@ namespace Expload {
             {
                 Int32 price = (Int32)lot.Price;
                 ProgramHelper.Program<GameToken>(GTAddress).Spend(Info.ProgramAddress(), price);
+                ProgramHelper.Program<GameToken>(GTAddress).Refund(Info.ProgramAddress(), lot.Owner, price);
                 ProgramHelper.Program<TradableGTAsset>(gameAddress).TransferGTAsset(lot.AssetId, Info.Sender());
             }
             else
             {
                 Actions.Transfer(Info.ProgramAddress(), lot.Price);
+                Actions.TransferFromProgram(lot.Owner, lot.Price);
                 ProgramHelper.Program<TradableXCAsset>(gameAddress).TransferXCAsset(lot.AssetId, Info.Sender());
             }
 
