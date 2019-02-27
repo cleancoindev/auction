@@ -19,18 +19,18 @@ class TestTradableAsset(unittest.TestCase):
     pravda = None
     # Result of setUp work
     res = None
-    
-    test_calls = ['SetUpTradableAsset', 'SetUpTradableGTAsset', 
+
+    test_calls = ['SetUpTradableAsset', 'SetUpTradableGTAsset',
                   'SetUpAuction', 'SetUpGT', 'NewLot', 'Buy', 'CloseLot']
 
     # Set up Pravda once before running the TestCase
     @classmethod
     def setUpClass(self):
         # Compile main & test contracts
-        output = check_output(["dotnet", "publish", "../source/Auction.sln"], timeout=70)
+        output = check_output(["dotnet", "publish", "../source/Auction.sln"], timeout=90)
         print("Programs compiled")
 
-        
+
         call(["rm", "-rf", "pravda-data"], timeout=40)
         # Init new local pravda blockchain
         call(["pravda", "node", "init", "--local", "--coin-distribution", "test-coin-dist.json"], timeout=40)
@@ -40,7 +40,7 @@ class TestTradableAsset(unittest.TestCase):
         self.pravda = Popen(["pravda", "node", "run"], stdout=DEVNULL)
         # Wait for it to load
         time.sleep(10)
-        
+
         print("Deploying programs")
 
         # Deploy main smart-contracts to Pravda
@@ -111,7 +111,7 @@ class TestTradableAsset(unittest.TestCase):
         # Set up auction
         self.runContract("SetUpAuction", "auction-wallet")
         print("Auction was set up")
-        
+
         # Set up GameToken
         self.runContract("SetUpGT", "GT-wallet")
         print("GameToken was set up")
