@@ -318,7 +318,7 @@ namespace Expload {
 
             // Create lot object and put it into main storage
             var lotId = ++_lastLotId;
-            var lot = new Lot(lotId, Info.Sender(), gameId, isGT, assetId, classId, price);
+            var lot = new Lot(lotId, Info.Sender(), gameId, isGT, assetId, classId, price, Info.LastBlockTime());
             _lots[_lastLotId] = lot;
 
             // Put the lot into user storage
@@ -353,7 +353,7 @@ namespace Expload {
                 Error.Throw("The lot is already closed.");
             }
 
-            // Take the money from buyer and ransfer the asset to him
+            // Take the money from buyer and transfer the asset to him
             var gameAddress = _GetGameAddress(lot.GameId, lot.IsGT);
             if (lot.IsGT)
             {
@@ -372,6 +372,7 @@ namespace Expload {
             // Alter the lot state and write it to the storage
             lot.Closed = true;
             lot.Buyer = Info.Sender();
+            lot.PurchaseTime = Info.LastBlockTime();
             _lots[lotId] = lot;
 
             // Put the lot into buyer storage (for history log)
@@ -432,7 +433,7 @@ namespace Expload {
         
         public Lot(
             long id, Bytes owner, long gameId, bool isGT,
-            long assetId, Bytes classId, long price
+            long assetId, Bytes classId, long price, long creationTime
         ){
             Id = id;
             Owner = owner;
@@ -441,6 +442,7 @@ namespace Expload {
             AssetId = assetId;
             AssetClassId = classId;
             Price = price;
+            CreationTime = creationTime;
         }
         
         public Lot() { }
@@ -471,5 +473,13 @@ namespace Expload {
         
         // Buyer's address
         public Bytes Buyer { get; set; } = Bytes.VOID_ADDRESS;
+
+        // UNIX timestamp of lot creation time
+
+        public long CreationTime { get; set; } = 0;
+
+        // UNIX timestamp of lot purchase time
+
+        public long PurchaseTime { get; set; } = 0;
     }
 }
