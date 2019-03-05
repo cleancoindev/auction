@@ -354,18 +354,19 @@ namespace Expload {
             }
 
             // Take the money from buyer and transfer the asset to him
+            // (taking in consideration 5% tax)
             var gameAddress = _GetGameAddress(lot.GameId, lot.IsGT);
+            Int32 price = (Int32)lot.Price;
             if (lot.IsGT)
             {
-                Int32 price = (Int32)lot.Price;
                 ProgramHelper.Program<GameToken>(GTAddress).Spend(Info.ProgramAddress(), price);
-                ProgramHelper.Program<GameToken>(GTAddress).Refund(Info.ProgramAddress(), lot.Owner, price);
+                ProgramHelper.Program<GameToken>(GTAddress).Refund(Info.ProgramAddress(), lot.Owner, price - price/21);
                 ProgramHelper.Program<TradableGTAsset>(gameAddress).TransferGTAsset(lot.AssetId, Info.Sender());
             }
             else
             {
-                Actions.Transfer(Info.ProgramAddress(), lot.Price);
-                Actions.TransferFromProgram(lot.Owner, lot.Price);
+                Actions.Transfer(Info.ProgramAddress(), price);
+                Actions.TransferFromProgram(lot.Owner, price - price/21);
                 ProgramHelper.Program<TradableXCAsset>(gameAddress).TransferXCAsset(lot.AssetId, Info.Sender());
             }
 
