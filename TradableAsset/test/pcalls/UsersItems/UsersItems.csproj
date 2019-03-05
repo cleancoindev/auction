@@ -9,7 +9,7 @@
         <PravdaApi>https://publicnode.expload.com/api/public</PravdaApi>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Expload.Pravda" Version="0.21.5" />
+        <PackageReference Include="Expload.Pravda" Version="0.22.1" />
         <ProjectReference Include="../../../source/GT/TradableGTAsset.csproj" />
     </ItemGroup>
     <Target Name="_ResolvePublishNuGetPackagePdbs" AfterTargets="RunResolvePublishAssemblies">
