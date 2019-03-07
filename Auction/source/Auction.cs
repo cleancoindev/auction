@@ -294,8 +294,8 @@ namespace Expload {
             AssertIsItemOwner(gameId, assetId, isGT);
 
             // Check if the starting price is legit
-            if(price == 0){
-                Error.Throw("Price can't equal 0.");
+            if(price <= 0){
+                Error.Throw("Incorrect price.");
             }
 
             // Get game address

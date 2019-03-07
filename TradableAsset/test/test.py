@@ -27,7 +27,7 @@ class TestTradableAsset(unittest.TestCase):
     def setUpClass(self):
         # Compile main & test contracts
         if compile_sripts:
-            output = check_output(["dotnet", "publish", "../source/TradableAsset.sln"], timeout=70)
+            output = check_output(["dotnet", "publish", "../source/TradableAsset.sln"], timeout=90)
             print("Programs compiled")
 
         # Delete current pravda blockchain data
