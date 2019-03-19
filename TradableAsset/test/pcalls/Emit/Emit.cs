@@ -15,12 +15,12 @@ namespace Expload.Standards {
             // Emit the asset
             var classId = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
             var instanceId = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
-            var assetId = ProgramHelper.Program<TradableGTAsset>(programOwner).EmitGTAsset(
+            var assetId = ProgramHelper.Program<TradableXGAsset>(programOwner).EmitXGAsset(
                 assetOwner, classId, instanceId
             );
 
             // Get asset data
-            var assetData = ProgramHelper.Program<TradableGTAsset>(programOwner).GetGTAssetData(assetId);
+            var assetData = ProgramHelper.Program<TradableXGAsset>(programOwner).GetXGAssetData(assetId);
 
             // Return asset object
             return assetData;

@@ -21,10 +21,10 @@
 
 ### Обзор
 
-Для совместимости игры с инвентарем и аукционом Expload, все внутриигровые предметы (далее - ассеты) должны храниться в pravda-программе, соответствующей одному из интерфейсов: [ITradableGTAsset](TradableAsset/source/GT/ITradableGTAsset.cs) или [ITradableXCAsset](TradableAsset/source/XC/ITradableXCAsset.cs).  
-Интерфейс [ITradableGTAsset](TradableAsset/source/GT/ITradableGTAsset.cs) предназначен для ассетов, которые могут продаваться только за GameToken. Аналогично, интерфейс [ITradableXCAsset](TradableAsset/source/XC/ITradableXCAsset.cs) предназначен для ассетов, которые могут продаваться только за XCoin.  GameToken и XCoin интерфейсы отличаются лишь неймингом методов (к примеру, `GetGTAsset` и `GetXCAsset`), их логика аналогична.  
+Для совместимости игры с инвентарем и аукционом Expload, все внутриигровые предметы (далее - ассеты) должны храниться в pravda-программе, соответствующей одному из интерфейсов: [ITradableXGAsset](TradableAsset/source/XG/ITradableXGAsset.cs) или [ITradableXPAsset](TradableAsset/source/XP/ITradableXPAsset.cs).  
+Интерфейс [ITradableXGAsset](TradableAsset/source/XG/ITradableXGAsset.cs) предназначен для ассетов, которые могут продаваться только за XGold. Аналогично, интерфейс [ITradableXPAsset](TradableAsset/source/XP/ITradableXPAsset.cs) предназначен для ассетов, которые могут продаваться только за XPoin.  XGold и XPoin интерфейсы отличаются лишь неймингом методов (к примеру, `GetXGAsset` и `GetXPAsset`), их логика аналогична.  
 
-Рассмотрим эти интерфейсы на [примере реализации GameToken-ассета](TradableAsset/source/GT/TradableGTAsset.cs).
+Рассмотрим эти интерфейсы на [примере реализации XGold-ассета](TradableAsset/source/XG/TradableXGAsset.cs).
 
 > Сниппеты из кода образца реализации приведены для понимания внутренней логики ассетов, рассматривать эти сниппеты не обязательно. Если ваша игра не требует особых механизмов передачи или создания ассетов, вы можете использовать образцовую реализацию в вашей игре, и пользоваться ей как API. Ознакомьтесь с структурой ассета и интерфейсами методов ниже и переходите к разделу [Деплой и настройка имплементации](#Деплой-и-настройка-имплементации).
 
@@ -44,7 +44,7 @@
 
 #### Создание ассета
 
-`EmitGTAsset(Bytes owner, Bytes classId, Bytes  instanceId) returns long id` - создает ассет с заданными параметрами и передает его адресу `owner`. Возвращает уникальный `id` ассета. Доступно только создателю вызываемого контракта.
+`EmitXGAsset(Bytes owner, Bytes classId, Bytes  instanceId) returns long id` - создает ассет с заданными параметрами и передает его адресу `owner`. Возвращает уникальный `id` ассета. Доступно только создателю вызываемого контракта.
 
 <details>
 
@@ -53,20 +53,20 @@
 Рассмотрим реализацию этого метода (комментарии изменены для удобства)
 
 ```c#
-public long EmitGTAsset(Bytes owner, Bytes classId, Bytes instanceId){
+public long EmitXGAsset(Bytes owner, Bytes classId, Bytes instanceId){
     // Проверяем на то, является ли адрес, вызывающий
     // метод владельцем контракта
     AssertIsGameOwner();
 
-    // _lastGTId - глобальная переменная, в которой хранится
+    // _lastXGId - глобальная переменная, в которой хранится
     // последний id, выданный ассету, увеличиваем на 1
-    var id = ++_lastGTId;
+    var id = ++_lastXGId;
 
     // Создаем объект класса Asset
     var asset = new Asset(id, owner, classId, instanceId);
 
-    // Добавляем ассет в mapping _GTAssets - основное хранилище ассетов
-    _GTAssets[id] = asset;
+    // Добавляем ассет в mapping _XGAssets - основное хранилище ассетов
+    _XGAssets[id] = asset;
 
     /*
     Кроме основного хранилища ассетов, имеется
@@ -77,22 +77,22 @@ public long EmitGTAsset(Bytes owner, Bytes classId, Bytes instanceId){
 
     // Добавим ассет в хранилище пользователя
 
-    // Получим из мэппинга _GTUsersAssetCount
+    // Получим из мэппинга _XGUsersAssetCount
     // текущее количество ассетов у пользователя
     // В ячейку с этим номером будет размещен новый ассет
-    var assetCount = _GTUsersAssetCount.GetOrDefault(owner, 0);
+    var assetCount = _XGUsersAssetCount.GetOrDefault(owner, 0);
 
     // Записываем id ассета в хранилище пользователей
-    _GTUsersAssetIds[GetUserAssetKey(owner, assetCount)] = id;
+    _XGUsersAssetIds[GetUserAssetKey(owner, assetCount)] = id;
     // Увеличиваем количество ассетов пользователя на 1
-    _GTUsersAssetCount[owner] = assetCount + 1;
+    _XGUsersAssetCount[owner] = assetCount + 1;
     // Добавляем порядковый номер id ассета в хранилище порядковых номеров
     // (это нужно, чтобы не итерироваться по ассетам пользователя
     // при передаче ассетов)
     _SerialNumbers[id] = assetCount;
 
     // Вызываем событие
-    Log.Event("EmitGT", asset);
+    Log.Event("EmitXG", asset);
 
     // Возвращаем id созданного ассета
     return id;
@@ -103,7 +103,7 @@ public long EmitGTAsset(Bytes owner, Bytes classId, Bytes instanceId){
 
 #### Передача ассета
 
-`TransferGTAsset(long id, bytes to)` - передает ассет с заданным `id` адресу `to`. Доступно только аукциону Expload.
+`TransferXGAsset(long id, bytes to)` - передает ассет с заданным `id` адресу `to`. Доступно только аукциону Expload.
 
 <details>
 
@@ -112,13 +112,13 @@ public long EmitGTAsset(Bytes owner, Bytes classId, Bytes instanceId){
 Рассмотрим реализацию этого метода (комментарии изменены для удобства)
 
 ```c#
-public void TransferGTAsset(long id, Bytes to){
+public void TransferXGAsset(long id, Bytes to){
     // Проверяем на то, является ли адрес, вызывающий
     // метод владельцем аукционом Expload
     AssertIsAuction();
 
     // Получаем объект ассета по данному id
-    var asset = GetGTAsset(id);
+    var asset = GetXGAsset(id);
     // Получаем старого владельца ассета
     var oldOwner  = asset.Owner;
 
@@ -131,39 +131,39 @@ public void TransferGTAsset(long id, Bytes to){
     // Меняем владельца ассета
     asset.Owner = to;
     // Записываем измененный ассет в общее хранилище
-    _GTAssets[id] = asset;
+    _XGAssets[id] = asset;
 
     // Теперь необходимо внести изменения в хранилище ассетов пользователей
 
     // Удаляем из хранилища старого владельца
 
     // Получаем количество ассетов старого владельца
-    var oldOwnerAssetCount = _GTUsersAssetCount.GetOrDefault(oldOwner, 0);
+    var oldOwnerAssetCount = _XGUsersAssetCount.GetOrDefault(oldOwner, 0);
     // Получаем порядковый номер ассета в хранилище владельца
     var oldOwnerSerialNumber = _SerialNumbers.GetOrDefault(id, 0);
     // Получаем последний ассет в хранилище владельца
-    var lastAsset = _GTUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, oldOwnerAssetCount-1), 0);
+    var lastAsset = _XGUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, oldOwnerAssetCount-1), 0);
     // Ставим последний ассет на место ассета, который забираем у владельца
-    _GTUsersAssetIds[GetUserAssetKey(oldOwner, oldOwnerSerialNumber)] = lastAsset;
+    _XGUsersAssetIds[GetUserAssetKey(oldOwner, oldOwnerSerialNumber)] = lastAsset;
     // Удаляем последний ассет (так как он теперь на месте проданного)
-    _GTUsersAssetIds[GetUserAssetKey(oldOwner,oldOwnerAssetCount-1)] = 0;
+    _XGUsersAssetIds[GetUserAssetKey(oldOwner,oldOwnerAssetCount-1)] = 0;
     // Уменьшаем счетчик ассетов
-    _GTUsersAssetCount[oldOwner] = oldOwnerAssetCount - 1;
+    _XGUsersAssetCount[oldOwner] = oldOwnerAssetCount - 1;
 
     // Добавляем в хранилище нового владельца
 
     // Получаем количество ассетов нового владельца
-    var assetCount = _GTUsersAssetCount.GetOrDefault(to, 0);
+    var assetCount = _XGUsersAssetCount.GetOrDefault(to, 0);
     // Добавляем ассет в хранилище ассетов пользователей
-    _GTUsersAssetIds[GetUserAssetKey(to, assetCount)] = id;
+    _XGUsersAssetIds[GetUserAssetKey(to, assetCount)] = id;
     // Увеличиваем количество ассетов у пользователя
-    _GTUsersAssetCount[to] = assetCount + 1;
+    _XGUsersAssetCount[to] = assetCount + 1;
 
     // Обновляем порядковый номер ассета в хранилище владельца
     _SerialNumbers[id] = newSerialNumber;
 
     // Вызываем событие
-    Log.Event("TransferGT", asset);
+    Log.Event("TransferXG", asset);
 }
 ```
 
@@ -173,7 +173,7 @@ public void TransferGTAsset(long id, Bytes to){
 
 #### Получение данных об ассете по `id`
 
-`GetGTAssetData(long id) returns Asset asset` - возвращает объект ассета, имеющего соответствующий `id`.
+`GetXGAssetData(long id) returns Asset asset` - возвращает объект ассета, имеющего соответствующий `id`.
 
 <details>
 
@@ -184,13 +184,13 @@ public void TransferGTAsset(long id, Bytes to){
 ```c#
 // Приватный метод для получения объекта ассета из общего хранилища
 // (Используется во многих функциях получения данных из контракта)
-private Asset GetGTAsset(long id){
-    return _GTAssets.GetOrDefault(id, new Asset());
+private Asset GetXGAsset(long id){
+    return _XGAssets.GetOrDefault(id, new Asset());
 }
 
-public Asset GetGTAssetData(long id){
+public Asset GetXGAssetData(long id){
     // Вызов приватного метода для получения ассета
-    return GetGTAsset(id);
+    return GetXGAsset(id);
 }
 ```
 
@@ -198,7 +198,7 @@ public Asset GetGTAssetData(long id){
 
 #### Получение владельца ассета по `id`
 
-`GetGTAssetOwner(long id) returns Bytes owner` - возвращает адрес текущего владельца ассета, имеющего соответствующий `id`
+`GetXGAssetOwner(long id) returns Bytes owner` - возвращает адрес текущего владельца ассета, имеющего соответствующий `id`
 
 <details>
 
@@ -207,9 +207,9 @@ public Asset GetGTAssetData(long id){
 Рассмотрим реализацию этого метода (комментарии изменены для удобства)
 
 ```c#
-public Bytes GetGTAssetOwner(long id){
+public Bytes GetXGAssetOwner(long id){
     // Используем приватный метод описанный ранее
-    return GetGTAsset(id).Owner;
+    return GetXGAsset(id).Owner;
 }
 ```
 
@@ -217,7 +217,7 @@ public Bytes GetGTAssetOwner(long id){
 
 #### Получение `classId` ассета по `id`
 
-`GetGTAssetClassId(long id) returns Bytes classId` - возвращает `classId` ассета, имеющего соответствующий `id`
+`GetXGAssetClassId(long id) returns Bytes classId` - возвращает `classId` ассета, имеющего соответствующий `id`
 
 <details>
 
@@ -226,9 +226,9 @@ public Bytes GetGTAssetOwner(long id){
 Рассмотрим реализацию этого метода (комментарии изменены для удобства)
 
 ```c#
-public Bytes GetGTAssetClassId(long id){
+public Bytes GetXGAssetClassId(long id){
     // Используем приватный метод описанный ранее
-    return GetGTAsset(id).ItemClassId;
+    return GetXGAsset(id).ItemClassId;
 }
 ```
 
@@ -236,7 +236,7 @@ public Bytes GetGTAssetClassId(long id){
 
 #### Получение количества ассетов у пользователя
 
-`GetUsersGTAssetCount(Bytes address) returns long assetCount` - возвращает количество ассетов, принадлежащих пользователю с адресом `address`
+`GetUsersXGAssetCount(Bytes address) returns long assetCount` - возвращает количество ассетов, принадлежащих пользователю с адресом `address`
 
 <details>
 
@@ -245,9 +245,9 @@ public Bytes GetGTAssetClassId(long id){
 Рассмотрим реализацию этого метода (комментарии изменены для удобства)
 
 ```c#
-public long GetUsersGTAssetCount(Bytes address){\
+public long GetUsersXGAssetCount(Bytes address){\
     // Достаем нужное значение из мэппинга
-    return _GTUsersAssetCount.GetOrDefault(address, 0);
+    return _XGUsersAssetCount.GetOrDefault(address, 0);
 }
 ```
 
@@ -255,7 +255,7 @@ public long GetUsersGTAssetCount(Bytes address){\
 
 #### Получение `id` ассета по порядковому номеру в хранилище пользователя
 
-`GetUsersGTAssetId(Bytes address, long number) returns long id` - возвращает `id` ассета, имеющего порядковый номер `number` в хранилище пользователя с адресом `address`
+`GetUsersXGAssetId(Bytes address, long number) returns long id` - возвращает `id` ассета, имеющего порядковый номер `number` в хранилище пользователя с адресом `address`
 
 <details>
 
@@ -266,21 +266,21 @@ public long GetUsersGTAssetCount(Bytes address){\
 ```c#
 // Приватный метод для получения нужного id
 // (Также используется в других методах)
-private long _getUsersGTAssetId(Bytes address, long number){
+private long _getUsersXGAssetId(Bytes address, long number){
     // Порядковый номер не может быть больше,
     // чем количество ассетов у пользователя
-    if(number >= _GTUsersAssetCount.GetOrDefault(address, 0)){
+    if(number >= _XGUsersAssetCount.GetOrDefault(address, 0)){
         Error.Throw("This asset doesn't exist!");
     }
 
     // Достаем нужный id из хранилища ассетов пользователя
     var key = GetUserAssetKey(address, number);
-    return _GTUsersAssetIds.GetOrDefault(key, 0);
+    return _XGUsersAssetIds.GetOrDefault(key, 0);
 }
 
-public long GetUsersGTAssetId(Bytes address, long number){
+public long GetUsersXGAssetId(Bytes address, long number){
     // Вызываем приватный метод и возвращаем id
-    return _getUsersGTAssetId(address, number);
+    return _getUsersXGAssetId(address, number);
 }
 ```
 
@@ -288,7 +288,7 @@ public long GetUsersGTAssetId(Bytes address, long number){
 
 #### Получение всех ассетов, принадлежащих пользователю
 
-`GetUsersAllGTAssetsData(Bytes address) returns Asset[] inventory` - возвращает массив объектов ассетов, принадлежащих пользователю с адресом `address`.
+`GetUsersAllXGAssetsData(Bytes address) returns Asset[] inventory` - возвращает массив объектов ассетов, принадлежащих пользователю с адресом `address`.
 
 <details>
 
@@ -297,9 +297,9 @@ public long GetUsersGTAssetId(Bytes address, long number){
 Рассмотрим реализацию этого метода (комментарии изменены для удобства)
 
 ```c#
-public Asset[] GetUsersAllGTAssetsData(Bytes address){
+public Asset[] GetUsersAllXGAssetsData(Bytes address){
     // Получаем количество ассетов у пользователя
-    int amount = (int)_GTUsersAssetCount.GetOrDefault(address, 0);
+    int amount = (int)_XGUsersAssetCount.GetOrDefault(address, 0);
     // Создаем пустой массив
     var result = new Asset[amount];
 
@@ -307,7 +307,7 @@ public Asset[] GetUsersAllGTAssetsData(Bytes address){
     for(int num = 0; num < amount; num++){
         // Получаем id ассета из приватного метода, описанного выше,
         // затем получаем объект ассета по этому id
-        result[num] = GetGTAsset(_getUsersGTAssetId(address, num));
+        result[num] = GetXGAsset(_getUsersXGAssetId(address, num));
     }
     return result;
 }
@@ -319,7 +319,7 @@ public Asset[] GetUsersAllGTAssetsData(Bytes address){
 ### Деплой и настройка имплементации
 
 Теперь, когда у нас есть понимание устройства ассета и того, какие методы используются в стандарте, перейдем к настройке контракта.  
-Настройка контракта будет рассмотрена на [примере реализации GameToken-ассета](TradableAsset/source/GT/TradableGTAsset.cs).
+Настройка контракта будет рассмотрена на [примере реализации XGold-ассета](TradableAsset/source/XG/TradableXGAsset.cs).
 
 #### Деплой pravda-программы
 
@@ -328,7 +328,7 @@ public Asset[] GetUsersAllGTAssetsData(Bytes address){
 git clone https://github.com/expload/auction
 
 # Перейдем в папку с имплементацией
-cd auction/TradableAsset/source/GT
+cd auction/TradableAsset/source/XG
 
 # Сгенерируем кошелек wallet.json - с него будем проводить деплой
 pravda gen address -o wallet.json
@@ -348,7 +348,7 @@ dotnet publish -c Deploy
 
 #### Конфигурация контракта
 
-Действия выполняются из директории деплоя (`auction/TradableAsset/source/GT`)
+Действия выполняются из директории деплоя (`auction/TradableAsset/source/XG`)
 
 ```sh
 # Необходимо выставить в контракте текущий адрес аукциона Expload
@@ -368,7 +368,7 @@ echo "push xA push \"SetAuction\" push xB push 2 pcall" | pravda compile asm | p
 
 ### Разработка собственной имплементации
 
-Expload поддерживает собственный имплементации стандарта ассетов. Имплементация должна соответствовать одному из интерфейсов - [ITradableGTAsset](TradableAsset/source/GT/ITradableGTAsset.cs) или [ITradableXCAsset](TradableAsset/source/XC/ITradableXCAsset.cs) (в зависимости от типа ассета).
+Expload поддерживает собственный имплементации стандарта ассетов. Имплементация должна соответствовать одному из интерфейсов - [ITradableXGAsset](TradableAsset/source/XG/ITradableXGAsset.cs) или [ITradableXPAsset](TradableAsset/source/XP/ITradableXPAsset.cs) (в зависимости от типа ассета).
 
 Для удобства был создан [nuget-пакет](https://www.nuget.org/packages/Expload.Standards.TradableAsset/), включающий в себя оба интерфейса.
 

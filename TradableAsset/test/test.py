@@ -6,7 +6,7 @@ import signal
 import json
 import time
 
-TA_path = "../source/GT/bin/TradableGTAsset.pravda"
+TA_path = "../source/XG/bin/TradableXGAsset.pravda"
 pcall_file_path = "pcalls/{0}/bin/{0}.pravda"
 
 compile_sripts = True
@@ -47,7 +47,7 @@ class TestTradableAsset(unittest.TestCase):
         # Deploy smart-contract to Pravda
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/test-wallet.json", "-l", "9000000",
                             "-i", TA_path, "--program-wallet", "wallets/program-wallet.json"], timeout=40)
-        print("TradableGTAsset.pravda deployed on fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b")
+        print("TradableXGAsset.pravda deployed on fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b")
 
     # Set up particular contract test
     def setUp(self):

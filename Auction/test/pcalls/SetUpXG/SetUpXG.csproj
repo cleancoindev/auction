@@ -1,18 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageName>TradableGTAsset</PackageName>
+    <PackageName>SetUpXG</PackageName>
     <PackageId>Expload.$(PackageName)</PackageId>
     <PackageVersion>1.0.0</PackageVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>$(PackageId)</AssemblyName>
     <WattsLimit>500000</WattsLimit>
     <PravdaApi>https://publicnode.expload.com/api/public</PravdaApi>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <NoWarn>NU1605</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Expload.Pravda" Version="0.22.1" />
-    <ProjectReference Include="../TradableAsset.csproj" />
+    <ProjectReference Include="../../../../TradableAsset/source/TradableAsset.csproj" />
+    <ProjectReference Include="../../../source/Auction.csproj" />
   </ItemGroup>
   <Target Name="_ResolvePublishNuGetPackagePdbs" AfterTargets="RunResolvePublishAssemblies">
     <ItemGroup>

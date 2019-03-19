@@ -2,66 +2,66 @@ using Expload.Pravda;
 
 namespace Expload.Standards
 {
-    public interface ITradableGTAsset : ITradableAsset
+    public interface ITradableXPAsset : ITradableAsset
     {
         /// <summary>
-        /// Get GT asset data
+        /// Get XP asset data
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
         /// Asset object
         /// </returns>
-        Asset GetGTAssetData(long id);
+        Asset GetXPAssetData(long id);
 
         /// <summary>
-        /// Get GT asset owner
+        /// Get XP asset owner
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
         /// Owner address
         /// </returns>
-        Bytes GetGTAssetOwner(long id);
+        Bytes GetXPAssetOwner(long id);
 
         /// <summary>
-        /// Get GT asset class id
+        /// Get XP asset class id
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
         /// Class id
         /// </returns>
-        Bytes GetGTAssetClassId(long id);
+        Bytes GetXPAssetClassId(long id);
 
         /// <summary>
-        /// Get amount of GT assets belonging to a user
+        /// Get amount of XP assets belonging to a user
         /// </summary>
         /// <param name="address"> User address </param>
         /// <returns>
         /// Asset amount
         /// </returns>
-        long GetUsersGTAssetCount(Bytes address);
+        long GetUsersXPAssetCount(Bytes address);
 
         /// <summary>
-        /// Get asset id of a particular GT asset belonging to a user
+        /// Get asset id of a particular XP asset belonging to a user
         /// </summary>
         /// <param name="address"> User address </param>
         /// <param name="number"> Asset serial number </param>
         /// <returns>
         /// Asset id
         /// </returns>
-        long GetUsersGTAssetId(Bytes address, long number);
+        long GetUsersXPAssetId(Bytes address, long number);
 
         /// <summary>
-        /// Get list of GT assets
+        /// Get list of XP assets
         /// belonging to a particular user
         /// </summary>
         /// <param name="address"> User address </param>
         /// <returns>
         /// List of asset objects
         /// </returns>
-        Asset[] GetUsersAllGTAssetsData(Bytes address);
+        Asset[] GetUsersAllXPAssetsData(Bytes address);
 
         /// <summary>
-        /// Emit a GT asset
+        /// Emit a XP asset
         /// </summary>
         /// <param name="owner"> Desired asset owner </param>
         /// <param name="classId"> Asset class id </param>
@@ -69,13 +69,13 @@ namespace Expload.Standards
         /// <returns>
         /// Emitted asset id
         /// </returns>
-        long EmitGTAsset(Bytes owner, Bytes classId, Bytes instanceId);
+        long EmitXPAsset(Bytes owner, Bytes classId, Bytes instanceId);
 
         /// <summary>
-        /// Transfer GT asset to a new owner
+        /// Transfer XP asset to a new owner
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <param name="to"> New owner address </param>
-        void TransferGTAsset(long id, Bytes to);
+        void TransferXPAsset(long id, Bytes to);
     }
 }

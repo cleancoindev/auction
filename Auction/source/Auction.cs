@@ -16,82 +16,82 @@ namespace Expload {
         TradableAsset addresses of different games storage
         */
 
-        // Last id given to a game's GT TradableAsset program
-        private long _lastGTGameId = 0;
+        // Last id given to a game's XG TradableAsset program
+        private long _lastXGGameId = 0;
         
-        // Last id given to a game's XC TradableAsset program
-        private long _lastXCGameId = 0;
+        // Last id given to a game's XP TradableAsset program
+        private long _lastXPGameId = 0;
 
-        // Mapping storing addresses of games' GT TradableAsset programs
-        private Mapping<long, Bytes> _gamesGTAddresses =
+        // Mapping storing addresses of games' XG TradableAsset programs
+        private Mapping<long, Bytes> _gamesXGAddresses =
             new Mapping<long, Bytes>();
         
-        // Mapping storing addresses of games' XC TradableAsset programs
-        private Mapping<long, Bytes> _gamesXCAddresses =
+        // Mapping storing addresses of games' XP TradableAsset programs
+        private Mapping<long, Bytes> _gamesXPAddresses =
             new Mapping<long, Bytes>();
         
         /// <summary>
         /// Add a new game's TradableAsset to auction
         /// </summary>
         /// <param name="address"> Address of game's TradableAsset program </param>
-        /// <param name="isGT"> True if the program handles GT assets, false if XC </param>
+        /// <param name="isXG"> True if the program handles XG assets, false if XP </param>
         /// <returns>
         /// New game id
         /// </returns>
-        public long AddGame(Bytes address, bool isGT){
+        public long AddGame(Bytes address, bool isXG){
             // Only Auction Owner can do this
             AssertIsAuctionOwner();
             // Add game address to the storage
-            if (isGT)
+            if (isXG)
             {
-                _gamesGTAddresses[++_lastGTGameId] = address;
-                return _lastGTGameId;
+                _gamesXGAddresses[++_lastXGGameId] = address;
+                return _lastXGGameId;
             }
             else
             {
-                _gamesXCAddresses[++_lastXCGameId] = address;
-                return _lastXCGameId;
+                _gamesXPAddresses[++_lastXPGameId] = address;
+                return _lastXPGameId;
             }
         }
 
         // Get game address by its game id
-        private Bytes _GetGameAddress(long id, bool isGT){
-            if (isGT)
+        private Bytes _GetGameAddress(long id, bool isXG){
+            if (isXG)
             {
-                return _gamesGTAddresses.GetOrDefault(id, Bytes.VOID_ADDRESS);
+                return _gamesXGAddresses.GetOrDefault(id, Bytes.VOID_ADDRESS);
             }
             else
             {
-                return _gamesXCAddresses.GetOrDefault(id, Bytes.VOID_ADDRESS);
+                return _gamesXPAddresses.GetOrDefault(id, Bytes.VOID_ADDRESS);
             }
         }
 
-        public Bytes GetGameAddress(long id, bool isGT){
-            return _GetGameAddress(id, isGT);
+        public Bytes GetGameAddress(long id, bool isXG){
+            return _GetGameAddress(id, isXG);
         }
         
-        // GameToken program address
-        private Bytes GTAddress = Bytes.VOID_ADDRESS;
+        // XGold program address
+        private Bytes XGAddress = Bytes.VOID_ADDRESS;
 
         /// <summary>
-        /// Set GameToken program address
+        /// Set XGold program address
         /// </summary>
-        /// <param name="address"> GameToken program address </param>
-        public void SetGTAddress(Bytes address)
+        /// <param name="address"> XGold program address </param>
+        public void SetXGAddress(Bytes address)
         {
             // Only Auction Owner can set auction address
             AssertIsAuctionOwner();
             // Actually set the address
-            GTAddress = address;
+            XGAddress = address;
         }
 
         /// <summary>
-        /// Get GameToken program address
+        /// Get XGold program address
         /// </summary>
-        /// <returns> GameToken program address </returns>
-        public Bytes GetGTAddress()
+        /// <returns> XGold program address </returns>
+        public Bytes GetXGAddress()
         {
-            return GTAddress;
+            return XGAddress;
         }
 
         /*
@@ -253,12 +253,12 @@ namespace Expload {
         }
 
         // Checks if caller owns a particular asset
-        private void AssertIsItemOwner(long gameId, long assetId, bool isGT){
-            var gameAddress = _GetGameAddress(gameId, isGT);
+        private void AssertIsItemOwner(long gameId, long assetId, bool isXG){
+            var gameAddress = _GetGameAddress(gameId, isXG);
             
-            var assetOwner = isGT ? 
-                ProgramHelper.Program<TradableGTAsset>(gameAddress).GetGTAssetOwner(assetId) : 
-                ProgramHelper.Program<TradableXCAsset>(gameAddress).GetXCAssetOwner(assetId); 
+            var assetOwner = isXG ? 
+                ProgramHelper.Program<TradableXGAsset>(gameAddress).GetXGAssetOwner(assetId) : 
+                ProgramHelper.Program<TradableXPAsset>(gameAddress).GetXPAssetOwner(assetId); 
             
             if(Info.Sender() != assetOwner){
                 Error.Throw("Only asset owner can do this.");
@@ -281,17 +281,17 @@ namespace Expload {
         /// asset ownership is transfered to auction wallet.
         /// </summary>
         /// <param name="gameId"> Id of the game the asset is from </param>
-        /// <param name="isGT"> True if asset is GT, false if XC </param>
+        /// <param name="isXG"> True if asset is XG, false if XP </param>
         /// <param name="assetId"> Blockchain id of the asset sold (see TradableAsset.cs) </param>
         /// <param name="price"> Price of the lot, can't equal 0 </param>
         /// <returns>
         /// Created lot id
         /// </returns>
         public long CreateLot(
-            long gameId, bool isGT, long assetId, long price
+            long gameId, bool isXG, long assetId, long price
         ){
             // Check if user has the item he wants to sell
-            AssertIsItemOwner(gameId, assetId, isGT);
+            AssertIsItemOwner(gameId, assetId, isXG);
 
             // Check if the starting price is legit
             if(price <= 0){
@@ -299,26 +299,26 @@ namespace Expload {
             }
 
             // Get game address
-            var gameAddress = _GetGameAddress(gameId, isGT);
+            var gameAddress = _GetGameAddress(gameId, isXG);
 
             // Get item class id
-            var classId = isGT ? 
-                ProgramHelper.Program<TradableGTAsset>(gameAddress).GetGTAssetClassId(assetId) : 
-                ProgramHelper.Program<TradableXCAsset>(gameAddress).GetXCAssetClassId(assetId); 
+            var classId = isXG ? 
+                ProgramHelper.Program<TradableXGAsset>(gameAddress).GetXGAssetClassId(assetId) : 
+                ProgramHelper.Program<TradableXPAsset>(gameAddress).GetXPAssetClassId(assetId); 
 
             // Transfer the asset to auction's wallet (so user can't use it)
-            if (isGT)
+            if (isXG)
             {
-                ProgramHelper.Program<TradableGTAsset>(gameAddress).TransferGTAsset(assetId, Info.ProgramAddress());
+                ProgramHelper.Program<TradableXGAsset>(gameAddress).TransferXGAsset(assetId, Info.ProgramAddress());
             }
             else
             {
-                ProgramHelper.Program<TradableXCAsset>(gameAddress).TransferXCAsset(assetId, Info.ProgramAddress());
+                ProgramHelper.Program<TradableXPAsset>(gameAddress).TransferXPAsset(assetId, Info.ProgramAddress());
             }
 
             // Create lot object and put it into main storage
             var lotId = ++_lastLotId;
-            var lot = new Lot(lotId, Info.Sender(), gameId, isGT, assetId, classId, price, Info.LastBlockTime());
+            var lot = new Lot(lotId, Info.Sender(), gameId, isXG, assetId, classId, price, Info.LastBlockTime());
             _lots[_lastLotId] = lot;
 
             // Put the lot into user storage
@@ -355,19 +355,19 @@ namespace Expload {
 
             // Take the money from buyer and transfer the asset to him
             // (taking in consideration 5% tax)
-            var gameAddress = _GetGameAddress(lot.GameId, lot.IsGT);
+            var gameAddress = _GetGameAddress(lot.GameId, lot.IsXG);
             Int32 price = (Int32)lot.Price;
-            if (lot.IsGT)
+            if (lot.IsXG)
             {
-                ProgramHelper.Program<GameToken>(GTAddress).Spend(Info.ProgramAddress(), price);
-                ProgramHelper.Program<GameToken>(GTAddress).Refund(Info.ProgramAddress(), lot.Owner, price - price/21);
-                ProgramHelper.Program<TradableGTAsset>(gameAddress).TransferGTAsset(lot.AssetId, Info.Sender());
+                ProgramHelper.Program<XGold>(XGAddress).Spend(Info.ProgramAddress(), price);
+                ProgramHelper.Program<XGold>(XGAddress).Refund(Info.ProgramAddress(), lot.Owner, price - price/21);
+                ProgramHelper.Program<TradableXGAsset>(gameAddress).TransferXGAsset(lot.AssetId, Info.Sender());
             }
             else
             {
                 Actions.Transfer(Info.ProgramAddress(), price);
                 Actions.TransferFromProgram(lot.Owner, price - price/21);
-                ProgramHelper.Program<TradableXCAsset>(gameAddress).TransferXCAsset(lot.AssetId, Info.Sender());
+                ProgramHelper.Program<TradableXPAsset>(gameAddress).TransferXPAsset(lot.AssetId, Info.Sender());
             }
 
             // Alter the lot state and write it to the storage
@@ -392,7 +392,7 @@ namespace Expload {
         /// <param name="lotId"> Id of the lot </param>
         /// <remarks>
         /// If the lot is closed, it is not to be shown
-        /// in Expload Auction UI (except for lot creator's lot history).
+        /// in Expload Auction UI (eXPept for lot creator's lot history).
         /// The lot is permanently closed and archived, it can't be reopened.
         /// </remarks>
         public void CloseLot(long lotId){
@@ -412,14 +412,14 @@ namespace Expload {
             _lots[lotId] = lot;
 
             // Return the asset to the owner
-            var gameAddress = _GetGameAddress(lot.GameId, lot.IsGT);
-            if (lot.IsGT)
+            var gameAddress = _GetGameAddress(lot.GameId, lot.IsXG);
+            if (lot.IsXG)
             {
-                ProgramHelper.Program<TradableGTAsset>(gameAddress).TransferGTAsset(lot.AssetId, lot.Owner);
+                ProgramHelper.Program<TradableXGAsset>(gameAddress).TransferXGAsset(lot.AssetId, lot.Owner);
             }
             else
             {
-                ProgramHelper.Program<TradableXCAsset>(gameAddress).TransferXCAsset(lot.AssetId, lot.Owner);
+                ProgramHelper.Program<TradableXPAsset>(gameAddress).TransferXPAsset(lot.AssetId, lot.Owner);
             }
 
             // Emit an event
@@ -433,13 +433,13 @@ namespace Expload {
         */
         
         public Lot(
-            long id, Bytes owner, long gameId, bool isGT,
+            long id, Bytes owner, long gameId, bool isXG,
             long assetId, Bytes classId, long price, long creationTime
         ){
             Id = id;
             Owner = owner;
             GameId = gameId;
-            IsGT = isGT;
+            IsXG = isXG;
             AssetId = assetId;
             AssetClassId = classId;
             Price = price;
@@ -457,8 +457,8 @@ namespace Expload {
         // Id of the game the asset is from
         public long GameId { get; set; } = 0;
         
-        // Type of the asset: true if GT, false if XC
-        public bool IsGT { get; set; } = false;
+        // Type of the asset: true if XG, false if XP
+        public bool IsXG { get; set; } = false;
         
         // Blockchain id of the asset sold (see TradableAsset.cs)
         public long AssetId { get; set; } = 0;

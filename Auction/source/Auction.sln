@@ -15,13 +15,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetUpAuction", "..\test\pca
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetUpTradableAsset", "..\test\pcalls\SetUpTradableAsset\SetUpTradableAsset.csproj", "{50D65F2C-5D4B-400B-94B2-F9E847B514AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradableXCAsset", "..\..\TradableAsset\source\XC\TradableXCAsset.csproj", "{20608639-383A-4088-9621-AE6A5ADEB5A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradableXPAsset", "..\..\TradableAsset\source\XP\TradableXPAsset.csproj", "{20608639-383A-4088-9621-AE6A5ADEB5A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradableGTAsset", "..\..\TradableAsset\source\GT\TradableGTAsset.csproj", "{FDC9BABE-4633-46B3-94AB-5FA4C6089AA2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradableXGAsset", "..\..\TradableAsset\source\XG\TradableXGAsset.csproj", "{FDC9BABE-4633-46B3-94AB-5FA4C6089AA2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetUpTradableGTAsset", "..\test\pcalls\SetUpTradableGTAsset\SetUpTradableGTAsset.csproj", "{4C23C9F0-AB5D-4DF4-91B4-A05ACBDEF735}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetUpTradableXGAsset", "..\test\pcalls\SetUpTradableXGAsset\SetUpTradableXGAsset.csproj", "{4C23C9F0-AB5D-4DF4-91B4-A05ACBDEF735}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetUpGT", "..\test\pcalls\SetUpGT\SetUpGT.csproj", "{3C3D3B4F-1CC3-4248-AD04-60913E2A4285}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetUpXG", "..\test\pcalls\SetUpXG\SetUpXG.csproj", "{3C3D3B4F-1CC3-4248-AD04-60913E2A4285}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

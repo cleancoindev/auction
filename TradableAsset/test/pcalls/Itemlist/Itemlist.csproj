@@ -10,7 +10,7 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Expload.Pravda" Version="0.22.1" />
-        <ProjectReference Include="../../../source/GT/TradableGTAsset.csproj" />
+        <ProjectReference Include="../../../source/XG/TradableXGAsset.csproj" />
     </ItemGroup>
     <Target Name="_ResolvePublishNuGetPackagePdbs" AfterTargets="RunResolvePublishAssemblies">
         <ItemGroup>

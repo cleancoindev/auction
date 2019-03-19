@@ -11,9 +11,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Expload.Pravda" Version="0.22.1" />
-    <PackageReference Include="Expload.GameToken" Version="0.26.3" />
-    <ProjectReference Include="../../TradableAsset/source/GT/TradableGTAsset.csproj" />
-    <ProjectReference Include="../../TradableAsset/source/XC/TradableXCAsset.csproj" />
+    <PackageReference Include="Expload.XGold" Version="0.27.0" />
+    <ProjectReference Include="../../TradableAsset/source/XG/TradableXGAsset.csproj" />
+    <ProjectReference Include="../../TradableAsset/source/XP/TradableXPAsset.csproj" />
   </ItemGroup>
   <Target Name="_ResolvePublishNuGetPackagePdbs" AfterTargets="RunResolvePublishAssemblies">
     <ItemGroup>
@@ -22,7 +22,7 @@
   </Target>
   <Target Name="BuildPravdaAfterPublish" AfterTargets="Publish" Condition="'$(Configuration)' == 'Debug'">
     <Exec Command="pravda compile dotnet -i &quot;bin/Debug/netstandard2.0/publish&quot; -o bin/$(PackageName).pravda --main-class $(PackageId)" />
-    <Exec Command="pravda compile dotnet -i &quot;bin/Debug/netstandard2.0/publish&quot; -o bin/GameToken.pravda --main-class Expload.GameToken" />
+    <Exec Command="pravda compile dotnet -i &quot;bin/Debug/netstandard2.0/publish&quot; -o bin/XGold.pravda --main-class Expload.XGold" />
   </Target>
   <Target Name="DeployPravdaAfterPublish" AfterTargets="Publish" Condition="'$(Configuration)' == 'Deploy'">
     <Exec Command="pravda compile dotnet -i &quot;bin/Deploy/netstandard2.0/publish&quot; -o bin/$(PackageName).pravda --main-class $(PackageId)" />
