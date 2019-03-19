@@ -6,9 +6,9 @@ import signal
 import json
 import time
 from datetime import datetime
-TA_path = "../../TradableAsset/source/XC/bin/TradableXCAsset.pravda"
-TA_GT_path = "../../TradableAsset/source/GT/bin/TradableGTAsset.pravda"
-GT_path = "../source/bin/GameToken.pravda"
+TA_path = "../../TradableAsset/source/XP/bin/TradableXPAsset.pravda"
+TA_XG_path = "../../TradableAsset/source/XG/bin/TradableXGAsset.pravda"
+XG_path = "../source/bin/XGold.pravda"
 auction_path = "../source/bin/Auction.pravda"
 pcall_file_path = "pcalls/{0}/bin/{0}.pravda"
 
@@ -20,8 +20,8 @@ class TestTradableAsset(unittest.TestCase):
     # Result of setUp work
     res = None
 
-    test_calls = ['SetUpTradableAsset', 'SetUpTradableGTAsset',
-                  'SetUpAuction', 'SetUpGT', 'NewLot', 'Buy', 'CloseLot']
+    test_calls = ['SetUpTradableAsset', 'SetUpTradableXGAsset',
+                  'SetUpAuction', 'SetUpXG', 'NewLot', 'Buy', 'CloseLot']
 
     # Set up Pravda once before running the TestCase
     @classmethod
@@ -46,19 +46,19 @@ class TestTradableAsset(unittest.TestCase):
         # Deploy main smart-contracts to Pravda
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
                             "-i", TA_path, "--program-wallet", "wallets/TradableAsset-wallet.json"], timeout=40)
-        print("TradableXCAsset.pravda deployed on fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b")
+        print("TradableXPAsset.pravda deployed on fb75559bb4bb172ca0795e50b390109a50ce794466a14c24c73acdb40604065b")
 
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
-                            "-i", TA_GT_path, "--program-wallet", "wallets/TradableGTAsset-wallet.json"], timeout=40)
-        print("TradableGTAsset.pravda deployed on 17e22f66979eca19a8b060a8bb759bfb3dbbce785a039e9e1ed01a54cc92161c")
+                            "-i", TA_XG_path, "--program-wallet", "wallets/TradableXGAsset-wallet.json"], timeout=40)
+        print("TradableXGAsset.pravda deployed on 17e22f66979eca19a8b060a8bb759bfb3dbbce785a039e9e1ed01a54cc92161c")
 
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
                             "-i", auction_path, "--program-wallet", "wallets/auction-wallet.json"], timeout=40)
         print("Auction.pravda deployed on e04919086e3fee6f1d8f6247a2c0b38f874ab40a50ad2c62775fb09baa05e342")
 
         res = check_output(["pravda", "broadcast", "deploy", "-w", "wallets/payer-wallet.json", "-l", "9000000",
-                            "-i", GT_path, "--program-wallet", "wallets/GT-wallet.json"], timeout=40)
-        print("GameToken.pravda deployed on 64a818e62d78f7b2642b0535db69c9b7e7aff0f12562110bdeeea082dc217f29")
+                            "-i", XG_path, "--program-wallet", "wallets/XG-wallet.json"], timeout=40)
+        print("XGold.pravda deployed on 64a818e62d78f7b2642b0535db69c9b7e7aff0f12562110bdeeea082dc217f29")
 
     # Set up particular contract test
     def runContract(self, name, wallet, jsonifyOutput=True, silent=True):
@@ -102,19 +102,19 @@ class TestTradableAsset(unittest.TestCase):
     def test_auction_cycle(self):
         # Set up TradableAsset
         self.runContract("SetUpTradableAsset", "TradableAsset-wallet")
-        print("TradableXCAsset was set up")
+        print("TradableXPAsset was set up")
 
-        self.runContract("SetUpTradableGTAsset", "TradableGTAsset-wallet")
-        print("TradableGTAsset was set up")
+        self.runContract("SetUpTradableXGAsset", "TradableXGAsset-wallet")
+        print("TradableXGAsset was set up")
 
 
         # Set up auction
         self.runContract("SetUpAuction", "auction-wallet")
         print("Auction was set up")
 
-        # Set up GameToken
-        self.runContract("SetUpGT", "GT-wallet")
-        print("GameToken was set up")
+        # Set up XGold
+        self.runContract("SetUpXG", "XG-wallet")
+        print("XGold was set up")
 
         # Create 3 new lots
         self.runContract("NewLot", "test-wallet")

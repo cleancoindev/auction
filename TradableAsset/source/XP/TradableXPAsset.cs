@@ -5,7 +5,7 @@ namespace Expload {
     using System;
 
     [Program]
-    public class TradableGTAsset : ITradableGTAsset
+    public class TradableXPAsset : ITradableXPAsset
     {
         /*
         This program defines a common standard
@@ -59,120 +59,120 @@ namespace Expload {
 
         ---------------------------------
 
-        This class represents a GT asset (can only be bought and sold for GameToken)
+        This class represents a XP asset (can only be bought and sold for XGold)
         
         */
 
         public static void Main(){ }
 
-        // Last id given to a GT asset (id=0 is invalid)
-        private long _lastGTId = 0;
+        // Last id given to an XP asset (id=0 is invalid)
+        private long _lastXPId = 0;
 
         /*
         Main asset storage
         */
-        
-        // Mapping storing GT assets
+
+        // Mapping storing XP assets
         // This mapping's key is asset's blockchain id
-        private Mapping<long, Asset> _GTAssets =
+        private Mapping<long, Asset> _XPAssets =
             new Mapping<long, Asset>();
 
-        private Asset GetGTAsset(long id){
-            return _GTAssets.GetOrDefault(id, new Asset());
+        private Asset GetXPAsset(long id){
+            return _XPAssets[id];
         }
 
         /// <summary>
-        /// Get GT asset data
+        /// Get XP asset data
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
         /// Asset object
         /// </returns>
-        public Asset GetGTAssetData(long id){
-            return GetGTAsset(id);
+        public Asset GetXPAssetData(long id){
+            return GetXPAsset(id);
         }
 
         /// <summary>
-        /// Get GT asset owner
+        /// Get XP asset owner
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
         /// Owner address
         /// </returns>
-        public Bytes GetGTAssetOwner(long id){
-            return GetGTAsset(id).Owner;
+        public Bytes GetXPAssetOwner(long id){
+            return GetXPAsset(id).Owner;
         }
 
         /// <summary>
-        /// Get GT asset class id
+        /// Get XP asset class id
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
         /// Class id
         /// </returns>
-        public Bytes GetGTAssetClassId(long id){
-            return GetGTAsset(id).ItemClassId;
+        public Bytes GetXPAssetClassId(long id){
+            return GetXPAsset(id).ItemClassId;
         }
 
         /*
         Users' asset storage
         */
 
-        // Mapping storing GT assets ids belonging to a user
+        // Mapping storing XP assets ids belonging to a user
         // Key is the concatenation of user address and asset number in his storage
-        private Mapping<string, long> _GTUsersAssetIds =
+        private Mapping<string, long> _XPUsersAssetIds =
             new Mapping<string, long>();
 
-        // Mapping storing GT user's asset counter
-        private Mapping<Bytes, long> _GTUsersAssetCount =
+        // Mapping storing XP user's asset counter
+        private Mapping<Bytes, long> _XPUsersAssetCount =
             new Mapping<Bytes, long>();
 
         /// <summary>
-        /// Get amount of GT assets belonging to a user
+        /// Get amount of XP assets belonging to a user
         /// </summary>
         /// <param name="address"> User address </param>
         /// <returns>
         /// Asset amount
         /// </returns>
-        public long GetUsersGTAssetCount(Bytes address){
-            return _GTUsersAssetCount.GetOrDefault(address, 0);
+        public long GetUsersXPAssetCount(Bytes address){
+            return _XPUsersAssetCount[address];
         }
 
-        // Get one of user's GT assets
-        private long _getUsersGTAssetId(Bytes address, long number){
+        // Get one of user's XP assets
+        private long _getUsersXPAssetId(Bytes address, long number){
             // We can't get more assets than user owns
-            if(number >= _GTUsersAssetCount.GetOrDefault(address, 0)){
+            if(number >= _XPUsersAssetCount[address]){
                 Error.Throw("This asset doesn't exist!");
             }
             var key = GetUserAssetKey(address, number);
-            return _GTUsersAssetIds.GetOrDefault(key, 0);
+            return _XPUsersAssetIds[key];
         }
 
         /// <summary>
-        /// Get asset id of a particular GT asset belonging to a user
+        /// Get asset id of a particular XP asset belonging to a user
         /// </summary>
         /// <param name="address"> User address </param>
         /// <param name="number"> Asset serial number </param>
         /// <returns>
         /// Asset id
         /// </returns>
-        public long GetUsersGTAssetId(Bytes address, long number){
-            return _getUsersGTAssetId(address, number);
+        public long GetUsersXPAssetId(Bytes address, long number){
+            return _getUsersXPAssetId(address, number);
         }
 
         /// <summary>
-        /// Get list of GT assets
+        /// Get list of XP assets
         /// belonging to a particular user
         /// </summary>
         /// <param name="address"> User address </param>
         /// <returns>
         /// List of asset objects
         /// </returns>
-        public Asset[] GetUsersAllGTAssetsData(Bytes address){
-            int amount = (int)_GTUsersAssetCount.GetOrDefault(address, 0);
+        public Asset[] GetUsersAllXPAssetsData(Bytes address){
+            int amount = (int)_XPUsersAssetCount[address];
             var result = new Asset[amount];
             for(int num = 0; num < amount; num++){
-                result[num] = GetGTAsset(_getUsersGTAssetId(address, num));
+                result[num] = GetXPAsset(_getUsersXPAssetId(address, num));
             }
             return result;
         }
@@ -201,10 +201,9 @@ namespace Expload {
             }
         }
 
-
-        // // Checks if caller is owner of the specified GT asset
-        private void AssertIsGTAssetOwner(long assetId){
-            if (GetGTAsset(assetId).Owner != Info.Sender()){
+        // // Checks if caller is owner of the specified XP asset
+        private void AssertIsXPAssetOwner(long assetId){
+            if (GetXPAsset(assetId).Owner != Info.Sender()){
                 Error.Throw("Only owner of the asset can do that.");
             }
         }
@@ -244,7 +243,7 @@ namespace Expload {
         */
 
         /// <summary>
-        /// Emit a GT asset
+        /// Emit a XP asset
         /// </summary>
         /// <param name="owner"> Desired asset owner </param>
         /// <param name="classId"> Asset class id </param>
@@ -252,24 +251,24 @@ namespace Expload {
         /// <returns>
         /// Emitted asset id
         /// </returns>
-        public long EmitGTAsset(Bytes owner, Bytes classId, Bytes instanceId){
+        public long EmitXPAsset(Bytes owner, Bytes classId, Bytes instanceId){
             // Only the game server (or owner) can emit assets
             AssertIsGameOwner();
             // Getting item's blockchain id
-            var id = ++_lastGTId;
+            var id = ++_lastXPId;
             // Parsing the asset
             var asset = new Asset(id, owner, classId, instanceId);
 
             // Putting the asset into storage
-            _GTAssets[id] = asset;
+            _XPAssets[id] = asset;
             // Putting asset into user's storage
-            var assetCount = _GTUsersAssetCount.GetOrDefault(owner, 0);
-            _GTUsersAssetIds[GetUserAssetKey(owner, assetCount)] = id;
-            _GTUsersAssetCount[owner] = assetCount + 1;
+            var assetCount = _XPUsersAssetCount.GetOrDefault(owner, 0);
+            _XPUsersAssetIds[GetUserAssetKey(owner, assetCount)] = id;
+            _XPUsersAssetCount[owner] = assetCount + 1;
             _SerialNumbers[id] = assetCount;
 
             // Log an event
-            Log.Event("EmitGT", asset);
+            Log.Event("EmitXP", asset);
 
             return id;
         }
@@ -279,46 +278,45 @@ namespace Expload {
             new Mapping<long, long>();
 
         /// <summary>
-        /// Transfer GT asset to a new owner
+        /// Transfer XP asset to a new owner
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <param name="to"> New owner address </param>
-        public void TransferGTAsset(long id, Bytes to){
+        public void TransferXPAsset(long id, Bytes to){
             // Only the auction can transfer assets
             AssertIsAuction();
             // Passing the ownership
-            var asset = GetGTAsset(id);
+            var asset = GetXPAsset(id);
             var oldOwner  = asset.Owner;
 
             // Check if this asset actually exists
             if(oldOwner == Bytes.VOID_ADDRESS){
                 Error.Throw("This asset doesn't exist.");
             }
-
+            
             asset.Owner = to;
-            _GTAssets[id] = asset;
+            _XPAssets[id] = asset;
 
             // Making changes to users assets storage
 
             // Delete from old owner's storage
-            var oldOwnerAssetCount = _GTUsersAssetCount.GetOrDefault(oldOwner, 0);
+            var oldOwnerAssetCount = _XPUsersAssetCount.GetOrDefault(oldOwner, 0);
             var oldOwnerSerialNumber = _SerialNumbers.GetOrDefault(id, 0);
-            var lastAsset = _GTUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, oldOwnerAssetCount-1), 0);
-            _GTUsersAssetIds[GetUserAssetKey(oldOwner, oldOwnerSerialNumber)] = lastAsset;
-            _GTUsersAssetIds[GetUserAssetKey(oldOwner,oldOwnerAssetCount-1)] = 0;
-            _GTUsersAssetCount[oldOwner] = oldOwnerAssetCount - 1;
+            var lastAsset = _XPUsersAssetIds[GetUserAssetKey(oldOwner, oldOwnerAssetCount-1)];
+            _XPUsersAssetIds[GetUserAssetKey(oldOwner, oldOwnerSerialNumber)] = lastAsset;
+            _XPUsersAssetIds[GetUserAssetKey(oldOwner,oldOwnerAssetCount-1)] = 0;
+            _XPUsersAssetCount[oldOwner] = oldOwnerAssetCount - 1;
 
             // Add to new owner's storage
-            var newSerialNumber = _GTUsersAssetCount.GetOrDefault(to, 0);
-            _GTUsersAssetIds[GetUserAssetKey(to, newSerialNumber)] = id;
-            _GTUsersAssetCount[to] = newSerialNumber + 1;
+            var newSerialNumber = _XPUsersAssetCount.GetOrDefault(to, 0);
+            _XPUsersAssetIds[GetUserAssetKey(to, newSerialNumber)] = id;
+            _XPUsersAssetCount[to] = newSerialNumber + 1;
 
-            // Update assets serial numbers
-            _SerialNumbers[lastAsset] = oldOwnerSerialNumber;
+            // Update asset serial number
             _SerialNumbers[id] = newSerialNumber;
 
             // Log an event
-            Log.Event("TransferGT", asset);
+            Log.Event("TransferXP", asset);
         }
     }
 }

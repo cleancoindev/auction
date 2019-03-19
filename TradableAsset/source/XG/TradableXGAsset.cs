@@ -5,7 +5,7 @@ namespace Expload {
     using System;
 
     [Program]
-    public class TradableXCAsset : ITradableXCAsset
+    public class TradableXGAsset : ITradableXGAsset
     {
         /*
         This program defines a common standard
@@ -40,7 +40,7 @@ namespace Expload {
         in-game item instance is behind the asset stored in the contract
 
         E.g. two identical in-game swords but with different upgrades
-        or belonging to different players have diferent instance id
+        or belonging to different players have different instance id
 
         ---------------------------------
         
@@ -59,120 +59,120 @@ namespace Expload {
 
         ---------------------------------
 
-        This class represents a XC asset (can only be bought and sold for GameToken)
+        This class represents a XG asset (can only be bought and sold for XGold)
         
         */
 
         public static void Main(){ }
 
-        // Last id given to an XC asset (id=0 is invalid)
-        private long _lastXCId = 0;
+        // Last id given to a XG asset (id=0 is invalid)
+        private long _lastXGId = 0;
 
         /*
         Main asset storage
         */
-
-        // Mapping storing XC assets
+        
+        // Mapping storing XG assets
         // This mapping's key is asset's blockchain id
-        private Mapping<long, Asset> _XCAssets =
+        private Mapping<long, Asset> _XGAssets =
             new Mapping<long, Asset>();
 
-        private Asset GetXCAsset(long id){
-            return _XCAssets.GetOrDefault(id, new Asset());
+        private Asset GetXGAsset(long id){
+            return _XGAssets[id];
         }
 
         /// <summary>
-        /// Get XC asset data
+        /// Get XG asset data
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
         /// Asset object
         /// </returns>
-        public Asset GetXCAssetData(long id){
-            return GetXCAsset(id);
+        public Asset GetXGAssetData(long id){
+            return GetXGAsset(id);
         }
 
         /// <summary>
-        /// Get XC asset owner
+        /// Get XG asset owner
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
         /// Owner address
         /// </returns>
-        public Bytes GetXCAssetOwner(long id){
-            return GetXCAsset(id).Owner;
+        public Bytes GetXGAssetOwner(long id){
+            return GetXGAsset(id).Owner;
         }
 
         /// <summary>
-        /// Get XC asset class id
+        /// Get XG asset class id
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <returns>
         /// Class id
         /// </returns>
-        public Bytes GetXCAssetClassId(long id){
-            return GetXCAsset(id).ItemClassId;
+        public Bytes GetXGAssetClassId(long id){
+            return GetXGAsset(id).ItemClassId;
         }
 
         /*
         Users' asset storage
         */
 
-        // Mapping storing XC assets ids belonging to a user
+        // Mapping storing XG assets ids belonging to a user
         // Key is the concatenation of user address and asset number in his storage
-        private Mapping<string, long> _XCUsersAssetIds =
+        private Mapping<string, long> _XGUsersAssetIds =
             new Mapping<string, long>();
 
-        // Mapping storing XC user's asset counter
-        private Mapping<Bytes, long> _XCUsersAssetCount =
+        // Mapping storing XG user's asset counter
+        private Mapping<Bytes, long> _XGUsersAssetCount =
             new Mapping<Bytes, long>();
 
         /// <summary>
-        /// Get amount of XC assets belonging to a user
+        /// Get amount of XG assets belonging to a user
         /// </summary>
         /// <param name="address"> User address </param>
         /// <returns>
         /// Asset amount
         /// </returns>
-        public long GetUsersXCAssetCount(Bytes address){
-            return _XCUsersAssetCount.GetOrDefault(address, 0);
+        public long GetUsersXGAssetCount(Bytes address){
+            return _XGUsersAssetCount[address];
         }
 
-        // Get one of user's XC assets
-        private long _getUsersXCAssetId(Bytes address, long number){
+        // Get one of user's XG assets
+        private long _getUsersXGAssetId(Bytes address, long number){
             // We can't get more assets than user owns
-            if(number >= _XCUsersAssetCount.GetOrDefault(address, 0)){
+            if(number >= _XGUsersAssetCount[address]){
                 Error.Throw("This asset doesn't exist!");
             }
             var key = GetUserAssetKey(address, number);
-            return _XCUsersAssetIds.GetOrDefault(key, 0);
+            return _XGUsersAssetIds[key];
         }
 
         /// <summary>
-        /// Get asset id of a particular XC asset belonging to a user
+        /// Get asset id of a particular XG asset belonging to a user
         /// </summary>
         /// <param name="address"> User address </param>
         /// <param name="number"> Asset serial number </param>
         /// <returns>
         /// Asset id
         /// </returns>
-        public long GetUsersXCAssetId(Bytes address, long number){
-            return _getUsersXCAssetId(address, number);
+        public long GetUsersXGAssetId(Bytes address, long number){
+            return _getUsersXGAssetId(address, number);
         }
 
         /// <summary>
-        /// Get list of XC assets
+        /// Get list of XG assets
         /// belonging to a particular user
         /// </summary>
         /// <param name="address"> User address </param>
         /// <returns>
         /// List of asset objects
         /// </returns>
-        public Asset[] GetUsersAllXCAssetsData(Bytes address){
-            int amount = (int)_XCUsersAssetCount.GetOrDefault(address, 0);
+        public Asset[] GetUsersAllXGAssetsData(Bytes address){
+            int amount = (int)_XGUsersAssetCount[address];
             var result = new Asset[amount];
             for(int num = 0; num < amount; num++){
-                result[num] = GetXCAsset(_getUsersXCAssetId(address, num));
+                result[num] = GetXGAsset(_getUsersXGAssetId(address, num));
             }
             return result;
         }
@@ -201,9 +201,10 @@ namespace Expload {
             }
         }
 
-        // // Checks if caller is owner of the specified XC asset
-        private void AssertIsXCAssetOwner(long assetId){
-            if (GetXCAsset(assetId).Owner != Info.Sender()){
+
+        // // Checks if caller is owner of the specified XG asset
+        private void AssertIsXGAssetOwner(long assetId){
+            if (GetXGAsset(assetId).Owner != Info.Sender()){
                 Error.Throw("Only owner of the asset can do that.");
             }
         }
@@ -243,7 +244,7 @@ namespace Expload {
         */
 
         /// <summary>
-        /// Emit a XC asset
+        /// Emit a XG asset
         /// </summary>
         /// <param name="owner"> Desired asset owner </param>
         /// <param name="classId"> Asset class id </param>
@@ -251,24 +252,24 @@ namespace Expload {
         /// <returns>
         /// Emitted asset id
         /// </returns>
-        public long EmitXCAsset(Bytes owner, Bytes classId, Bytes instanceId){
+        public long EmitXGAsset(Bytes owner, Bytes classId, Bytes instanceId){
             // Only the game server (or owner) can emit assets
             AssertIsGameOwner();
             // Getting item's blockchain id
-            var id = ++_lastXCId;
+            var id = ++_lastXGId;
             // Parsing the asset
             var asset = new Asset(id, owner, classId, instanceId);
 
             // Putting the asset into storage
-            _XCAssets[id] = asset;
+            _XGAssets[id] = asset;
             // Putting asset into user's storage
-            var assetCount = _XCUsersAssetCount.GetOrDefault(owner, 0);
-            _XCUsersAssetIds[GetUserAssetKey(owner, assetCount)] = id;
-            _XCUsersAssetCount[owner] = assetCount + 1;
+            var assetCount = _XGUsersAssetCount.GetOrDefault(owner, 0);
+            _XGUsersAssetIds[GetUserAssetKey(owner, assetCount)] = id;
+            _XGUsersAssetCount[owner] = assetCount + 1;
             _SerialNumbers[id] = assetCount;
 
             // Log an event
-            Log.Event("EmitXC", asset);
+            Log.Event("EmitXG", asset);
 
             return id;
         }
@@ -278,45 +279,46 @@ namespace Expload {
             new Mapping<long, long>();
 
         /// <summary>
-        /// Transfer XC asset to a new owner
+        /// Transfer XG asset to a new owner
         /// </summary>
         /// <param name="id"> Asset id </param>
         /// <param name="to"> New owner address </param>
-        public void TransferXCAsset(long id, Bytes to){
+        public void TransferXGAsset(long id, Bytes to){
             // Only the auction can transfer assets
             AssertIsAuction();
             // Passing the ownership
-            var asset = GetXCAsset(id);
+            var asset = GetXGAsset(id);
             var oldOwner  = asset.Owner;
 
             // Check if this asset actually exists
             if(oldOwner == Bytes.VOID_ADDRESS){
                 Error.Throw("This asset doesn't exist.");
             }
-            
+
             asset.Owner = to;
-            _XCAssets[id] = asset;
+            _XGAssets[id] = asset;
 
             // Making changes to users assets storage
 
             // Delete from old owner's storage
-            var oldOwnerAssetCount = _XCUsersAssetCount.GetOrDefault(oldOwner, 0);
+            var oldOwnerAssetCount = _XGUsersAssetCount.GetOrDefault(oldOwner, 0);
             var oldOwnerSerialNumber = _SerialNumbers.GetOrDefault(id, 0);
-            var lastAsset = _XCUsersAssetIds.GetOrDefault(GetUserAssetKey(oldOwner, oldOwnerAssetCount-1), 0);
-            _XCUsersAssetIds[GetUserAssetKey(oldOwner, oldOwnerSerialNumber)] = lastAsset;
-            _XCUsersAssetIds[GetUserAssetKey(oldOwner,oldOwnerAssetCount-1)] = 0;
-            _XCUsersAssetCount[oldOwner] = oldOwnerAssetCount - 1;
+            var lastAsset = _XGUsersAssetIds[GetUserAssetKey(oldOwner, oldOwnerAssetCount-1)];
+            _XGUsersAssetIds[GetUserAssetKey(oldOwner, oldOwnerSerialNumber)] = lastAsset;
+            _XGUsersAssetIds[GetUserAssetKey(oldOwner,oldOwnerAssetCount-1)] = 0;
+            _XGUsersAssetCount[oldOwner] = oldOwnerAssetCount - 1;
 
             // Add to new owner's storage
-            var newSerialNumber = _XCUsersAssetCount.GetOrDefault(to, 0);
-            _XCUsersAssetIds[GetUserAssetKey(to, newSerialNumber)] = id;
-            _XCUsersAssetCount[to] = newSerialNumber + 1;
+            var newSerialNumber = _XGUsersAssetCount.GetOrDefault(to, 0);
+            _XGUsersAssetIds[GetUserAssetKey(to, newSerialNumber)] = id;
+            _XGUsersAssetCount[to] = newSerialNumber + 1;
 
-            // Update asset serial number
+            // Update assets serial numbers
+            _SerialNumbers[lastAsset] = oldOwnerSerialNumber;
             _SerialNumbers[id] = newSerialNumber;
 
             // Log an event
-            Log.Event("TransferXC", asset);
+            Log.Event("TransferXG", asset);
         }
     }
 }

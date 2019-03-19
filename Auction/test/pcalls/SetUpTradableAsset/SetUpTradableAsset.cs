@@ -17,29 +17,29 @@ namespace Expload {
             // Emit the asset
             var classId1 = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
             var instanceId1 = new Bytes("0000000000000000000000000000000000000000000000000000000000000001");
-            var assetId1 = ProgramHelper.Program<TradableXCAsset>(tradableAssetAddress).EmitXCAsset(
+            var assetId1 = ProgramHelper.Program<TradableXPAsset>(tradableAssetAddress).EmitXPAsset(
                 userAddress, classId1, instanceId1
             );
 
             // Check if asset was emitted
-            if(userAddress != ProgramHelper.Program<TradableXCAsset>(tradableAssetAddress).GetXCAssetOwner(assetId1)){
+            if(userAddress != ProgramHelper.Program<TradableXPAsset>(tradableAssetAddress).GetXPAssetOwner(assetId1)){
                 Error.Throw("Asset 1 was not emitted.");
             }
 
             // Emit the second asset
             var classId2 = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
             var instanceId2 = new Bytes("0000000000000000000000000000000000000000000000000000000000000002");
-            var assetId2 = ProgramHelper.Program<TradableXCAsset>(tradableAssetAddress).EmitXCAsset(
+            var assetId2 = ProgramHelper.Program<TradableXPAsset>(tradableAssetAddress).EmitXPAsset(
                 userAddress, classId2, instanceId2
             );
 
             // Check if asset was emitted
-            if(userAddress != ProgramHelper.Program<TradableXCAsset>(tradableAssetAddress).GetXCAssetOwner(assetId2)){
+            if(userAddress != ProgramHelper.Program<TradableXPAsset>(tradableAssetAddress).GetXPAssetOwner(assetId2)){
                 Error.Throw("Asset 2 was not emitted.");
             }
 
             // Set auction address
-            ProgramHelper.Program<TradableXCAsset>(tradableAssetAddress).SetAuction(auctionAddress);
+            ProgramHelper.Program<TradableXPAsset>(tradableAssetAddress).SetAuction(auctionAddress);
         }
     }
 }

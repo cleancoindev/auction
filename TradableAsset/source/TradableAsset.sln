@@ -11,9 +11,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Itemlist", "..\test\pcalls\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsersItems", "..\test\pcalls\UsersItems\UsersItems.csproj", "{8A4923BA-EB65-4C7E-92E1-A281B7E0AF10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradableGTAsset", "GT\TradableGTAsset.csproj", "{63FF2CAB-A321-46E5-A093-5CA31E99B88E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradableXGAsset", "XG\TradableXGAsset.csproj", "{63FF2CAB-A321-46E5-A093-5CA31E99B88E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradableXCAsset", "XC\TradableXCAsset.csproj", "{C6013944-D37F-4BFD-A8F9-8A7441F4C519}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradableXPAsset", "XP\TradableXPAsset.csproj", "{C6013944-D37F-4BFD-A8F9-8A7441F4C519}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradableAsset", "TradableAsset.csproj", "{E6748976-2CE7-429A-85E9-2A96D412EA63}"
 EndProject

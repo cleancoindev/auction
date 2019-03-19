@@ -4,8 +4,8 @@
 
 TradableAsset is a token standard for storing and operating with assets on Pravda platform.  
 Asset is a non-fungible token. The implementation can suit almost any blockchain gaming experience, and minor changes are required for integrating TradableAsset.  
-There are 2 types of assets - GameToken Assets (or GT Assets for short), which can only be bought and sold for GameToken, and XCoin Assets (or XC Assets for short) which can only be sold for XCoin.  
-The standard is provided by [ITradableAsset](ITradableAsset.cs) interface. Sample implementation is also available for both [GameToken Asset](GT/TradableGTAsset.cs) and [XCoin Asset](XC/TradableXCAsset.cs).
+There are 2 types of assets - XGold Assets (or XG Assets for short), which can only be bought and sold for XGold, and XPoin Assets (or XP Assets for short) which can only be sold for XPoin.  
+The standard is provided by [ITradableAsset](ITradableAsset.cs) interface. Sample implementation is also available for both [XGold Asset](XG/TradableXGAsset.cs) and [XPoin Asset](XP/TradableXPAsset.cs).
 
 ## Program Structure
 
@@ -54,7 +54,7 @@ The storage is also split into two logical parts:
 - Main storage, where asset data is stored. Each asset has its unique blockchain ID, which is given when an asset is emitted. For example, two completely identical in-game swords have different blockchain IDs. `BlockchainID = 0` is invalid.
   - You can get any asset data by its blockchain ID by calling `GetAssetData` method, which returns JSON.
   - You can also get asset `Owner` or `ClassId` by calling `GetAssetOwner` or `GetAssetClassId` method.
-  - Amount of assets emitted is stored in `lastGTId` and `lastXCId` variables (depending on implementation).
+  - Amount of assets emitted is stored in `lastXGId` and `lastXPId` variables (depending on implementation).
 - User asset storage, which allows you to get the assets belonging to a particular user.
   - You can get the amount of assets owned by a user by calling `GetUsersAssetCount`.
   - You can get blockchain ID of a particular asset belonging to a user by calling `GetUsersAssetId`.
@@ -62,8 +62,8 @@ The storage is also split into two logical parts:
 
 ### Interacting with the storage
 
-- `EmitAsset` - emit an asset. Can only be called by TradableAsset contract owner. Logs `EmitGT` \ `EmitXC` event (depending on implementation).
-- `TransferAsset` - transfer an asset to a different wallet. Can only be called from auction contract, e.g. if a user puts his asset up for sale, the asset is transfered to auction's wallet. Emits `TransferGT` or `TransferXC` event (depending on implementation).
+- `EmitAsset` - emit an asset. Can only be called by TradableAsset contract owner. Logs `EmitXG` \ `EmitXP` event (depending on implementation).
+- `TransferAsset` - transfer an asset to a different wallet. Can only be called from auction contract, e.g. if a user puts his asset up for sale, the asset is transfered to auction's wallet. Emits `TransferXG` or `TransferXP` event (depending on implementation).
 
 ### FAQ
 

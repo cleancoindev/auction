@@ -18,7 +18,7 @@ namespace Expload {
             ProgramHelper.Program<Auction>(auctionAddress).CloseLot(2);
 
             // Check if the asset went back
-            if(userAddress != ProgramHelper.Program<TradableXCAsset>(tradableAssetAddress).GetXCAssetOwner(2)){
+            if(userAddress != ProgramHelper.Program<TradableXPAsset>(tradableAssetAddress).GetXPAssetOwner(2)){
                 Error.Throw("Asset was not returned.");
             }
         }
