@@ -135,13 +135,13 @@ namespace Expload {
         /// Asset amount
         /// </returns>
         public long GetUsersXGAssetCount(Bytes address){
-            return _XGUsersAssetCount[address];
+            return _XGUsersAssetCount.GetOrDefault(address, 0);
         }
 
         // Get one of user's XG assets
         private long _getUsersXGAssetId(Bytes address, long number){
             // We can't get more assets than user owns
-            if(number >= _XGUsersAssetCount[address]){
+            if(number >= _XGUsersAssetCount.GetOrDefault(address, 0)){
                 Error.Throw("This asset doesn't exist!");
             }
             var key = GetUserAssetKey(address, number);
@@ -169,7 +169,7 @@ namespace Expload {
         /// List of asset objects
         /// </returns>
         public Asset[] GetUsersAllXGAssetsData(Bytes address){
-            int amount = (int)_XGUsersAssetCount[address];
+            int amount = (int)_XGUsersAssetCount.GetOrDefault(address, 0);
             var result = new Asset[amount];
             for(int num = 0; num < amount; num++){
                 result[num] = GetXGAsset(_getUsersXGAssetId(address, num));
