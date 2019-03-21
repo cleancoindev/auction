@@ -135,13 +135,13 @@ namespace Expload {
         /// Asset amount
         /// </returns>
         public long GetUsersXPAssetCount(Bytes address){
-            return _XPUsersAssetCount[address];
+            return _XPUsersAssetCount.GetOrDefault(address, 0);
         }
 
         // Get one of user's XP assets
         private long _getUsersXPAssetId(Bytes address, long number){
             // We can't get more assets than user owns
-            if(number >= _XPUsersAssetCount[address]){
+            if(number >= _XPUsersAssetCount.GetOrDefault(address, 0)){
                 Error.Throw("This asset doesn't exist!");
             }
             var key = GetUserAssetKey(address, number);
@@ -169,7 +169,7 @@ namespace Expload {
         /// List of asset objects
         /// </returns>
         public Asset[] GetUsersAllXPAssetsData(Bytes address){
-            int amount = (int)_XPUsersAssetCount[address];
+            int amount = (int)_XPUsersAssetCount.GetOrDefault(address, 0);
             var result = new Asset[amount];
             for(int num = 0; num < amount; num++){
                 result[num] = GetXPAsset(_getUsersXPAssetId(address, num));
