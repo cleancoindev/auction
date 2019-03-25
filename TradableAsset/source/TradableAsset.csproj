@@ -13,6 +13,6 @@
         <Compile Remove="XG/*"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Expload.Pravda" Version="0.22.1" />
+        <PackageReference Include="Expload.Pravda" Version="0.23.0" />
     </ItemGroup>
 </Project>
