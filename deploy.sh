@@ -8,6 +8,7 @@ meta_server="none" # Test game meta server address
 endpoint="http://localhost:8080/api/public" # Pravda endpoint
 
 help="false" # Show help tooltip
+game_add="false" # Flags if test asset should be added to auction
 
 help_text="\n""Options:"
 help_text+="\n"'-p --payer        Payer wallet, pays for all the executions'
@@ -16,6 +17,7 @@ help_text+="\n""-t --test-asset   Test game TradableAsset program wallet"
 help_text+="\n""-x --xgold        Current XGold program wallet"
 help_text+="\n""-m --meta-server  Test game meta server base URL (without class/instance postfixes)"
 help_text+="\n""-e --endpoint     Pravda endpoint, default: http://localhost:8080/api/public"
+help_text+="\n""-g --game-add     Flags if test asset should be added to auction"
 help_text+="\n""-h --help         Show this help message"
 
 # Parse arguments
@@ -38,6 +40,9 @@ while [ "$1" != "" ]; do
                               ;;
         -e | --endpoint )     shift
                               endpoint=$1
+                              ;;
+        -g | --game-add )     shift
+                              game_add="true"
                               ;;
         -h | --help )         shift
                               help="true"
@@ -77,7 +82,7 @@ xgold_address=${xgold_address:2:64}
 # Compile dotnet solution
 echo "Compiling Auction program..."
 publish_log=$( dotnet publish Auction/source/Auction.sln )
-if [[ $log == *"error MSB"* ]]; then
+if [[ $publish_log == *"error MSB"* ]]; then
     echo "dotnet publish failed"
     exit 1
 fi
@@ -114,11 +119,11 @@ fi
 # Deploy test TradableAsset program
 
 # Edit meta URL
-command="0,/some_url/s/some_url/${meta_server}class-meta\//"
+meta_server_escaped=$(echo $meta_server | sed 's/\//\\\//g')
+command="0,/https:\/\/some_url\//s/https:\/\/some_url\//${meta_server_escaped}class-meta\//"
 sed -i $command TradableAsset/source/XG/TradableXGAsset.cs
-command="0,/some_url/s/some_url/${meta_server}instance-meta\//"
+command="0,/https:\/\/some_url\//s/https:\/\/some_url\//${meta_server_escaped}instance-meta\//"
 sed -i $command TradableAsset/source/XG/TradableXGAsset.cs
-
 
 # Compile dotnet solution
 echo "Compiling TradableAsset program..."
@@ -159,8 +164,7 @@ fi
 
 # Set Auction address in TradableAsset
 echo "Setting Auction address in TradableAsset..."
-set_auction_log=$( echo "push x$auction_address push \"SetAuction\" push x$test_asset_address push 2 pcall"
-    | pravda compile asm | pravda broadcast run -w $test_asset --watt-payer-wallet $payer -l 100000 -e $endpoint )
+set_auction_log=$( echo "push x$auction_address push \"SetAuction\" push x$test_asset_address push 2 pcall" | pravda compile asm | pravda broadcast run -w $test_asset --watt-payer-wallet $payer -l 100000 -e $endpoint )
 
 if [[ $set_auction_log == *"Exception in"* ]]; then
     echo "Failed to set Auction address"
@@ -171,8 +175,7 @@ fi
 
 # Set XGold adress in Auction
 echo "Setting XGold address in Auction..."
-set_xgold_log=$( echo "push x$xgold_address push \"SetXGAddress\" push x$auction_address push 2 pcall"
-    | pravda compile asm | pravda broadcast run -w $auction --watt-payer-wallet $payer -l 100000 -e $endpoint )
+set_xgold_log=$( echo "push x$xgold_address push \"SetXGAddress\" push x$auction_address push 2 pcall" | pravda compile asm | pravda broadcast run -w $auction --watt-payer-wallet $payer -l 100000 -e $endpoint )
 
 if [[ $set_xgold_log == *"Exception in"* ]]; then
     echo "Failed to set XGold address"
@@ -181,15 +184,18 @@ else
     echo "XGold address successfully set"
 fi
 
-# Add game to Auction
-echo "Adding game to Auction..."
-add_game_log=$( echo "push x$test_asset_address push true push \"AddGame\" push x$auction_address push 3 pcall"
-    | pravda compile asm | pravda broadcast run -w $auction --watt-payer-wallet $payer -l 100000 -e $endpoint )
-if [[ $add_game_log == *"Exception in"* ]]; then
-    echo "Failed to add game to Auction"
-    exit 1
-else
-    echo "Game was successfully added to Auction"
+# Add game to Auction if needed
+if [[ $game_add == "true" ]]; then
+    echo "Adding game to Auction..."
+    add_game_log=$( echo "push x$test_asset_address push true push \"AddGame\" push x$auction_address push 3 pcall" | pravda compile asm | pravda broadcast run -w $auction --watt-payer-wallet $payer -l 100000 -e $endpoint )
+    if [[ $add_game_log == *"Exception in"* ]]; then
+        echo "Failed to add game to Auction"
+        exit 1
+    else
+        id=$( echo $add_game_log | grep -o -P "\"stack\"\s:\s\[\s\"int64.\d*\"\s\]" | grep -o -P "\"int64.\d*" )
+        id=${id:7}
+        echo "Game was successfully added to Auction, id: $id"
+    fi
 fi
 
 echo "Finished deploying and setting up marketplace"
