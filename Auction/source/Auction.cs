@@ -356,16 +356,17 @@ namespace Expload {
             // Take the money from buyer and transfer the asset to him
             // (taking in consideration 5% tax)
             var gameAddress = _GetGameAddress(lot.GameId, lot.IsXG);
+            long fee = lot.Price/21;
             if (lot.IsXG)
             {
                 ProgramHelper.Program<XGold>(XGAddress).Spend(Info.ProgramAddress(), lot.Price);
-                ProgramHelper.Program<XGold>(XGAddress).Refund(Info.ProgramAddress(), lot.Owner, lot.Price - lot.Price/21);
+                ProgramHelper.Program<XGold>(XGAddress).Refund(Info.ProgramAddress(), lot.Owner, lot.Price - fee);
                 ProgramHelper.Program<TradableXGAsset>(gameAddress).TransferXGAsset(lot.AssetId, Info.Sender());
             }
             else
             {
                 Actions.Transfer(Info.ProgramAddress(), lot.Price);
-                Actions.TransferFromProgram(lot.Owner, lot.Price - lot.Price/21);
+                Actions.TransferFromProgram(lot.Owner, lot.Price - fee);
                 ProgramHelper.Program<TradableXPAsset>(gameAddress).TransferXPAsset(lot.AssetId, Info.Sender());
             }
 
