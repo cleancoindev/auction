@@ -45,7 +45,7 @@ Represents an actual non-fungible token. Attributes:
 
 - `Bytes ClassId` - game's internal asset class id. For example, two identical in-game swords, but with different upgrades, have a same class id.
 
-- `Bytes InstanceId` - game's internal ass instance id. For example, two identical in-game swords, but with different upgrades, have different instance ids.
+- `Bytes InstanceId` - game's internal asset instance id. For example, two identical in-game swords, but with different upgrades, have different instance ids.
 
 ### Asset storage  
 
