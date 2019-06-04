@@ -364,6 +364,18 @@ dotnet publish -c Deploy
 echo "push xA push \"SetAuction\" push xB push 2 pcall" | pravda compile asm | pravda broadcast run -w program-wallet.json -l 9000000
 ```
 
+```sh
+# Также можно указать процент комиссии, который будет
+# взиматься с продажи каждого ассета на аукционе.
+# По умолчанию процент комиссии равен нулю.
+
+echo "push 5 push \"SetCommission\” push xB push 2 pcall" | pravda compile asm | pravda broadcast run -w program-wallet.json -l 9000000
+
+# Где 5 - это 5% комиссии от суммы, которую получит продавец после продажи.
+# Например, стоимость лота 105 монет. 
+# Значит продавец получит 100 монет и программа - 5 монет. 
+```
+
 Поздравляем! Ваш контракт настроен и готов к работе.
 
 ### Разработка собственной имплементации

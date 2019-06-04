@@ -94,6 +94,34 @@ namespace Expload {
             return XGAddress;
         }
 
+        // Percent of commission (default 5)
+        private int CommissionPercent = 5;
+
+        /// <summary>
+        /// Set up commission for auction
+        /// </summary>
+        /// <param name="percent"> Percent of commission </param>
+        public void SetCommission(int percent)
+        {
+            AssertIsAuctionOwner();
+
+            if (percent < 0 && percent > 40)
+            {
+                Error.Throw("Commission percent can be in the range from 0 to 40");
+            }
+
+            CommissionPercent = percent;
+        }
+
+        /// <summary>
+        /// Get percent of commission
+        /// </summary>
+        /// <returns> Percent of commission </returns>
+        public int GetCommission()
+        {
+            return CommissionPercent;
+        }
+
         /*
         Lot objects storage
         */
@@ -316,9 +344,18 @@ namespace Expload {
                 ProgramHelper.Program<TradableXPAsset>(gameAddress).TransferXPAsset(assetId, Info.ProgramAddress());
             }
 
+            // Get percent commssion
+            var gameCommissionPercent = isXG ?
+                ProgramHelper.Program<TradableXGAsset>(gameAddress).GetCommission() :
+                ProgramHelper.Program<TradableXPAsset>(gameAddress).GetCommission();
+
             // Create lot object and put it into main storage
             var lotId = ++_lastLotId;
-            var lot = new Lot(lotId, Info.Sender(), gameId, isXG, assetId, classId, price, Info.LastBlockTime());
+
+            var lot = new Lot(
+                lotId, Info.Sender(), gameId, isXG, assetId, classId, 
+                price, CommissionPercent, gameCommissionPercent, Info.LastBlockTime());
+
             _lots[_lastLotId] = lot;
 
             // Put the lot into user storage
@@ -354,19 +391,33 @@ namespace Expload {
             }
 
             // Take the money from buyer and transfer the asset to him
-            // (taking in consideration 5% tax)
-            var gameAddress = _GetGameAddress(lot.GameId, lot.IsXG);
-            long fee = lot.Price/21;
+            Bytes gameAddress = _GetGameAddress(lot.GameId, lot.IsXG);
+
+            long ownerFee = (long)(lot.Price / (1 + ((double)(lot.AuctionCommission + lot.GameCommission)) / 100));
+            long gameFee = (long)(ownerFee * (1 + ((double)lot.GameCommission) / 100)) - ownerFee;
+
             if (lot.IsXG)
             {
                 ProgramHelper.Program<XGold>(XGAddress).Spend(Info.ProgramAddress(), lot.Price);
-                ProgramHelper.Program<XGold>(XGAddress).Refund(Info.ProgramAddress(), lot.Owner, lot.Price - fee);
+                ProgramHelper.Program<XGold>(XGAddress).Refund(Info.ProgramAddress(), lot.Owner, ownerFee);
+                
+                if (gameFee > 0)
+                {
+                    ProgramHelper.Program<XGold>(XGAddress).Refund(Info.ProgramAddress(), gameAddress, gameFee);
+                }
+
                 ProgramHelper.Program<TradableXGAsset>(gameAddress).TransferXGAsset(lot.AssetId, Info.Sender());
             }
             else
             {
                 Actions.Transfer(Info.ProgramAddress(), lot.Price);
-                Actions.TransferFromProgram(lot.Owner, lot.Price - fee);
+                Actions.TransferFromProgram(lot.Owner, ownerFee);
+
+                if (gameFee > 0)
+                {
+                    Actions.TransferFromProgram(gameAddress, gameFee);
+                }
+
                 ProgramHelper.Program<TradableXPAsset>(gameAddress).TransferXPAsset(lot.AssetId, Info.Sender());
             }
 
@@ -434,7 +485,8 @@ namespace Expload {
         
         public Lot(
             long id, Bytes owner, long gameId, bool isXG,
-            long assetId, Bytes classId, long price, long creationTime
+            long assetId, Bytes classId, long price,
+            long auctionCommission, long gameCommission, long creationTime
         ){
             Id = id;
             Owner = owner;
@@ -443,6 +495,8 @@ namespace Expload {
             AssetId = assetId;
             AssetClassId = classId;
             Price = price;
+            AuctionCommission = auctionCommission;
+            GameCommission = gameCommission;
             CreationTime = creationTime;
         }
         
@@ -468,7 +522,13 @@ namespace Expload {
         
         // Starting price of the asset
         public long Price { get; set; } = 0;
-        
+
+        // Starting commission of the asset by game
+        public long GameCommission { get; set; } = 0;
+
+        // Starting commission of the asset by auction
+        public long AuctionCommission { get; set; } = 0;
+
         // If the lot is already closed
         public bool Closed { get; set; } = false;
         
