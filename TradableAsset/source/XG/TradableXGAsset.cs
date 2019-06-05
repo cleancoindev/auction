@@ -65,32 +65,6 @@ namespace Expload {
 
         public static void Main(){ }
 
-        // Percent of commission (default 0)
-        private long CommissionPercent = 0;
-
-        /// <summary>
-        /// Set up commission for assets
-        /// </summary>
-        /// <param name="percent"> Percent of commission </param>
-        public void SetCommission(long percent)
-        {
-            AssertIsGameOwner();
-            if (percent < 0 && percent > 40)
-            {
-                Error.Throw("Commission percent can be in the range from 0 to 40");
-            }
-            CommissionPercent = percent;
-        }
-
-        /// <summary>
-        /// Get percent of commission
-        /// </summary>
-        /// <returns> Percent of commission </returns>
-        public long GetCommission()
-        {
-            return CommissionPercent;
-        }
-
         // Last id given to a XG asset (id=0 is invalid)
         private long _lastXGId = 0;
 

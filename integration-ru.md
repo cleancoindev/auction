@@ -365,15 +365,17 @@ echo "push xA push \"SetAuction\" push xB push 2 pcall" | pravda compile asm | p
 ```
 
 ```sh
-# Также можно указать процент комиссии, который будет
-# взиматься с продажи каждого ассета на аукционе.
+# Также можно Аукциону указать процент комиссии, который будет
+# взиматься с продажи каждого ассета.
 # По умолчанию процент комиссии равен нулю.
 
-echo "push 5 push \"SetCommission\” push xB push 2 pcall" | pravda compile asm | pravda broadcast run -w program-wallet.json -l 9000000
+# Для этого у программы Аукциона вызовем метод SetGameCommission(percent, gameId, isXG)
+echo "push {percent} push {gameId} push true push \"SetGameCommission\" push xA push 4 pcall" | pravda compile asm | pravda broadcast run -w program-wallet.json -l 9000000
 
-# Где 5 - это 5% комиссии от суммы, которую получит продавец после продажи.
-# Например, стоимость лота 105 монет. 
-# Значит продавец получит 100 монет и программа - 5 монет. 
+# Где {percent} - это % комиссии от суммы, которую получит продавец после продажи.
+# {gameId} - id (:long) вашей программы, которую назначил вам Аукцион.
+# Пример. Если указать 5 процентов, то при стоимости лота в 105 монет -
+# продавец получит 100 монет и ваша программа - 5 монет. 
 ```
 
 Поздравляем! Ваш контракт настроен и готов к работе.

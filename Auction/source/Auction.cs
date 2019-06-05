@@ -78,11 +78,11 @@ namespace Expload {
         private Mapping<long, long> _gamesXPCommissions =
             new Mapping<long, long>();
 
-        public void SetGameCommssion(long percent, long gameId, bool isXG)
+        public void SetGameCommission(long percent, long gameId, bool isXG)
         {
             AssertIsGameOwner(gameId, isXG);
 
-            if (percent < 0 && percent > 30)
+            if (percent < 0 || percent > 30)
             {
                 Error.Throw("Commission percent can be in the range from 0 to 30");
             }
@@ -144,7 +144,7 @@ namespace Expload {
         {
             AssertIsAuctionOwner();
 
-            if (percent < 0 && percent > 40)
+            if (percent < 0 || percent > 30)
             {
                 Error.Throw("Commission percent can be in the range from 0 to 40");
             }
@@ -180,7 +180,7 @@ namespace Expload {
         public void MigrationLots()
         {
             AssertIsAuctionOwner();
-            _new_lots = new Mapping<long, Lot>();   
+            _new_lots = new Mapping<long, Lot>(); 
             for (long id = 1; id <= _lastLotId; id++)
             {
                 LotOld lotOld = _lots.GetOrDefault(id, new LotOld());
@@ -201,9 +201,9 @@ namespace Expload {
                 lotNew.PurchaseTime = lotOld.PurchaseTime;
 
                 _new_lots[id] = lotNew;
-
-
             }
+            CommissionPercent = 5;
+
         }
 
         // Get lot by its id

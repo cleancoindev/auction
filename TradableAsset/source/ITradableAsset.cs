@@ -21,17 +21,5 @@ namespace Expload.Standards
         /// </summary>
         /// <param name="address"> Auction address </param>
         void SetAuction(Bytes address);
-
-        /// <summary>
-        /// Set up commission for assets
-        /// </summary>
-        /// <param name="percent"> Percent of commission </param>
-        void SetCommission(long percent);
-
-        /// <summary>
-        /// Get percent of commission
-        /// </summary>
-        /// <returns> Percent of commission </returns>
-        long GetCommission();
     }
 }
