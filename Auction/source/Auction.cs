@@ -130,12 +130,46 @@ namespace Expload {
         private long _lastLotId = 0;
 
         // Mapping storing lot objects
-        private Mapping<long, Lot> _lots =
+        private Mapping<long, Lot> _new_lots =
             new Mapping<long, Lot>();
+
+        // TODO: after migration, remove it
+        private Mapping<long, LotOld> _lots =
+            new Mapping<long, LotOld>();
+
+        // TODO: after migration, remove it
+        public void MigrationLots()
+        {
+            AssertIsAuctionOwner();
+            _new_lots = new Mapping<long, Lot>();   
+            for (long id = 1; id <= _lastLotId; id++)
+            {
+                LotOld lotOld = _lots.GetOrDefault(id, new LotOld());
+                Lot lotNew = new Lot();
+
+                lotNew.Id = lotOld.Id;
+                lotNew.Owner = lotOld.Owner;
+                lotNew.GameId = lotOld.GameId;
+                lotNew.IsXG = lotOld.IsXG;
+                lotNew.AssetId = lotOld.AssetId;
+                lotNew.AssetClassId = lotOld.AssetClassId;
+                lotNew.Price = lotOld.Price;
+                lotNew.GameCommission = 0;
+                lotNew.AuctionCommission = 5;
+                lotNew.Closed = lotOld.Closed;
+                lotNew.Buyer = lotOld.Buyer;
+                lotNew.CreationTime = lotOld.CreationTime;
+                lotNew.PurchaseTime = lotOld.PurchaseTime;
+
+                _new_lots[id] = lotNew;
+
+
+            }
+        }
 
         // Get lot by its id
         private Lot GetLot(long id){
-            return _lots.GetOrDefault(id, new Lot());
+            return _new_lots.GetOrDefault(id, new Lot());
         }
 
         /// <summary>
@@ -356,7 +390,7 @@ namespace Expload {
                 lotId, Info.Sender(), gameId, isXG, assetId, classId, 
                 price, CommissionPercent, gameCommissionPercent, Info.LastBlockTime());
 
-            _lots[_lastLotId] = lot;
+            _new_lots[_lastLotId] = lot;
 
             // Put the lot into user storage
             var userStorageLastId = _userLotsCount.GetOrDefault(Info.Sender(), 0);
@@ -425,7 +459,7 @@ namespace Expload {
             lot.Closed = true;
             lot.Buyer = Info.Sender();
             lot.PurchaseTime = Info.LastBlockTime();
-            _lots[lotId] = lot;
+            _new_lots[lotId] = lot;
 
             // Put the lot into buyer storage (for history log)
             var userStorageLastId = _userLotsCount.GetOrDefault(Info.Sender(), 0);
@@ -460,7 +494,7 @@ namespace Expload {
 
             // Change the lot state and write it to the storage
             lot.Closed = true;
-            _lots[lotId] = lot;
+            _new_lots[lotId] = lot;
 
             // Return the asset to the owner
             var gameAddress = _GetGameAddress(lot.GameId, lot.IsXG);
@@ -528,6 +562,48 @@ namespace Expload {
 
         // Starting commission of the asset by auction
         public long AuctionCommission { get; set; } = 0;
+
+        // If the lot is already closed
+        public bool Closed { get; set; } = false;
+        
+        // Buyer's address
+        public Bytes Buyer { get; set; } = Bytes.VOID_ADDRESS;
+
+        // UNIX timestamp of lot creation time
+
+        public long CreationTime { get; set; } = 0;
+
+        // UNIX timestamp of lot purchase time
+
+        public long PurchaseTime { get; set; } = 0;
+    }
+
+    // TODO: after migration, remove it
+    public class LotOld
+    {
+
+        public LotOld() { }
+
+        // Id of the lot
+        public long Id { get; set; } = 0;
+
+        // Address of lot creator
+        public Bytes Owner { get; set; } = Bytes.VOID_ADDRESS;
+
+        // Id of the game the asset is from
+        public long GameId { get; set; } = 0;
+
+        // Type of the asset: true if XG, false if XP
+        public bool IsXG { get; set; } = false;
+
+        // Blockchain id of the asset sold (see TradableAsset.cs)
+        public long AssetId { get; set; } = 0;
+
+        // Asset class id of the asset sold (see TradableAsset.cs)
+        public Bytes AssetClassId { get; set; } = Bytes.VOID_ADDRESS;
+
+        // Starting price of the asset
+        public long Price { get; set; } = 0;
 
         // If the lot is already closed
         public bool Closed { get; set; } = false;
