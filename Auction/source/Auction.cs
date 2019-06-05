@@ -69,7 +69,46 @@ namespace Expload {
         public Bytes GetGameAddress(long id, bool isXG){
             return _GetGameAddress(id, isXG);
         }
-        
+
+        // Mapping storing commssions of games' XG TradableAsset programs
+        private Mapping<long, long> _gamesXGCommissions =
+            new Mapping<long, long>();
+
+        // Mapping storing commssions of games' XP TradableAsset programs
+        private Mapping<long, long> _gamesXPCommissions =
+            new Mapping<long, long>();
+
+        public void SetGameCommssion(long percent, long gameId, bool isXG)
+        {
+            AssertIsGameOwner(gameId, isXG);
+
+            if (percent < 0 && percent > 30)
+            {
+                Error.Throw("Commission percent can be in the range from 0 to 30");
+            }
+
+            if (isXG)
+            {
+                _gamesXGCommissions[gameId] = percent;
+            }
+            else
+            {
+                _gamesXPCommissions[gameId] = percent;
+            }
+        }
+
+        private long _GetGameCommission(long gameId, bool isXG)
+        {
+            return isXG ?
+                _gamesXGCommissions.GetOrDefault(gameId, 0) :
+                _gamesXPCommissions.GetOrDefault(gameId, 0);
+        }
+
+        public long GetGameCommission(long gameId, bool isXG)
+        {
+            return _GetGameCommission(gameId, isXG);
+        }
+
         // XGold program address
         private Bytes XGAddress = Bytes.VOID_ADDRESS;
 
@@ -314,6 +353,13 @@ namespace Expload {
             }
         }
 
+        private void AssertIsGameOwner(long gameId, bool isXG)
+        {
+            if (Info.Sender() != _GetGameAddress(gameId, isXG)) {
+                Error.Throw("Only game owner can do this.");
+            }
+        }
+
         // Checks if caller owns a particular asset
         private void AssertIsItemOwner(long gameId, long assetId, bool isXG){
             var gameAddress = _GetGameAddress(gameId, isXG);
@@ -379,9 +425,8 @@ namespace Expload {
             }
 
             // Get percent commssion
-            var gameCommissionPercent = isXG ?
-                ProgramHelper.Program<TradableXGAsset>(gameAddress).GetCommission() :
-                ProgramHelper.Program<TradableXPAsset>(gameAddress).GetCommission();
+            var gameCommissionPercent = _GetGameCommission(gameId, isXG);
+
 
             // Create lot object and put it into main storage
             var lotId = ++_lastLotId;
