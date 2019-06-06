@@ -69,7 +69,46 @@ namespace Expload {
         public Bytes GetGameAddress(long id, bool isXG){
             return _GetGameAddress(id, isXG);
         }
-        
+
+        // Mapping storing commssions of games' XG TradableAsset programs
+        private Mapping<long, long> _gamesXGCommissions =
+            new Mapping<long, long>();
+
+        // Mapping storing commssions of games' XP TradableAsset programs
+        private Mapping<long, long> _gamesXPCommissions =
+            new Mapping<long, long>();
+
+        public void SetGameCommission(long percent, long gameId, bool isXG)
+        {
+            AssertIsGameOwner(gameId, isXG);
+
+            if (percent < 0 || percent > 30)
+            {
+                Error.Throw("Commission percent can be in the range from 0 to 30");
+            }
+
+            if (isXG)
+            {
+                _gamesXGCommissions[gameId] = percent;
+            }
+            else
+            {
+                _gamesXPCommissions[gameId] = percent;
+            }
+        }
+
+        private long _GetGameCommission(long gameId, bool isXG)
+        {
+            return isXG ?
+                _gamesXGCommissions.GetOrDefault(gameId, 0) :
+                _gamesXPCommissions.GetOrDefault(gameId, 0);
+        }
+
+        public long GetGameCommission(long gameId, bool isXG)
+        {
+            return _GetGameCommission(gameId, isXG);
+        }
+
         // XGold program address
         private Bytes XGAddress = Bytes.VOID_ADDRESS;
 
@@ -94,6 +133,34 @@ namespace Expload {
             return XGAddress;
         }
 
+        // Percent of commission (default 5)
+        private int CommissionPercent = 5;
+
+        /// <summary>
+        /// Set up commission for auction
+        /// </summary>
+        /// <param name="percent"> Percent of commission </param>
+        public void SetCommission(int percent)
+        {
+            AssertIsAuctionOwner();
+
+            if (percent < 0 || percent > 30)
+            {
+                Error.Throw("Commission percent can be in the range from 0 to 40");
+            }
+
+            CommissionPercent = percent;
+        }
+
+        /// <summary>
+        /// Get percent of commission
+        /// </summary>
+        /// <returns> Percent of commission </returns>
+        public int GetCommission()
+        {
+            return CommissionPercent;
+        }
+
         /*
         Lot objects storage
         */
@@ -102,12 +169,46 @@ namespace Expload {
         private long _lastLotId = 0;
 
         // Mapping storing lot objects
-        private Mapping<long, Lot> _lots =
+        private Mapping<long, Lot> _new_lots =
             new Mapping<long, Lot>();
+
+        // TODO: after migration, remove it
+        private Mapping<long, LotOld> _lots =
+            new Mapping<long, LotOld>();
+
+        // TODO: after migration, remove it
+        public void MigrationLots()
+        {
+            AssertIsAuctionOwner();
+            _new_lots = new Mapping<long, Lot>(); 
+            for (long id = 1; id <= _lastLotId; id++)
+            {
+                LotOld lotOld = _lots.GetOrDefault(id, new LotOld());
+                Lot lotNew = new Lot();
+
+                lotNew.Id = lotOld.Id;
+                lotNew.Owner = lotOld.Owner;
+                lotNew.GameId = lotOld.GameId;
+                lotNew.IsXG = lotOld.IsXG;
+                lotNew.AssetId = lotOld.AssetId;
+                lotNew.AssetClassId = lotOld.AssetClassId;
+                lotNew.Price = lotOld.Price;
+                lotNew.GameCommission = 0;
+                lotNew.AuctionCommission = 5;
+                lotNew.Closed = lotOld.Closed;
+                lotNew.Buyer = lotOld.Buyer;
+                lotNew.CreationTime = lotOld.CreationTime;
+                lotNew.PurchaseTime = lotOld.PurchaseTime;
+
+                _new_lots[id] = lotNew;
+            }
+            CommissionPercent = 5;
+
+        }
 
         // Get lot by its id
         private Lot GetLot(long id){
-            return _lots.GetOrDefault(id, new Lot());
+            return _new_lots.GetOrDefault(id, new Lot());
         }
 
         /// <summary>
@@ -252,6 +353,13 @@ namespace Expload {
             }
         }
 
+        private void AssertIsGameOwner(long gameId, bool isXG)
+        {
+            if (Info.Sender() != _GetGameAddress(gameId, isXG)) {
+                Error.Throw("Only game owner can do this.");
+            }
+        }
+
         // Checks if caller owns a particular asset
         private void AssertIsItemOwner(long gameId, long assetId, bool isXG){
             var gameAddress = _GetGameAddress(gameId, isXG);
@@ -316,10 +424,18 @@ namespace Expload {
                 ProgramHelper.Program<TradableXPAsset>(gameAddress).TransferXPAsset(assetId, Info.ProgramAddress());
             }
 
+            // Get percent commssion
+            var gameCommissionPercent = _GetGameCommission(gameId, isXG);
+
+
             // Create lot object and put it into main storage
             var lotId = ++_lastLotId;
-            var lot = new Lot(lotId, Info.Sender(), gameId, isXG, assetId, classId, price, Info.LastBlockTime());
-            _lots[_lastLotId] = lot;
+
+            var lot = new Lot(
+                lotId, Info.Sender(), gameId, isXG, assetId, classId, 
+                price, CommissionPercent, gameCommissionPercent, Info.LastBlockTime());
+
+            _new_lots[_lastLotId] = lot;
 
             // Put the lot into user storage
             var userStorageLastId = _userLotsCount.GetOrDefault(Info.Sender(), 0);
@@ -354,19 +470,33 @@ namespace Expload {
             }
 
             // Take the money from buyer and transfer the asset to him
-            // (taking in consideration 5% tax)
-            var gameAddress = _GetGameAddress(lot.GameId, lot.IsXG);
-            long fee = lot.Price/21;
+            Bytes gameAddress = _GetGameAddress(lot.GameId, lot.IsXG);
+
+            long ownerFee = (long)(lot.Price / (1 + ((double)(lot.AuctionCommission + lot.GameCommission)) / 100));
+            long gameFee = (long)(ownerFee * (1 + ((double)lot.GameCommission) / 100)) - ownerFee;
+
             if (lot.IsXG)
             {
                 ProgramHelper.Program<XGold>(XGAddress).Spend(Info.ProgramAddress(), lot.Price);
-                ProgramHelper.Program<XGold>(XGAddress).Refund(Info.ProgramAddress(), lot.Owner, lot.Price - fee);
+                ProgramHelper.Program<XGold>(XGAddress).Refund(Info.ProgramAddress(), lot.Owner, ownerFee);
+                
+                if (gameFee > 0)
+                {
+                    ProgramHelper.Program<XGold>(XGAddress).Refund(Info.ProgramAddress(), gameAddress, gameFee);
+                }
+
                 ProgramHelper.Program<TradableXGAsset>(gameAddress).TransferXGAsset(lot.AssetId, Info.Sender());
             }
             else
             {
                 Actions.Transfer(Info.ProgramAddress(), lot.Price);
-                Actions.TransferFromProgram(lot.Owner, lot.Price - fee);
+                Actions.TransferFromProgram(lot.Owner, ownerFee);
+
+                if (gameFee > 0)
+                {
+                    Actions.TransferFromProgram(gameAddress, gameFee);
+                }
+
                 ProgramHelper.Program<TradableXPAsset>(gameAddress).TransferXPAsset(lot.AssetId, Info.Sender());
             }
 
@@ -374,7 +504,7 @@ namespace Expload {
             lot.Closed = true;
             lot.Buyer = Info.Sender();
             lot.PurchaseTime = Info.LastBlockTime();
-            _lots[lotId] = lot;
+            _new_lots[lotId] = lot;
 
             // Put the lot into buyer storage (for history log)
             var userStorageLastId = _userLotsCount.GetOrDefault(Info.Sender(), 0);
@@ -409,7 +539,7 @@ namespace Expload {
 
             // Change the lot state and write it to the storage
             lot.Closed = true;
-            _lots[lotId] = lot;
+            _new_lots[lotId] = lot;
 
             // Return the asset to the owner
             var gameAddress = _GetGameAddress(lot.GameId, lot.IsXG);
@@ -434,7 +564,8 @@ namespace Expload {
         
         public Lot(
             long id, Bytes owner, long gameId, bool isXG,
-            long assetId, Bytes classId, long price, long creationTime
+            long assetId, Bytes classId, long price,
+            long auctionCommission, long gameCommission, long creationTime
         ){
             Id = id;
             Owner = owner;
@@ -443,6 +574,8 @@ namespace Expload {
             AssetId = assetId;
             AssetClassId = classId;
             Price = price;
+            AuctionCommission = auctionCommission;
+            GameCommission = gameCommission;
             CreationTime = creationTime;
         }
         
@@ -468,7 +601,55 @@ namespace Expload {
         
         // Starting price of the asset
         public long Price { get; set; } = 0;
+
+        // Starting commission of the asset by game
+        public long GameCommission { get; set; } = 0;
+
+        // Starting commission of the asset by auction
+        public long AuctionCommission { get; set; } = 0;
+
+        // If the lot is already closed
+        public bool Closed { get; set; } = false;
         
+        // Buyer's address
+        public Bytes Buyer { get; set; } = Bytes.VOID_ADDRESS;
+
+        // UNIX timestamp of lot creation time
+
+        public long CreationTime { get; set; } = 0;
+
+        // UNIX timestamp of lot purchase time
+
+        public long PurchaseTime { get; set; } = 0;
+    }
+
+    // TODO: after migration, remove it
+    public class LotOld
+    {
+
+        public LotOld() { }
+
+        // Id of the lot
+        public long Id { get; set; } = 0;
+
+        // Address of lot creator
+        public Bytes Owner { get; set; } = Bytes.VOID_ADDRESS;
+
+        // Id of the game the asset is from
+        public long GameId { get; set; } = 0;
+
+        // Type of the asset: true if XG, false if XP
+        public bool IsXG { get; set; } = false;
+
+        // Blockchain id of the asset sold (see TradableAsset.cs)
+        public long AssetId { get; set; } = 0;
+
+        // Asset class id of the asset sold (see TradableAsset.cs)
+        public Bytes AssetClassId { get; set; } = Bytes.VOID_ADDRESS;
+
+        // Starting price of the asset
+        public long Price { get; set; } = 0;
+
         // If the lot is already closed
         public bool Closed { get; set; } = false;
         

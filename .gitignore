@@ -16,3 +16,5 @@ project/project/target/
 .classpath
 .project
 .settings/
+.DS_Store
+.vs/
