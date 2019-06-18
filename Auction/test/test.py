@@ -27,7 +27,7 @@ class TestTradableAsset(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         # Compile main & test contracts
-        output = check_output(["dotnet", "publish", "../source/Auction.sln"], timeout=90)
+        output = check_output(["dotnet", "publish", "../source/Auction.sln"], timeout=300)
         print("Programs compiled")
 
 
@@ -39,7 +39,7 @@ class TestTradableAsset(unittest.TestCase):
         print("Starting pravda node")
         self.pravda = Popen(["pravda", "node", "run"], stdout=DEVNULL)
         # Wait for it to load
-        time.sleep(10)
+        time.sleep(20)
 
         print("Deploying programs")
 
