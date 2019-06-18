@@ -8,7 +8,6 @@ meta_server="none" # Test game meta server address
 endpoint="http://localhost:8080/api/public" # Pravda endpoint
 
 help="false" # Show help tooltip
-game_add="false" # Flags if test asset should be added to auction
 
 help_text="\n""Options:"
 help_text+="\n"'-p --payer        Payer wallet, pays for all the executions'
@@ -17,7 +16,6 @@ help_text+="\n""-t --test-asset   Test game TradableAsset program wallet"
 help_text+="\n""-x --xgold        Current XGold program wallet"
 help_text+="\n""-m --meta-server  Test game meta server base URL (without class/instance postfixes)"
 help_text+="\n""-e --endpoint     Pravda endpoint, default: http://localhost:8080/api/public"
-help_text+="\n""-g --game-add     Flags if test asset should be added to auction"
 help_text+="\n""-h --help         Show this help message"
 
 # Parse arguments
@@ -40,9 +38,6 @@ while [ "$1" != "" ]; do
                               ;;
         -e | --endpoint )     shift
                               endpoint=$1
-                              ;;
-        -g | --game-add )     shift
-                              game_add="true"
                               ;;
         -h | --help )         shift
                               help="true"
@@ -177,15 +172,6 @@ if [[ $set_xgold_log == *"Exception in"* ]]; then
     exit 1
 else
     echo "XGold address successfully set"
-fi
-
-# Add game to Auction if needed
-if [[ $game_add == "true" ]]; then
-
-    ./add-game-to-auction.sh -p $xgold -a $auction \
-      -t $test_asset_address \
-      --is-xgold true -e $endpoint
-
 fi
 
 echo "Finished deploying and setting up marketplace"
