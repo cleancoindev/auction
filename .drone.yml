@@ -7,12 +7,14 @@ workspace:
   path: code
 pipeline:
   test-tradableasset:
+    group: tests
     image: unimaginaryunit/tradableasset-build
     pull: true
     commands:
       - cd /workdir/code/TradableAsset/test
       - python -u test.py
   test-auction:
+    group: tests
     image: unimaginaryunit/tradableasset-build
     pull: true
     commands:

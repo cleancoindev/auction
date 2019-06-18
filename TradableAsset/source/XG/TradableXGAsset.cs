@@ -43,7 +43,7 @@ namespace Expload {
         or belonging to different players have different instance id
 
         ---------------------------------
-        
+
         GetItemClassMeta and GetItemInstanceMeta methods should be modified, so
         given ItemClassId or ItemInstanceId they should return a link
         to JSON with following format:
@@ -60,10 +60,15 @@ namespace Expload {
         ---------------------------------
 
         This class represents a XG asset (can only be bought and sold for XGold)
-        
+
         */
 
         public static void Main(){ }
+
+        // IMPORTANT: these variables MUST be changed
+        // to return valid metadata urls
+        private string META_SERVER_CLASS_META = "https://some_url/class-meta/";
+        private string META_SERVER_INSTANCE_META = "https://some_url/instance-meta/";
 
         // Last id given to a XG asset (id=0 is invalid)
         private long _lastXGId = 0;
@@ -71,7 +76,7 @@ namespace Expload {
         /*
         Main asset storage
         */
-        
+
         // Mapping storing XG assets
         // This mapping's key is asset's blockchain id
         private Mapping<long, Asset> _XGAssets =
@@ -214,17 +219,13 @@ namespace Expload {
         */
 
         // Get asset class meta data using his classId
-        // IMPORTANT: this method MUST be changed
-        // to return valid metadata url
         public string GetClassIdMeta(Bytes classId){
-            return "https://some_url/"+StdLib.BytesToHex(classId);
+            return META_SERVER_CLASS_META + StdLib.BytesToHex(classId);
         }
 
         // Get asset instance meta data using his instanceId
-        // IMPORTANT: this method MUST be changed
-        // to return valid metadata url
         public string GetInstanceIdMeta(Bytes instanceId){
-            return "https://some_url/"+StdLib.BytesToHex(instanceId);
+            return META_SERVER_INSTANCE_META + StdLib.BytesToHex(instanceId);
         }
 
         // Expload's auction program address

@@ -67,23 +67,18 @@ if [[ $payer == "none" ]] || [[ $auction == "none" ]] || \
     exit 1
 fi
 
+
 # Get program addresses
-auction_address=$( cat $auction | grep -o ":\"\w*\"" | head -n1 )
-auction_address=${auction_address:2:64}
-
-test_asset_address=$( cat $test_asset | grep -o ":\"\w*\"" | head -n1 )
-test_asset_address=${test_asset_address:2:64}
-
-xgold_address=$( cat $xgold | grep -o ":\"\w*\"" | head -n1 )
-xgold_address=${xgold_address:2:64}
-
-# Deploy auction program
+auction_address=$( cat $auction | jq -r '.address' )
+test_asset_address=$( cat $test_asset | jq -r '.address' )
+xgold_address=$( cat $xgold | jq -r '.address' )
 
 # Compile dotnet solution
 echo "Compiling Auction program..."
 publish_log=$( dotnet publish Auction/source/Auction.sln )
 if [[ $publish_log == *"error MSB"* ]]; then
     echo "dotnet publish failed"
+    echo $publish_log
     exit 1
 fi
 
@@ -120,9 +115,9 @@ fi
 
 # Edit meta URL
 meta_server_escaped=$(echo $meta_server | sed 's/\//\\\//g')
-command="0,/https:\/\/some_url\//s/https:\/\/some_url\//${meta_server_escaped}class-meta\//"
+command="s/https:\/\/some_url\/class-meta\//${meta_server_escaped}class-meta\//1"
 sed -i $command TradableAsset/source/XG/TradableXGAsset.cs
-command="0,/https:\/\/some_url\//s/https:\/\/some_url\//${meta_server_escaped}instance-meta\//"
+command="s/https:\/\/some_url\/instance-meta\//${meta_server_escaped}instance-meta\//1"
 sed -i $command TradableAsset/source/XG/TradableXGAsset.cs
 
 # Compile dotnet solution
@@ -186,16 +181,11 @@ fi
 
 # Add game to Auction if needed
 if [[ $game_add == "true" ]]; then
-    echo "Adding game to Auction..."
-    add_game_log=$( echo "push x$test_asset_address push true push \"AddGame\" push x$auction_address push 3 pcall" | pravda compile asm | pravda broadcast run -w $auction --watt-payer-wallet $payer -l 100000 -e $endpoint )
-    if [[ $add_game_log == *"Exception in"* ]]; then
-        echo "Failed to add game to Auction"
-        exit 1
-    else
-        id=$( echo $add_game_log | grep -o -P "\"stack\"\s:\s\[\s\"int64.\d*\"\s\]" | grep -o -P "\"int64.\d*" )
-        id=${id:7}
-        echo "Game was successfully added to Auction, id: $id"
-    fi
+
+    ./add-game-to-auction.sh -p $xgold -a $auction \
+      -t $test_asset_address \
+      --is-xgold true -e $endpoint
+
 fi
 
 echo "Finished deploying and setting up marketplace"
