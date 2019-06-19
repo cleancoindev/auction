@@ -1,6 +1,4 @@
-# Expload Auction
-
-## Overview
+# Overview
 
 Expload Auction is a universal market platform for all games on Expload platform. Expload Auction (together with TradableAsset) provides a united interface for in-game integration and interaction.
 
@@ -13,7 +11,7 @@ Represents a lot on the Auction. Attributes:
 - `UInt32 Id` - blockchain id of the lot
 - `Bytes Creator` - address lot creator
 - `UInt32 GameId` - id of the game asset being sold is from
-- `UInt32 AssetId` - blockchain id of the asset sold (see [TradableAsset docs](../TradableAsset/README.md))
+- `UInt32 AssetId` - blockchain id of the asset sold (see [TradableAsset docs](../tradable-asset-standard/))
 - `Bytes ClassId` - class id of the asset sold
 - `UInt32 Price` - price of the lot
 - `bool Closed` - if the lot was already sold or closed by its creator
@@ -40,7 +38,7 @@ There are 3 ways to interact with the storage:
 
 ## Integrating your game
 
-> Before working with Expload Auction, make sure your game is featuring an implementation of [TradableAsset](../TradableAsset/README.md)!
+> Before working with Expload Auction, make sure your game is featuring an implementation of [TradableAsset](../tradable-asset-standard/)!
 > Expload Auction is only availible to certified providers, so you are to contact dev@expload.com if your game doesn't have a unique `game id` for Expload Auction yet.
 
 1. **Set up TradableAsset**
@@ -50,4 +48,4 @@ There are 3 ways to interact with the storage:
 
   Use `api/program/method-test` with methods which only recieve data from the auction and do not change the state of the contract. This will save watts and result in a better perfomance of the app. However, if you are to create, buy or close lots use `api/program/method` only, as otherwise changes will not be saved in blockchain.
 
-If you still have questions, take a look at comments and docstrings in [Auction.cs](Auction.cs) or contact us at dev@expload.com.
+If you still have questions, take a look at comments and docstrings in [Auction.cs](https://github.com/expload/auction/blob/master/Auction/source/Auction.cs) or contact us at dev@expload.com.
