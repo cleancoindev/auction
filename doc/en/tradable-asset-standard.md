@@ -4,8 +4,8 @@
 
 TradableAsset is a token standard for storing and operating with assets on Pravda platform.  
 Asset is a non-fungible token. The implementation can suit almost any blockchain gaming experience, and minor changes are required for integrating TradableAsset.  
-There are 2 types of assets - XGold Assets (or XG Assets for short), which can only be bought and sold for XGold, and XPoin Assets (or XP Assets for short) which can only be sold for XPoin.  
-The standard is provided by [ITradableAsset](ITradableAsset.cs) interface. Sample implementation is also available for both [XGold Asset](XG/TradableXGAsset.cs) and [XPoin Asset](XP/TradableXPAsset.cs).
+There are 2 types of assets - XGold Assets (or XG Assets for short), which can only be bought and sold for XGold, and XPlatinum Assets (or XP Assets for short) which can only be sold for XPlatinum.
+The standard is provided by [ITradableAsset](https://github.com/expload/auction/blob/master/TradableAsset/source/ITradableAsset.cs) interface. Sample implementation is also available for both [XGold Asset](https://github.com/expload/auction/blob/master/TradableAsset/source/XG/TradableXGAsset.cs) and [XPlatinum Asset](https://github.com/expload/auction/blob/master/TradableAsset/source/XP/TradableXPAsset.cs).
 
 ## Program Structure
 

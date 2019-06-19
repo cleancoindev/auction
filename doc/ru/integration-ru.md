@@ -2,29 +2,14 @@
 
 В данном гиде содержится подробное пошаговое описание интеграции децентрализованной игры в инфраструктуру Expload - инвентарь и аукцион.
 
-## Содержание
-
-1. [TradableAsset - стандарт и пример реализации](#TradableAsset---стандарт-и-пример-реализации)  
-    1.1. [Обзор](#Обзор)  
-    1.2. [Структура ассета](#Структура-ассета)  
-    1.3. [Операции с ассетами](#Операции-с-ассетами)  
-    1.4. [Получение данных](#Получение-данных)  
-    1.5. [Деплой и настройка имплементации](#Деплой-и-настройка-имплементации)  
-    1.6. [Разработка собственной имплементации](#Разработка-собственной-имплементации)
-2. [MetaData](#MetaData)  
-    2.1. [Структура мета-данных](#Структура-мета-данных)  
-    2.2. [Мета-сервер](#Мета-сервер)  
-    2.3. [Настройка программы](#Настройка-программы)
-3. [Аукцион](#Аукцион)  
-
 ## TradableAsset - стандарт и пример реализации
 
 ### Обзор
 
-Для совместимости игры с инвентарем и аукционом Expload, все внутриигровые предметы (далее - ассеты) должны храниться в pravda-программе, соответствующей одному из интерфейсов: [ITradableXGAsset](TradableAsset/source/XG/ITradableXGAsset.cs) или [ITradableXPAsset](TradableAsset/source/XP/ITradableXPAsset.cs).  
-Интерфейс [ITradableXGAsset](TradableAsset/source/XG/ITradableXGAsset.cs) предназначен для ассетов, которые могут продаваться только за XGold. Аналогично, интерфейс [ITradableXPAsset](TradableAsset/source/XP/ITradableXPAsset.cs) предназначен для ассетов, которые могут продаваться только за XPoin.  XGold и XPoin интерфейсы отличаются лишь неймингом методов (к примеру, `GetXGAsset` и `GetXPAsset`), их логика аналогична.  
+Для совместимости игры с инвентарем и аукционом Expload, все внутриигровые предметы (далее - ассеты) должны храниться в pravda-программе, соответствующей одному из интерфейсов: [ITradableXGAsset](https://github.com/expload/auction/blob/master/TradableAsset/source/XG/ITradableXGAsset.cs) или [ITradableXPAsset](https://github.com/expload/auction/blob/master/TradableAsset/source/XP/ITradableXPAsset.cs). 
+Интерфейс `ITradableXGAsset` предназначен для ассетов, которые могут продаваться только за XGold. Аналогично, интерфейс `ITradableXPAsset` предназначен для ассетов, которые могут продаваться только за XPlatinum. XGold и XP интерфейсы отличаются лишь неймингом методов (к примеру, `GetXGAsset` и `GetXPAsset`), их логика аналогична.  
 
-Рассмотрим эти интерфейсы на [примере реализации XGold-ассета](TradableAsset/source/XG/TradableXGAsset.cs).
+Рассмотрим эти интерфейсы на [примере реализации XGold-ассета](https://github.com/expload/auction/blob/master/TradableAsset/source/XG/TradableXGAsset.cs).
 
 > Сниппеты из кода образца реализации приведены для понимания внутренней логики ассетов, рассматривать эти сниппеты не обязательно. Если ваша игра не требует особых механизмов передачи или создания ассетов, вы можете использовать образцовую реализацию в вашей игре, и пользоваться ей как API. Ознакомьтесь с структурой ассета и интерфейсами методов ниже и переходите к разделу [Деплой и настройка имплементации](#Деплой-и-настройка-имплементации).
 
@@ -319,7 +304,7 @@ public Asset[] GetUsersAllXGAssetsData(Bytes address){
 ### Деплой и настройка имплементации
 
 Теперь, когда у нас есть понимание устройства ассета и того, какие методы используются в стандарте, перейдем к настройке контракта.  
-Настройка контракта будет рассмотрена на [примере реализации XGold-ассета](TradableAsset/source/XG/TradableXGAsset.cs).
+Настройка контракта будет рассмотрена на [примере реализации XGold-ассета](https://github.com/expload/auction/blob/master/TradableAsset/source/XG/TradableXGAsset.cs).
 
 #### Деплой pravda-программы
 
@@ -382,7 +367,7 @@ echo "push {percent} push {gameId} push true push \"SetGameCommission\" push xA 
 
 ### Разработка собственной имплементации
 
-Expload поддерживает собственный имплементации стандарта ассетов. Имплементация должна соответствовать одному из интерфейсов - [ITradableXGAsset](TradableAsset/source/XG/ITradableXGAsset.cs) или [ITradableXPAsset](TradableAsset/source/XP/ITradableXPAsset.cs) (в зависимости от типа ассета).
+Expload поддерживает собственную имплементацию стандарта ассетов. Имплементация должна соответствовать одному из интерфейсов - [ITradableXGAsset](https://github.com/expload/auction/blob/master/TradableAsset/source/XG/ITradableXGAsset.cs) или [ITradableXPAsset](https://github.com/expload/auction/blob/master/TradableAsset/source/XP/ITradableXPAsset.cs) (в зависимости от типа ассета).
 
 Для удобства был создан [nuget-пакет](https://www.nuget.org/packages/Expload.Standards.TradableAsset/), включающий в себя оба интерфейса.
 
@@ -451,4 +436,4 @@ dotnet publish -c Update
 
 Если вы выполнили все предыдущие шаги, и представитель Expload присвоил вашей игре `GameId`, то вы готовы к работе с аукционом!
 
-Ваша игра будет отображаться в аукционе в приложении Expload. Вы также можете сделать дополнительный интерфейс аукциона внутри своей игры, используя [исходный код аукциона](Auction/source/Auction.cs).
+Ваша игра будет отображаться в аукционе в приложении Expload. Вы также можете сделать дополнительный интерфейс аукциона внутри своей игры, используя [исходный код аукциона](https://github.com/expload/auction/blob/master/Auction/source/Auction.cs).
