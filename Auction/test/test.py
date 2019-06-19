@@ -39,7 +39,7 @@ class TestTradableAsset(unittest.TestCase):
         print("Starting pravda node")
         self.pravda = Popen(["pravda", "node", "run"], stdout=DEVNULL)
         # Wait for it to load
-        time.sleep(20)
+        time.sleep(40)
 
         print("Deploying programs")
 
