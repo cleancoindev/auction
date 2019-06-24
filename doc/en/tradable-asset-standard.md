@@ -1,4 +1,4 @@
-# 1. TradableAsset - standard and implementation example
+# TradableAsset - standard and implementation example
 
 ## Overview
 

@@ -1,4 +1,4 @@
-# 2. Meta data
+# Meta data
 
 **IMPORTANT!**  
 If you haven't set up your `TradableAsset` Pravda program yet, 

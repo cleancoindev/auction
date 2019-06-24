@@ -1,4 +1,4 @@
-# 3. Working with Auction
+# Working with Auction
 
 Expload Auction is a universal market platform for all games on Expload platform. Expload Auction (together with TradableAsset) provides a united interface for in-game integration and interaction.
 
