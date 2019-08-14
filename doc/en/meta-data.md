@@ -1,16 +1,13 @@
-# Meta data
+# Metadata
 
 **IMPORTANT!**  
-If you haven't set up your `TradableAsset` Pravda program yet, 
-read [Tradable Asset Standard](tradable-asset-standard.md) first.  
+If you haven't yet set up your `TradableAsset` Pravda program, please read [The Tradable Asset Standard](tradable-asset-standard.md) first.  
   
-The integration with Expload Auction also requires a meta-server, 
-providing Expload Auction with all necessary asset data - names, 
-descriptions, preview pictures, etc.
+The integration with Expload Auction also requires a meta server that provides Expload Auction with all the necessary asset data — names, descriptions, preview pictures, etc.
 
-## Meta data structure
+## Metadata Structure
 
-Meta data has the following format:
+Metadata has the following format:
 
 ```json
 {
@@ -22,21 +19,21 @@ Meta data has the following format:
 }
 ```
 
-`name` - asset name. 
+`name` — the asset name. 
 _For example, "Toy Sword"_.  
-`description` - short asset description. 
-_For example, "Give it back to me, I'll cal my mom!"_.  
-`pictureUrl` - link to asset's picture. `.png`, transparent background, 
+`description` — a short asset description. 
+_For example, "Give it back to me, I'll call my mom!"_.  
+`pictureUrl` — a link to the asset picture. `.png`, transparent background, 
 square orientation is preferred. Maximal size - 512px x 512 px.  
-`previewPictureUrl` - link to a smaller (preview) asset picture. 
-Requirements are the same as for `pictureUrl`.  
-`tags` - dictionary with other asset data. 
+`previewPictureUrl` — a link to a smaller (preview) asset picture. 
+The requirements are the same as for `pictureUrl`.  
+`tags` — a dictionary with other asset data. 
 _For example:_  
 
 ```json
 {
     "name": "Toy Sword",
-    "description": "Give it back to me, I'll cal my mom!",
+    "description": "Give it back to me, I'll call my mom!",
     "pictureUrl" : "some_url.com/toysword.png",
     "previewPictureUrl" : "some_url.com/toysword_small.png",
     "tags" :  {
@@ -46,31 +43,21 @@ _For example:_
 }
 ```
 
-Data in `tags` can be used for searching and filtering 
-assets on Expload Auction.   
+Data in `tags` can be used for searching and filtering assets on Expload Auction.   
   
-As [previously described](tradable-asset-standard.md), each asset has two identificators having an in-game meaning - `classId` and `instanceId`. Meta-server should provide asset data using any of those two identificators. `classId` meta data will be shown in auction asset tabs, `instanceId` meta data - when choosing specific 
-auction lots and inventory items.
-Another words, `classId` is a more general information then `instanceId`. 
-Data shown in class meta shouldn't be duplicated in instance meta: 
-empty instance data fields will be replaced by class data fields and 
-non-empty instance data fields will override class data fields.
+As [previously described](tradable-asset-standard.md), each asset has two identifiers having an in-game meaning — `classId` and `instanceId`. The meta server should provide asset data using either identifier. `classId` metadata will be shown in the auction asset tabs, while `instanceId` metadata — when choosing specific auction lots and inventory items.
+In other words, `classId` is more general information than `instanceId`. Data shown in class meta shouldn't be duplicated in instance meta: empty instance data fields will be replaced by class data fields and non-empty instance data fields will override class data fields.
 
-## Meta-server
+## Meta Server
 
-The game should have a meta-server which has a public API for class- and instance-meta. 
+The game should have a meta server which has a public API for class- and instance-meta. 
 There is an [implementation example](https://github.com/krylov-na/TestMetaServer) written in C#.
 
-## Program setup
+## Program Setup
 
-When your meta-server is ready it is necessary to add 
-information about it to your `TradableAsset` Pravda program. 
-Modify methods `GetClassIdMeta` and `GetInstanceIdMeta` so that
-when those methods are given a `classId` or an `instanceId`, they return
-a link to the needed data on your [meta server](#Meta-server).  
+When your meta server is ready, it is necessary to add information about it to your `TradableAsset` Pravda program. Modify the methods `GetClassIdMeta` and `GetInstanceIdMeta` in such a way that once these methods are given a `classId` or an `instanceId`, they return a link to the required data on your [meta server](#Meta-server).  
   
-After modifying the code you have to either [deploy your program](tradable-asset-standard.md), 
-or, if you've done it before, use following commands:
+After modifying the code you have to either [deploy your program](tradable-asset-standard.md) or, in the event that you have done it before, use the following commands:
 
 ```sh
 # ! IMPORTANT ! 
@@ -83,6 +70,6 @@ dotnet publish -c Update
 
 ## Auction
 
-Если вы выполнили все предыдущие шаги, и представитель Expload присвоил вашей игре `GameId`, то вы готовы к работе с аукционом!
+Once you have completed all the steps as described above and your game has been assigned a `GameId` by an Expload team member, you are ready to work with the Auction!
 
-Ваша игра будет отображаться в аукционе в приложении Expload. Вы также можете сделать дополнительный интерфейс аукциона внутри своей игры, используя [исходный код аукциона](https://github.com/expload/auction/blob/master/Auction/source/Auction.cs).
+Your game will be displayed in the Auction within the Expload app. You can create an additional interface for the auction inside your game, using [the Auction source code](https://github.com/expload/auction/blob/master/Auction/source/Auction.cs).
